@@ -21,7 +21,7 @@ def almaoai_harvest():
         outfilename = Variable.get("AIRFLOW_HOME") + '/oairecords.xml'
         if os.path.isfile(outfilename):
             print('Not re-harvesting until ingest_marc succeeds and moves old oairecords.xml.')
-            return None
+            return
         else:
             outfile = open(outfilename,'w')
 
@@ -51,7 +51,8 @@ def almaoai_harvest():
                 #     deletedfile.write('<record>{}</record>'.format(xml.etree.ElementTree.tostring(header, encoding='unicode')))
                 # else:
                 subrecord.insert(0,header)
-                outfile.write(xml.dom.minidom.parseString(xml.etree.ElementTree.tostring(tree,'unicode')).toprettyxml(indent="\t"))
+                #outfile.write(xml.dom.minidom.parseString(xml.etree.ElementTree.tostring(subrecord,'unicode')).toprettyxml(indent="\t"))
+                outfile.write(xml.etree.ElementTree.tostring(subrecord, encoding='unicode'))
             elif header.get('status') == 'deleted':
                 deletedfile.write('<record>{}</record>'.format(xml.etree.ElementTree.tostring(header, encoding='unicode')))
             else:

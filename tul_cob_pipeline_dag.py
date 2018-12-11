@@ -3,12 +3,14 @@ from airflow import utils
 from airflow import DAG
 from datetime import datetime, timedelta
 from airflow.operators.http_operator import SimpleHttpOperator
-from tul_cob_pipeline.task_oaiharvest import oaiharvest
-from tul_cob_pipeline.task_ingestmarc import ingest_marc
-from tul_cob_pipeline.task_processdeletes import process_deletes
+from airflow.operators.python_operator import PythonOperator
+from cob_datapipeline.task_ingestmarc import ingest_marc
+from cob_datapipeline.task_processdeletes import process_deletes
+from cob_datapipeline.almaoai_harvest import almaoai_harvest
+from cob_datapipeline.renamemarcfiles import renamemarcfiles_onsuccess
 
 core_name = 'blacklight-core-dev'
-param_endpoint = '/solr/' + core_name + '/replication'
+param_endpoint_replication = '/solr/' + core_name + '/replication'
 
 
 default_args = {
@@ -25,12 +27,15 @@ default_args = {
 dag = DAG(
     'tul_cob', default_args=default_args, schedule_interval=timedelta(days=1))
 
+
+ingestmarc_task = ingest_marc(dag)
+
 #http://master_host:port/solr/core_name/replication?command=disablereplication
 pause_replication = SimpleHttpOperator(
     task_id='pause_replication',
     method='GET',
     http_conn_id='AIRFLOW_CONN_SOLR_LEADER',
-    endpoint=param_endpoint,
+    endpoint=param_endpoint_replication,
     data={"command": "disablereplication"},
     headers={},
     dag=dag)
@@ -40,17 +45,34 @@ resume_replication = SimpleHttpOperator(
     task_id='resume_replication',
     method='GET',
     http_conn_id='AIRFLOW_CONN_SOLR_LEADER',
-    endpoint=param_endpoint,
+    endpoint=param_endpoint_replication,
     data={"command": "enablereplication"},
     headers={},
     dag=dag)
 
+oaiharvest_task = PythonOperator(
+     task_id='almaoai_harvest',
+     python_callable=almaoai_harvest,
+     dag=dag
+)
 
-oaiharvest_task = oaiharvest(dag)
-ingestmarc_task = ingest_marc(dag)
-dodeletes_task = process_deletes(dag)
+dodeletes_task = PythonOperator(
+    task_id='do_deletes',
+    provide_context=True,
+    python_callable=process_deletes,
+    op_kwargs={'core_name':core_name},
+    dag=dag)
+
+renamemarc_task = PythonOperator(
+    task_id='rename_marc',
+    provide_context=True,
+    python_callable=renamemarcfiles_onsuccess,
+    op_kwargs={},
+    dag=dag)
+
 
 pause_replication.set_upstream(oaiharvest_task)
 ingestmarc_task.set_upstream(pause_replication)
 dodeletes_task.set_upstream(ingestmarc_task)
-resume_replication.set_upstream(dodeletes_task)
+renamemarc_task.set_upstream(dodeletes_task)
+resume_replication.set_upstream(renamemarc_task)

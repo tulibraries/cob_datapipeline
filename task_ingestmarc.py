@@ -11,7 +11,7 @@ def ingest_marc(dag):
     deletedfile = None
     date_current_harvest = datetime.datetime.now()
     date = Variable.get("almaoai_last_harvest_date")
-    outfilename = Variable.get("AIRFLOW_HOME") + '/oairecords.xml'
+    outfilename = Variable.get("AIRFLOW_DATA_DIR") + '/oairecords.xml'
     ingest_command = Variable.get("AIRFLOW_HOME") + "/dags/cob_datapipeline/scripts/ingest_marc.sh"
     if os.path.isfile(ingest_command):
        t1 = BashOperator(

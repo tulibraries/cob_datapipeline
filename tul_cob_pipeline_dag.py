@@ -9,14 +9,14 @@ from cob_datapipeline.task_processdeletes import process_deletes
 from cob_datapipeline.almaoai_harvest import almaoai_harvest
 from cob_datapipeline.renamemarcfiles import renamemarcfiles_onsuccess
 
-core_name = 'blacklight-core-dev'
-param_endpoint_replication = '/solr/' + core_name + '/replication'
+core_name = Variable.get("BLACKLIGHT_CORE_NAME");
 
+param_endpoint_replication = '/solr/' + core_name + '/replication'
 
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2018, 9, 30),
+    'start_date': datetime(2018, 12, 13),
     'email': ['tug76662@temple.edu'],
     'email_on_failure': True,
     'email_on_retry': True,

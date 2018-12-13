@@ -9,6 +9,7 @@ import os.path
 
 def almaoai_harvest():
     try:
+        data_dir = Variable.get("AIRFLOW_DATA_DIR")
         outfile = None
         deletedfile = None
         date_current_harvest = datetime.datetime.now()
@@ -18,14 +19,14 @@ def almaoai_harvest():
             Variable.set("almaoai_last_harvest_date", date_current_harvest.strftime('%Y-%m-%d'))
             date = date_current_harvest
 
-        outfilename = Variable.get("AIRFLOW_HOME") + '/oairecords.xml'
+        outfilename = data_dir + '/oairecords.xml'
         if os.path.isfile(outfilename):
             print('Not re-harvesting until ingest_marc succeeds and moves old oairecords.xml.')
             return
         else:
             outfile = open(outfilename,'w')
 
-        deletedfilename = Variable.get("AIRFLOW_HOME") + '/oairecords_deleted.xml'
+        deletedfilename = data_dir + '/oairecords_deleted.xml'
         deletedfile = open(deletedfilename,'w')
 
         endpoint_url = 'https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request'

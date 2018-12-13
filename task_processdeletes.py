@@ -13,7 +13,8 @@ from airflow.utils.decorators import apply_defaults
 #http://127.0.0.1:8983/solr/blacklight-core-dev/update?stream.body=%3Cdelete%3E%3Cquery%3Erecord_update_date:[0%20TO%20%222018-09-18%2014:35:16%22]%20AND%20id:991036281919703811%3C/query%3E%3C/delete%3E&commit=true
 
 def process_deletes(ds, **kwargs):
-    with open('oairecords_deleted.xml') as fd:
+    deletes_fname = Variable.get("AIRFLOW_DATA_DIR") + 'oairecords_deleted.xml'
+    with open(deletes_fname) as fd:
         doc = xmltodict.parse(fd.read())
         for record in doc['collection']['record']:
             # oai:alma.01TULI_INST:991000011889703811

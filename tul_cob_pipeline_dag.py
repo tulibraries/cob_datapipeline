@@ -1,6 +1,7 @@
 import airflow
 from airflow import utils
 from airflow import DAG
+from airflow.models import Variable
 from datetime import datetime, timedelta
 from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.operators.python_operator import PythonOperator

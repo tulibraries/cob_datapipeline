@@ -16,7 +16,7 @@ def almaoai_harvest():
         try:
             date = Variable.get("almaoai_last_harvest_date")
         except KeyError:
-            Variable.set("almaoai_last_harvest_date", date_current_harvest.strftime('%Y-%m-%d-%H'))
+            Variable.set("almaoai_last_harvest_date", date_current_harvest.strftime('%Y-%m-%d'))
             date = date_current_harvest
 
         outfilename = data_dir + '/oairecords.xml'
@@ -63,7 +63,7 @@ def almaoai_harvest():
         outfile.close()
         deletedfile.write(newrootclosingtag)
         deletedfile.close()
-        Variable.set("almaoai_last_harvest_date", date_current_harvest.strftime('%Y-%m-%d-%H'))
+        Variable.set("almaoai_last_harvest_date", date_current_harvest.strftime('%Y-%m-%d'))
     except:
         if outfile is not None and outfile.closed is not True:
             outfile.close()

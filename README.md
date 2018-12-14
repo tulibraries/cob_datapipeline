@@ -20,6 +20,8 @@ AIRFLOW_CONN_SOLR_LEADER
 ## Install systemd config files
 https://github.com/apache/incubator-airflow/tree/master/scripts/systemd
 
+## Data dir
+``/app-data/airflow/``
 
 # Execution
 $ systemctl enable airflow-scheduler

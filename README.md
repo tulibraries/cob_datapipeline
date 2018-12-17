@@ -20,6 +20,9 @@ AIRFLOW_CONN_SOLR_LEADER
 ## Install systemd config files
 https://github.com/apache/incubator-airflow/tree/master/scripts/systemd
 
+## Install logrotate file
+cp airflow_logrotated to /etc/logrotate.d/airflow
+
 ## Data dir
 ``/app-data/airflow/``
 

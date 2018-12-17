@@ -26,7 +26,7 @@ default_args = {
 }
 
 dag = DAG(
-    'tul_cob', default_args=default_args, schedule_interval=timedelta(hours=1))
+    'tul_cob', default_args=default_args, schedule_interval=timedelta(hours=6))
 
 
 ingestmarc_task = ingest_marc(dag)

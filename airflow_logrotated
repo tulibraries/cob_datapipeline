@@ -1,0 +1,9 @@
+/app-data/airflow/oairecords-*.xml
+/app-data/airflow/oairecords_deleted-*.xml
+{
+ missingok
+ sharedscripts
+ daily
+ rotate 28
+ compress
+}

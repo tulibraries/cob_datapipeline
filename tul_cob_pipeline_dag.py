@@ -22,11 +22,11 @@ default_args = {
     'email_on_failure': True,
     'email_on_retry': True,
     'retries': 0,
-    'retry_delay': timedelta(hours=1),
+    'retry_delay': timedelta(minutes=10),
 }
 
 dag = DAG(
-    'tul_cob', default_args=default_args, schedule_interval=timedelta(days=1))
+    'tul_cob', default_args=default_args, schedule_interval=timedelta(hours=1))
 
 
 ingestmarc_task = ingest_marc(dag)

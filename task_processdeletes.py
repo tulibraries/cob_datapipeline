@@ -20,25 +20,37 @@ def process_deletes(ds, **kwargs):
         if 'record' in doc['collection']:
             for record in doc['collection']['record']:
                 # oai:alma.01TULI_INST:991000011889703811
-                id = record['ns0:header']['ns0:identifier'].split(':')[2]
-                #2018-09-21T20:21:12Z
-                date = record['ns0:header']['ns0:datestamp']
+                if 'ns0:header' in record:
+                    header = record['ns0:header']
+                    if 'ns0:identifier' in header:
+                        if len(header['ns0:identifier'].split(':') > 2:
+                            id = header['ns0:identifier'].split(':')[2]
+                            #2018-09-21T20:21:12Z
+                            if 'ns0:datestamp' in header:
+                                date = header['ns0:datestamp']
 
-                param_endpoint_update_delete = '/solr/' + kwargs.get('core_name') + '/update' + '?stream.body=<delete><query>record_update_date:[0 TO {}] AND id:{}</query></delete>&commit=true'.format(date,id)
-                print(id)
+                                param_endpoint_update_delete = '/solr/' + kwargs.get('core_name') + '/update' + '?stream.body=<delete><query>record_update_date:[0 TO {}] AND id:{}</query></delete>&commit=true'.format(date,id)
+                                print(id)
 
-                task_id='delete_{}'.format(id)
-                method='GET'
-                http_conn_id='AIRFLOW_CONN_SOLR_LEADER'
-                data={"command": 'delete_{}'.format(id)}
-                http = HttpHook(method, http_conn_id)
-                response = http.run(param_endpoint_update_delete, data, {}, {})
-                # if self.response_check:
-                #     if not self.response_check(response):
-                #         raise AirflowException("Response check returned False.")
-                # if self.xcom_push_flag:
-                print(response.text)
-
+                                task_id='delete_{}'.format(id)
+                                method='GET'
+                                http_conn_id='AIRFLOW_CONN_SOLR_LEADER'
+                                data={"command": 'delete_{}'.format(id)}
+                                http = HttpHook(method, http_conn_id)
+                                response = http.run(param_endpoint_update_delete, data, {}, {})
+                                # if self.response_check:
+                                #     if not self.response_check(response):
+                                #         raise AirflowException("Response check returned False.")
+                                # if self.xcom_push_flag:
+                                print(response.text)
+                            else:
+                                print('Bad datestamp {}'.format(header))
+                        else:
+                            print('Bad identifier {}'.format(header['ns0:identifier']))
+                else:
+                    print('No header found {}'.format(record))
+        else:
+            print('No record found {}'.format(doc['collection']))
     #commit  Commits may be issued explicitly with a <commit/> message,
 
     #rollback

@@ -48,6 +48,7 @@ resume_replication = SimpleHttpOperator(
     http_conn_id='AIRFLOW_CONN_SOLR_LEADER',
     endpoint=param_endpoint_replication,
     data={"command": "enablereplication"},
+    trigger_rule="all_done",
     headers={},
     dag=dag)
 

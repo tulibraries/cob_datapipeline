@@ -3,6 +3,7 @@ from airflow.models import Variable
 from airflow import AirflowException
 import os
 import xmltodict
+import xml
 
 from airflow.exceptions import AirflowException
 from airflow.hooks.http_hook import HttpHook
@@ -15,12 +16,19 @@ from airflow.utils.decorators import apply_defaults
 def process_deletes(ds, **kwargs):
     deletes_fname = Variable.get("AIRFLOW_DATA_DIR") + 'oairecords_deleted.xml'
     with open(deletes_fname) as fd:
-        doc = xmltodict.parse(fd.read())
+        doc = None
+        try:
+            doc = xmltodict.parse(fd.read())
+        except xml.parsers.expat.ExpatError:
+            print('No delete records retrieved, bailing.')
+
         #handle the case when there is no record because we got no deletes
-        if 'record' in doc['collection']:
-            for record in doc['collection']['record']:
+        if doc is not None and 'record' in doc['collection']:
+            for record in doc['collection']:
                 # oai:alma.01TULI_INST:991000011889703811
                 if 'ns0:header' in record:
+                    #print(record)
+                    #print(type(record))
                     header = record['ns0:header']
                     if 'ns0:identifier' in header:
                         if len(header['ns0:identifier'].split(':')) > 2:
@@ -50,7 +58,7 @@ def process_deletes(ds, **kwargs):
                 else:
                     print('No header found {}'.format(record))
         else:
-            print('No record found {}'.format(doc['collection']))
+            print('No record found {}'.format(doc))
     #commit  Commits may be issued explicitly with a <commit/> message,
 
     #rollback

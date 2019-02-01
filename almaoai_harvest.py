@@ -13,6 +13,8 @@ def almaoai_harvest():
         outfile = None
         deletedfile = None
         date_current_harvest = datetime.datetime.now()
+        num_deleted_recs = 0
+        num_updated_recs = 0
         try:
             date = Variable.get("almaoai_last_harvest_date")
         except KeyError:
@@ -54,8 +56,10 @@ def almaoai_harvest():
                 subrecord.insert(0,header)
                 #outfile.write(xml.dom.minidom.parseString(xml.etree.ElementTree.tostring(subrecord,'unicode')).toprettyxml(indent="\t"))
                 outfile.write(xml.etree.ElementTree.tostring(subrecord, encoding='unicode'))
+                num_updated_recs+=1
             elif header.get('status') == 'deleted':
                 deletedfile.write('<record>{}</record>'.format(xml.etree.ElementTree.tostring(header, encoding='unicode')))
+                num_deleted_recs+=1
             else:
                 print('subrecord issue?')
                 print(r.raw)
@@ -63,6 +67,8 @@ def almaoai_harvest():
         outfile.close()
         deletedfile.write(newrootclosingtag)
         deletedfile.close()
+        Variable.set("almaoai_last_num_oai_update_recs", num_updated_recs)
+        Variable.set("almaoai_last_num_oai_delete_recs", num_deleted_recs)
         Variable.set("almaoai_last_harvest_date", date_current_harvest.strftime('%Y-%m-%d'))
     except:
         if outfile is not None and outfile.closed is not True:

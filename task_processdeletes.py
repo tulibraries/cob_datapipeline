@@ -14,6 +14,7 @@ from airflow.utils.decorators import apply_defaults
 #http://127.0.0.1:8983/solr/blacklight-core-dev/update?stream.body=%3Cdelete%3E%3Cquery%3Erecord_update_date:[0%20TO%20%222018-09-18%2014:35:16%22]%20AND%20id:991036281919703811%3C/query%3E%3C/delete%3E&commit=true
 
 def process_deletes(ds, **kwargs):
+    num_deleted = -1
     deletes_fname = Variable.get("AIRFLOW_DATA_DIR") + 'oairecords_deleted.xml'
     with open(deletes_fname) as fd:
         doc = None
@@ -24,7 +25,7 @@ def process_deletes(ds, **kwargs):
 
         #handle the case when there is no record because we got no deletes
         if doc is not None and 'record' in doc['collection']:
-            for record in doc['collection']:
+            for record in doc['collection']['record']:
                 # oai:alma.01TULI_INST:991000011889703811
                 if 'ns0:header' in record:
                     #print(record)
@@ -51,6 +52,7 @@ def process_deletes(ds, **kwargs):
                                 #         raise AirflowException("Response check returned False.")
                                 # if self.xcom_push_flag:
                                 print(response.text)
+                                num_deleted += 1
                             else:
                                 print('Bad datestamp {}'.format(header))
                         else:
@@ -62,3 +64,4 @@ def process_deletes(ds, **kwargs):
     #commit  Commits may be issued explicitly with a <commit/> message,
 
     #rollback
+    return num_deleted

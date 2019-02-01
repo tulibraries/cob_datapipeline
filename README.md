@@ -4,11 +4,14 @@
 ## Requirements
 ### Python
 xmltodict
+
 sickle
 
 ### Ruby
 ruby 2.4.1
+
 rvm and gemset ``rvm use 2.4.1@tul_cob --create``
+
 tul_cob
 
 ## Importing airflow private vars
@@ -26,8 +29,14 @@ cp airflow_logrotated to /etc/logrotate.d/airflow
 ## Data dir
 ``/app-data/airflow/``
 
+## Log dir
+``/app-data/airflow/logs/``
+
 # Execution
 $ systemctl enable airflow-scheduler
+
 $ systemctl enable airflow-webserver
+
 $ systemctl start airflow-scheduler
+
 $ systemctl start airflow-webserver

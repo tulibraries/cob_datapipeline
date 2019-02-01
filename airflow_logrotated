@@ -7,3 +7,13 @@
  rotate 28
  compress
 }
+
+/app-data/airflow/logs/scheduler/*/*/*.log
+/app-data/airflow/logs/tul_cob/*/*/*.log
+{
+ missingok
+ sharedscripts
+ daily
+ rotate 7
+ compress
+}

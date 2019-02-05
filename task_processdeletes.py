@@ -4,6 +4,7 @@ from airflow import AirflowException
 import os
 import xmltodict
 import xml
+from collections import defaultdict
 
 from airflow.exceptions import AirflowException
 from airflow.hooks.http_hook import HttpHook
@@ -19,7 +20,10 @@ def process_deletes(ds, **kwargs):
     with open(deletes_fname) as fd:
         doc = None
         try:
-            doc = xmltodict.parse(fd.read())
+            #xmltodict returns a list if there are multiple items but not if there is only 1
+            #how is anything supposed to work in these conditions?
+            #adding a custom lambda to force it to behave consistently
+            doc = xmltodict.parse(fd.read(), dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
         except xml.parsers.expat.ExpatError:
             print('No delete records retrieved, bailing.')
 

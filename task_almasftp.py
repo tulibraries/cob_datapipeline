@@ -2,7 +2,7 @@ from airflow import DAG
 from airflow import AirflowException
 from airflow.operators.python_operator import PythonOperator
 
-def almasftp(dag):
+def task_almasftp(dag):
     create_command = "./almasftp.py"
     if os.path.exists(create_command):
        t1 = PythonOperator(

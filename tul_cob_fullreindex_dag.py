@@ -5,10 +5,7 @@ from airflow.models import Variable
 from datetime import datetime, timedelta
 from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.operators.python_operator import PythonOperator
-from cob_datapipeline.task_ingestmarc import ingest_marc
-from cob_datapipeline.task_processdeletes import process_deletes
-from cob_datapipeline.almaoai_harvest import almaoai_harvest
-from cob_datapipeline.renamemarcfiles import renamemarcfiles_onsuccess
+from cob_datapipeline.task_almasftp import task_almasftp
 
 core_name = Variable.get("BLACKLIGHT_CORE_NAME");
 
@@ -26,10 +23,10 @@ default_args = {
 }
 
 dag = DAG(
-    'tul_cob', default_args=default_args, schedule_interval=timedelta(hours=6))
+    'tul_cob_reindex', default_args=default_args, schedule_interval=None)
 
 
-ingestmarc_task = ingest_marc(dag)
+task_almasftp = task_almasftp(dag)
 
 #http://master_host:port/solr/core_name/replication?command=disablereplication
 pause_replication = SimpleHttpOperator(
@@ -52,29 +49,7 @@ resume_replication = SimpleHttpOperator(
     headers={},
     dag=dag)
 
-oaiharvest_task = PythonOperator(
-    task_id='almaoai_harvest',
-    python_callable=almaoai_harvest,
-    dag=dag
-)
-
-dodeletes_task = PythonOperator(
-    task_id='do_deletes',
-    provide_context=True,
-    python_callable=process_deletes,
-    op_kwargs={'core_name':core_name},
-    dag=dag)
-
-renamemarc_task = PythonOperator(
-    task_id='rename_marc',
-    provide_context=True,
-    python_callable=renamemarcfiles_onsuccess,
-    op_kwargs={},
-    dag=dag)
-
 
 pause_replication.set_upstream(oaiharvest_task)
-ingestmarc_task.set_upstream(pause_replication)
-dodeletes_task.set_upstream(ingestmarc_task)
-renamemarc_task.set_upstream(dodeletes_task)
-resume_replication.set_upstream(renamemarc_task)
+almasftp_task.set_upstream(pause_replication)
+resume_replication.set_upstream(almasftp_task)

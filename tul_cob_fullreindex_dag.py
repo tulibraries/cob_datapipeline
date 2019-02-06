@@ -10,6 +10,7 @@ from cob_datapipeline.task_almasftp import task_almasftp
 core_name = Variable.get("BLACKLIGHT_CORE_NAME");
 
 param_endpoint_replication = '/solr/' + core_name + '/replication'
+param_endpoint_update = '/solr/' + core_name + 'update'
 
 default_args = {
     'owner': 'airflow',
@@ -26,7 +27,7 @@ dag = DAG(
     'tul_cob_reindex', default_args=default_args, schedule_interval=None)
 
 
-task_almasftp = task_almasftp(dag)
+almasftp_task = task_almasftp(dag)
 
 #http://master_host:port/solr/core_name/replication?command=disablereplication
 pause_replication = SimpleHttpOperator(
@@ -50,6 +51,26 @@ resume_replication = SimpleHttpOperator(
     dag=dag)
 
 
-pause_replication.set_upstream(oaiharvest_task)
-almasftp_task.set_upstream(pause_replication)
+clear_index = SimpleHttpOperator(
+    task_id='clear_index',
+    method='GET',
+    http_conn_id='AIRFLOW_CONN_SOLR_LEADER',
+    endpoint=param_endpoint_update,
+    data={"stream.body": "<delete><query>*:*</query></delete>"},
+    headers={},
+    dag=dag)
+
+solr_commit = SimpleHttpOperator(
+    task_id='solr_commit',
+    method='GET',
+    http_conn_id='AIRFLOW_CONN_SOLR_LEADER',
+    endpoint=param_endpoint_update,
+    data={"stream.body": "<commit/>"},
+    headers={},
+    dag=dag)
+
+
+clear_index.set_upstream(pause_replication)
+solr_commit.set_upstream(clear_index)
+almasftp_task.set_upstream(solr_commit)
 resume_replication.set_upstream(almasftp_task)

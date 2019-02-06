@@ -16,28 +16,28 @@ def almasftp_fetch():
     p = spawn('sftp -P %s %s@%s' %(port,user,host))
     p.logfile = sys.stdout
     try:
-    	p.expect('(?i)password:')
-    	x = p.sendline(passwd)
-    	x = p.expect(['Permission denied','sftp>'])
-    	if !x:
-    		print 'Permission denied for password:'
-    		print password
-    		p.kill(0)
-    	else:
-    		x = p.sendline('cd ' + remotepath)
-    		x = p.expect('sftp>')
-    		x = p.sendline('mget ' + file_prefix + '*' + file_extension)
-    		x = p.expect('sftp>')
-    		x = p.isalive()
-    		x = p.close()
-    		retval = p.exitstatus
+        p.expect('(?i)password:')
+        x = p.sendline(passwd)
+        x = p.expect(['Permission denied','sftp>'])
+        if not x:
+            print( 'Permission denied for password:' )
+            print( password )
+            p.kill(0)
+        else:
+            x = p.sendline('cd ' + remotepath)
+            x = p.expect('sftp>')
+            x = p.sendline('mget ' + file_prefix + '*' + file_extension)
+            x = p.expect('sftp>')
+            x = p.isalive()
+            x = p.close()
+            retval = p.exitstatus
     except EOF:
-    	print str(p)
-        print 'Transfer failed: EOF.'
+        print( str(p) )
+        print( 'Transfer failed: EOF.' )
         raise AirflowException('Transfer failed: EOF.')
     except TIMEOUT:
-    	print str(p)
-    	print 'Transfer failed: TIMEOUT.'
+        print( str(p) )
+        print( 'Transfer failed: TIMEOUT.' )
         raise AirflowException('Transfer failed: TIMEOUT.')
     except:
         raise AirflowException('Transfer failed.')

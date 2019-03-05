@@ -7,6 +7,8 @@ xmltodict
 
 sickle
 
+pexpect
+
 ### Ruby
 ruby 2.4.1
 

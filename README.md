@@ -21,14 +21,11 @@ These the Airflow expectations for these TUL COB DAGs and scripts to successfull
 - Python. These steps are tested with the following Python versions:
   - 3.6.8 (with pip version 18.1)
   - 3.7.2 presents errors with an `enum34` vs `enum` error.
-- Python Libraries (see the Pipfile):
-  - xmltodict
-  - sickle
-  - pexpect
-- Ruby (for running Traject via TUL_COB Rails Application) These steps are tested and required the following Ruby versions:
+- Python Libraries: see the [Pipfile](Pipfile).
+- Ruby (for running Traject via TUL_COB Rails Application) These steps are tested with the following Ruby versions:
   - 2.4.1
 - Ruby Libraries & Applications:
-  - tul_cob
+  - [tul_cob](https://github.com/tulibraries/tul_cob)
   - rvm and tul_cob gemset installed:
     ```
     rvm use 2.4.1@tul_cob --create

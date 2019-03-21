@@ -13,7 +13,6 @@ pexpect = "*"
 pytest = "*"
 apache-airflow = "*"
 pylint = "*"
-pylint-badge = "*"
 
 [requires]
 python_version = "3.6"

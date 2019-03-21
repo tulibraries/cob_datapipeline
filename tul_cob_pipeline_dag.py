@@ -1,8 +1,8 @@
-import airflow
-from airflow import utils
+"""TUL_PARTIAL_INDEX: TU Libraries Airflow DAG for Partial Alma to Solr Indexing."""
+
+from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.models import Variable
-from datetime import datetime, timedelta
 from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.task_ingestmarc import ingest_marc
@@ -10,11 +10,11 @@ from cob_datapipeline.task_processdeletes import process_deletes
 from cob_datapipeline.almaoai_harvest import almaoai_harvest
 from cob_datapipeline.renamemarcfiles import renamemarcfiles_onsuccess
 
-core_name = Variable.get("BLACKLIGHT_CORE_NAME");
+CORE_NAME = Variable.get("BLACKLIGHT_CORE_NAME")
 
-param_endpoint_replication = '/solr/' + core_name + '/replication'
+PARAM_ENDPOINT_REPLICATION = '/solr/' + CORE_NAME + '/replication'
 
-default_args = {
+DEFAULT_ARGS = {
     'owner': 'airflow',
     'depends_on_past': False,
     'start_date': datetime(2018, 12, 13),
@@ -25,56 +25,55 @@ default_args = {
     'retry_delay': timedelta(minutes=10),
 }
 
-dag = DAG(
-    'tul_cob', default_args=default_args, schedule_interval=timedelta(hours=6))
+OAI_INDEX_DAG = DAG('tul_cob', default_args=DEFAULT_ARGS, schedule_interval=timedelta(hours=6))
 
 
-ingestmarc_task = ingest_marc(dag)
+INGESTMARC_TASK = ingest_marc(OAI_INDEX_DAG)
 
-#http://master_host:port/solr/core_name/replication?command=disablereplication
-pause_replication = SimpleHttpOperator(
+#http://master_host:port/solr/CORE_NAME/replication?command=disablereplication
+PAUSE_REPLICATION = SimpleHttpOperator(
     task_id='pause_replication',
     method='GET',
     http_conn_id='AIRFLOW_CONN_SOLR_LEADER',
-    endpoint=param_endpoint_replication,
+    endpoint=PARAM_ENDPOINT_REPLICATION,
     data={"command": "disablereplication"},
     headers={},
-    dag=dag)
+    dag=OAI_INDEX_DAG)
 
-#http://master_host:port/solr/core_name/replication?command=enablereplication
-resume_replication = SimpleHttpOperator(
+#http://master_host:port/solr/CORE_NAME/replication?command=enablereplication
+RESUME_REPLICATION = SimpleHttpOperator(
     task_id='resume_replication',
     method='GET',
     http_conn_id='AIRFLOW_CONN_SOLR_LEADER',
-    endpoint=param_endpoint_replication,
+    endpoint=PARAM_ENDPOINT_REPLICATION,
     data={"command": "enablereplication"},
     trigger_rule="all_done",
     headers={},
-    dag=dag)
+    dag=OAI_INDEX_DAG)
 
-oaiharvest_task = PythonOperator(
+OAIHARVEST_TASK = PythonOperator(
     task_id='almaoai_harvest',
     python_callable=almaoai_harvest,
-    dag=dag
+    dag=OAI_INDEX_DAG
 )
 
-dodeletes_task = PythonOperator(
+DODELETES_TASK = PythonOperator(
     task_id='do_deletes',
     provide_context=True,
     python_callable=process_deletes,
-    op_kwargs={'core_name':core_name},
-    dag=dag)
+    op_kwargs={'CORE_NAME':CORE_NAME},
+    dag=OAI_INDEX_DAG)
 
-renamemarc_task = PythonOperator(
+RENAMEMARC_TASK = PythonOperator(
     task_id='rename_marc',
     provide_context=True,
     python_callable=renamemarcfiles_onsuccess,
     op_kwargs={},
-    dag=dag)
+    dag=OAI_INDEX_DAG)
 
 
-pause_replication.set_upstream(oaiharvest_task)
-ingestmarc_task.set_upstream(pause_replication)
-dodeletes_task.set_upstream(ingestmarc_task)
-renamemarc_task.set_upstream(dodeletes_task)
-resume_replication.set_upstream(renamemarc_task)
+PAUSE_REPLICATION.set_upstream(OAIHARVEST_TASK)
+INGESTMARC_TASK.set_upstream(PAUSE_REPLICATION)
+DODELETES_TASK.set_upstream(INGESTMARC_TASK)
+RENAMEMARC_TASK.set_upstream(DODELETES_TASK)
+RESUME_REPLICATION.set_upstream(RENAMEMARC_TASK)

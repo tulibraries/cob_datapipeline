@@ -7,9 +7,9 @@ install:
   - pip install pipenv
   - pipenv install --dev
 
-# lint & code review
+# lint & code review (errors only for now)
 script:
-  - pipenv run pylint cob_datapipeline
+  - pipenv run pylint cob_datapipeline -E
 
 # run tests & generate coverage
 script:

@@ -1,15 +1,15 @@
 language: python
 python:
-  - "3.6"
+  - "3.7"
 
 # install dependencies
 install:
   - pip install pipenv
-  - pipenv install --dev
+  - SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
 
-# lint & code review (errors only for now)
+# lint & code review
 script:
-  - pipenv run pylint cob_datapipeline -E
+  - pipenv run pylint cob_datapipeline
 
 # run tests & generate coverage
 script:

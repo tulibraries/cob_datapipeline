@@ -9,8 +9,8 @@ install:
 
 # lint & code review
 script:
-  - pipenv run pylint cob_datapipeline
+  - pipenv run pylint cob_datapipeline -E
 
 # run tests & generate coverage
-script:
-  - pipenv run pytest
+# script:
+#   - pipenv run pytest

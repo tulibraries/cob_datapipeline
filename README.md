@@ -177,7 +177,7 @@ There are quite a few ways you can get the cob_datapipeline DAGs into that direc
 To load the required variables into your local airflow, you can perform the following process:
 
 ```
-(cob_datapipeline) $ airflow variables -i airflow-variables.json
+(cob_datapipeline) $ airflow variables -i config/airflow-variables.json
   [2019-03-21 16:46:26,868] {__init__.py:51} INFO - Using executor SequentialExecutor
   [2019-03-21 16:46:27,030] {models.py:160} WARNING - cryptography not found - values will not be stored encrypted.
   13 of 13 variables successfully updated.

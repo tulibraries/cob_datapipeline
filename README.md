@@ -183,7 +183,8 @@ To load the required variables into your local airflow, you can perform the foll
   13 of 13 variables successfully updated.
 ```
 
-You should update that `airflow-variables.json` file to have the variables you need for your local development environment. Note: Airflow does then later update these variables during processes.
+You should update that `airflow-variables.json` file to have the variables you need for your local development environment, particularly the `AIRFLOW_DATA_DIR` `AIRFLOW_HOME` variables, replacing `~/airflow` with the absolute path to your airflow installation.
+Note: Airflow does then later update these variables during processes.
 
 **Set DAG Required Airflow Connections for Local Airflow**
 

@@ -6,8 +6,9 @@ import os
 from cob_datapipeline.almasftp_fetch import almasftp_fetch
 
 def task_almasftp(dag):
+    Variable.set("almafullreindex_inprogress", True)
     t1 = PythonOperator(
-        task_id= 'almasftp',
+        task_id='almasftp',
         python_callable=almasftp_fetch,
         dag=dag
     )

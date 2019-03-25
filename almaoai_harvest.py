@@ -7,19 +7,28 @@ import xml.etree.ElementTree
 import xml.dom.minidom
 import os.path
 
-def almaoai_harvest():
+def almaoai_harvest(ds, **kwargs):
     try:
-        data_dir = Variable.get("AIRFLOW_DATA_DIR")
         outfile = None
         deletedfile = None
-        date_current_harvest = datetime.datetime.now()
+        r = None
+        # At some point support for HHMMSS granularity was added to the alma endpoint
+        # This can be verified at https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request?verb=Identify
+        UTC_DATESTAMP_FSTR = '%Y-%m-%dT%H:%M:%SZ'
+        data_dir = Variable.get("AIRFLOW_DATA_DIR")
+        endpoint_url = Variable.get("ALMA_OAI_ENDPOINT") #'https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request'
+        date_current_harvest = datetime.datetime.now().strftime(UTC_DATESTAMP_FSTR)
         num_deleted_recs = 0
         num_updated_recs = 0
+        # note: OAI date ranges are inclusive on both ends
+
         try:
             date = Variable.get("almaoai_last_harvest_date")
         except KeyError:
-            Variable.set("almaoai_last_harvest_date", date_current_harvest.strftime('%Y-%m-%d'))
+            Variable.set("almaoai_last_harvest_date", date_current_harvest)
             date = date_current_harvest
+
+        print( "Harvesting starting from {}".format(date) )
 
         outfilename = data_dir + '/oairecords.xml'
         if os.path.isfile(outfilename):
@@ -31,7 +40,6 @@ def almaoai_harvest():
         deletedfilename = data_dir + '/oairecords_deleted.xml'
         deletedfile = open(deletedfilename,'w')
 
-        endpoint_url = 'https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request'
         sickle = Sickle(endpoint_url)
         records = sickle.ListRecords(**{'metadataPrefix':'marc21','set':'blacklight','from':'{}'.format(date)})
         # xml.etree.ElementTree.register_namespace('xmlns','http://www.loc.gov/MARC21/slim')
@@ -67,13 +75,18 @@ def almaoai_harvest():
         outfile.close()
         deletedfile.write(newrootclosingtag)
         deletedfile.close()
+        print("num_updated_recs {}".format(num_updated_recs))
         Variable.set("almaoai_last_num_oai_update_recs", num_updated_recs)
+        print("num_deleted_recs {}".format(num_deleted_recs))
         Variable.set("almaoai_last_num_oai_delete_recs", num_deleted_recs)
-        Variable.set("almaoai_last_harvest_date", date_current_harvest.strftime('%Y-%m-%d'))
-    except:
+        Variable.set("almaoai_last_harvest_date", date_current_harvest)
+    except Exception as e:
         if outfile is not None and outfile.closed is not True:
             outfile.close()
         if deletedfile is not None and deletedfile.closed is not True:
             deletedfile.close()
-        print(r.raw)
+        if r is not None:
+            print(r.raw)
+        print(e.message)
+
         raise AirflowException('Harvest failed.')

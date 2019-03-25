@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash --login
 # Load RVM into a shell session *as a function*
 if [[ -s "$HOME/.rvm/scripts/rvm" ]] ; then
   printf "First try to load from a user install"
@@ -11,5 +11,7 @@ else
 fi
 cd $HOME/tul_cob
 rvm use 2.4.1@tul_cob
+gem install bundler
 bundle install
 bundle exec traject -c lib/traject/indexer_config.rb ${1}
+return 0

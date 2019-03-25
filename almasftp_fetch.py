@@ -1,20 +1,31 @@
 from airflow import AirflowException
+from airflow.models import Variable
 from pexpect import *
 import sys
 import os
 
-def almasftp_fetch():
-    host = '23.92.21.64'
-    port = os.environ['ALMASFTP_PORT']
-    user = 'almasftp'
-    passwd = os.environ['ALMASFTP_PASSWD']
-    remotepath = '/incoming'
+# class DisableLogger():
+#     def __enter__(self):
+#         logging.disable(logging.CRITICAL)
+#
+#     def __exit__(self, a, b, c):
+#         logging.disable(logging.NOTSET)
+# with DisableLogger():
 
-    file_prefix = 'alma_bibs__'
+def almasftp_fetch():
+    host = Variable.get('ALMASFTP_HOST')
+    port = Variable.get('ALMASFTP_PORT')
+    user = Variable.get('ALMASFTP_USER')
+    passwd = Variable.get('ALMASFTP_PASSWD')
+    remotepath = '/incoming'
+    localpath = Variable.get("AIRFLOW_DATA_DIR") + "/sftpdump"
+
+    file_prefix = 'alma_bibs__2019022602_10503611220003811_new_10'
     file_extension = '.xml.tar.gz'
 
     p = spawn('sftp -P %s %s@%s' %(port,user,host))
-    p.logfile = sys.stdout
+    # p.logfile = sys.stdout
+
     try:
         p.expect('(?i)password:')
         x = p.sendline(passwd)
@@ -25,6 +36,8 @@ def almasftp_fetch():
             p.kill(0)
         else:
             x = p.sendline('cd ' + remotepath)
+            x = p.expect('sftp>')
+            x = p.sendline('lcd ' + localpath)
             x = p.expect('sftp>')
             x = p.sendline('mget ' + file_prefix + '*' + file_extension)
             x = p.expect('sftp>')
@@ -39,5 +52,5 @@ def almasftp_fetch():
         print( str(p) )
         print( 'Transfer failed: TIMEOUT.' )
         raise AirflowException('Transfer failed: TIMEOUT.')
-    except:
-        raise AirflowException('Transfer failed.')
+    except Exception as e:
+        raise AirflowException('Transfer failed: {}.'.format(e.message))

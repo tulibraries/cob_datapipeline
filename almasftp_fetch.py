@@ -12,6 +12,7 @@ import os
 #         logging.disable(logging.NOTSET)
 # with DisableLogger():
 
+
 def almasftp_fetch():
     host = Variable.get('ALMASFTP_HOST')
     port = Variable.get('ALMASFTP_PORT')
@@ -20,19 +21,19 @@ def almasftp_fetch():
     remotepath = '/incoming'
     localpath = Variable.get("AIRFLOW_DATA_DIR") + "/sftpdump"
 
-    file_prefix = 'alma_bibs__2019022602_10503611220003811_new_10'
+    file_prefix = 'alma_bibs__2019022602_10503611220003811_new_'
     file_extension = '.xml.tar.gz'
 
-    p = spawn('sftp -P %s %s@%s' %(port,user,host))
+    p = spawn('sftp -P %s %s@%s'.format(port, user, host))
     # p.logfile = sys.stdout
 
     try:
         p.expect('(?i)password:')
         x = p.sendline(passwd)
-        x = p.expect(['Permission denied','sftp>'])
+        x = p.expect(['Permission denied', 'sftp>'])
         if not x:
-            print( 'Permission denied for password:' )
-            print( password )
+            print('Permission denied for password:')
+            print(password)
             p.kill(0)
         else:
             x = p.sendline('cd ' + remotepath)
@@ -45,12 +46,12 @@ def almasftp_fetch():
             x = p.close()
             retval = p.exitstatus
     except EOF:
-        print( str(p) )
-        print( 'Transfer failed: EOF.' )
+        print(str(p))
+        print('Transfer failed: EOF.')
         raise AirflowException('Transfer failed: EOF.')
     except TIMEOUT:
-        print( str(p) )
-        print( 'Transfer failed: TIMEOUT.' )
+        print(str(p))
+        print('Transfer failed: TIMEOUT.')
         raise AirflowException('Transfer failed: TIMEOUT.')
     except Exception as e:
         raise AirflowException('Transfer failed: {}.'.format(e.message))

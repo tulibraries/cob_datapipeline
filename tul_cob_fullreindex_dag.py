@@ -16,7 +16,7 @@ from cob_datapipeline.task_solrcommit import task_solrcommit
 from cob_datapipeline.task_slackpost import task_slackpostonsuccess, task_slackpostonfail
 from cob_datapipeline.task_solrgetnumdocs import task_solrgetnumdocs
 
-core_name = Variable.get("BLACKLIGHT_CORE_NAME");
+core_name = Variable.get("BLACKLIGHT_CORE_NAME")
 solr_endpoint_update = '/solr/' + core_name + '/update'
 
 default_args = {

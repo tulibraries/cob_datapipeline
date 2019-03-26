@@ -3,8 +3,10 @@ from airflow import AirflowException
 import os
 import re
 
+#example traject results to parse:
 #INFO finished Traject::Indexer#process: 203 records in 2.419 seconds; 83.9 records/second overall.
 #ERROR Traject::Indexer#process returning 'false' due to 67 skipped records.
+
 
 def process_trajectlog(ds, **kwargs):
     num_skipped = 0
@@ -17,12 +19,12 @@ def process_trajectlog(ds, **kwargs):
             for line in fd:
                 if line.find(skipstr) > 0:
                     m = re.search(r"ERROR Traject::Indexer#process returning 'false' due to (.*) skipped records.", line)
-                    if m != None:
+                    if m is not None:
                         num_skipped = m.group(1)
                         print(num_skipped)
-                        Variable.set("traject_num_rejected",num_skipped)
+                        Variable.set("traject_num_rejected", num_skipped)
                     else:
-                        print( line )
+                        print(line)
                 # this is redundant with the info from the oaiharvest
                 # elif line.find(finishstr) > 0:
                 #     m = re.search(r'INFO finished Traject::Indexer#process: (.*)', line)

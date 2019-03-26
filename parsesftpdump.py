@@ -5,6 +5,7 @@ import subprocess
 import time
 import re
 
+
 def parse_sftpdump(ds, **kwargs):
     UTC_DATESTAMP_FSTR = '%Y-%m-%dT%H:%M:%SZ'
     marcfile_prefix = 'alma_bibs__'
@@ -20,14 +21,14 @@ def parse_sftpdump(ds, **kwargs):
         for infilename in marcdircontents:
             if marcfileregex.search(infilename):
                 m = datestampregex.search(infilename)
-                if m != None:
+                if m is not None:
                     datestamp = m.group(1)
                     #  MAYBE TRY TO PARSE THESE OUT IN THE FUTURE?
                     Variable.set("almaoai_last_num_oai_update_recs", 0)
                     Variable.set("almaoai_last_num_oai_delete_recs", 0)
                     Variable.set("almaoai_last_harvest_date", 0)
                     break
-        date = time.strptime(datestamp[:8],"%Y%m%d")
+        date = time.strptime(datestamp[:8], "%Y%m%d")
         Variable.set("almaoai_last_harvest_date", time.strftime(UTC_DATESTAMP_FSTR, date))
     else:
         raise Exception(str(os.path.isfile(ingest_command)) + " Cannot locate {}".format(ingest_command))

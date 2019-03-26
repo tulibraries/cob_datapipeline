@@ -5,6 +5,7 @@ import os
 import datetime
 import time
 
+
 def renamemarcfiles_onsuccess(ds, **kwargs):
     outfile = None
     deletedfile = None
@@ -13,8 +14,8 @@ def renamemarcfiles_onsuccess(ds, **kwargs):
 
     outfilename = Variable.get("AIRFLOW_DATA_DIR") + '/oairecords.xml'
     if os.path.isfile(outfilename):
-        os.rename(outfilename, Variable.get("AIRFLOW_DATA_DIR") + '/oairecords-{}-{}.xml'.format(date,time.time()))
-        
+        os.rename(outfilename, Variable.get("AIRFLOW_DATA_DIR") + '/oairecords-{}-{}.xml'.format(date, time.time()))
+
     deletedfilename = Variable.get("AIRFLOW_DATA_DIR") + '/oairecords_deleted.xml'
     if os.path.isfile(deletedfilename):
-        os.rename(deletedfilename, Variable.get("AIRFLOW_DATA_DIR") + '/oairecords_deleted-{}-{}.xml'.format(date,time.time()))
+        os.rename(deletedfilename, Variable.get("AIRFLOW_DATA_DIR") + '/oairecords_deleted-{}-{}.xml'.format(date, time.time()))

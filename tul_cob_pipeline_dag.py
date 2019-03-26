@@ -15,7 +15,7 @@ from cob_datapipeline.task_slackpost import task_slackpostonsuccess, task_slackp
 from cob_datapipeline.processtrajectlog import process_trajectlog
 from cob_datapipeline.task_solrgetnumdocs import task_solrgetnumdocs
 
-core_name = Variable.get("BLACKLIGHT_CORE_NAME");
+core_name = Variable.get("BLACKLIGHT_CORE_NAME")
 
 default_args = {
     'owner': 'airflow',

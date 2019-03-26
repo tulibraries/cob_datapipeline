@@ -1,6 +1,5 @@
 from airflow.operators.http_operator import SimpleHttpOperator
 
-#http://master_host:port/solr/core_name/replication?command=enablereplication
 
 def task_solr_replication(dag, core_name, command):
     param_endpoint_replication = '/solr/' + core_name + '/replication'

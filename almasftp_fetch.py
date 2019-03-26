@@ -24,7 +24,7 @@ def almasftp_fetch():
     file_prefix = 'alma_bibs__'
     file_extension = '.xml.tar.gz'
 
-    p = spawn('sftp -P %s %s@%s'.format(port, user, host))
+    p = spawn('sftp -P {} {}@{}'.format(port, user, host))
     # p.logfile = sys.stdout
 
     try:

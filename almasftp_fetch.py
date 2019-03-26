@@ -21,7 +21,7 @@ def almasftp_fetch():
     remotepath = '/incoming'
     localpath = Variable.get("AIRFLOW_DATA_DIR") + "/sftpdump"
 
-    file_prefix = 'alma_bibs__2019022602_10503611220003811_new_'
+    file_prefix = 'alma_bibs__'
     file_extension = '.xml.tar.gz'
 
     p = spawn('sftp -P %s %s@%s'.format(port, user, host))

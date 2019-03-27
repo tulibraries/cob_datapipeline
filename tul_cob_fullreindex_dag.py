@@ -47,7 +47,7 @@ get_num_solr_docs_pre = task_solrgetnumdocs(dag, core_name, 'get_num_solr_docs_p
 get_num_solr_docs_post = task_solrgetnumdocs(dag, core_name, 'get_num_solr_docs_post')
 
 ingestsftpmarc_task = ingest_sftpmarc(dag)
-ingest_marc_boundwith = ingest_marc(dag, '/boundwith_merged.xml', 'ingest_boundwith_merged')
+ingest_marc_boundwith = ingest_marc(dag, 'boundwith_merged.xml', 'ingest_boundwith_merged')
 
 
 parse_sftpdump = PythonOperator(

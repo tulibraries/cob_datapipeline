@@ -88,6 +88,6 @@ def almaoai_harvest(ds, **kwargs):
             deletedfile.close()
         if r is not None:
             print(r.raw)
-        print(e.message)
+        print(str(e))
 
         raise AirflowException('Harvest failed.')

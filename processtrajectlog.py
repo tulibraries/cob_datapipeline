@@ -35,4 +35,4 @@ def process_trajectlog(ds, **kwargs):
                 #         print( line )
             os.remove(trajectlog_fname) #contents are also in the ingest_marc task so we don't need this anymore
         except Exception as e:
-            print('Error parsing log {} bailing {}.'.format(trajectlog_fname, e.message))
+            print('Error parsing log {} bailing {}.'.format(trajectlog_fname, str(e)))

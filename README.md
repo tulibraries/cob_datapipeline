@@ -1,6 +1,6 @@
 # cob_datapipeline
 
-![pylint Score](https://mperlet.github.io/pybadge/badges/2.6.svg)
+![pylint Score](https://mperlet.github.io/pybadge/badges/3.76.svg)
 
 This is the repository for TUL COB (Temple University Libraries Catalog on Blacklight) Airflow DAGs (Directed Acyclic Graphs, e.g., data processing workflows) along with related scripts.
 
@@ -24,7 +24,7 @@ These the Airflow expectations for these TUL COB DAGs and scripts to successfull
 - Ruby (for running Traject via the TUL_COB Rails Application). These steps are tested with the following Ruby versions:
   - 2.4.1
 - Ruby Libraries:
-  - rvm
+  - rbenv
   - [tul_cob](https://github.com/tulibraries/tul_cob) gemset installed:
     ```
     rvm use 2.4.1@tul_cob --create

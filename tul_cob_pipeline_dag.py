@@ -33,8 +33,8 @@ default_args = {
 dag = DAG(
     'tul_cob', default_args=default_args, catchup=False, schedule_interval=timedelta(hours=6))
 
-
-ingest_marc = ingest_marc(dag, 'oairecords.xml', 'ingest_marc')
+marcfilename = 'oairecords.xml'
+ingest_marc = ingest_marc(dag, marcfilename, 'ingest_marc')
 
 pause_replication = task_solr_replication(dag, core_name, "disable")
 resume_replication = task_solr_replication(dag, core_name, "enable")
@@ -71,7 +71,7 @@ rename_marc = PythonOperator(
 parse_traject = PythonOperator(
     task_id='process_trajectlog',
     python_callable=process_trajectlog,
-    op_kwargs={},
+    op_kwargs={'marcfilename': marcfilename},
     dag=dag
 )
 

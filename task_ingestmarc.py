@@ -16,5 +16,5 @@ def ingest_marc(dag, marcfilename, taskid):
         )
 
     else:
-        raise Exception(str(os.path.isfile(ingest_command)) + " Cannot locate {}".format(ingest_command))
+        raise Exception("Cannot locate {}".format(ingest_command))
     return t1

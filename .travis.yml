@@ -7,10 +7,21 @@ install:
   - pip install pipenv
   - SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
 
-# lint & code review
 script:
+  # lint & code review
   - pipenv run pylint cob_datapipeline -E
+  # run tests
+  # - script: pipenv run pytest
 
-# run tests & generate coverage
-# script:
-#   - pipenv run pytest
+# deploy via ansible
+after_success:
+  - cd ..
+  - git clone git@github.com/tulibraries/ansible-playbook-airflow.git
+  - cd ansible-playbook-airflow
+  - sudo pip install pipenv
+  - pipenv install
+  - pipenv run ansible-galaxy -r requirements.yml
+  - cp .circleci/.vault ~/.vault
+  - chmod +x ~/.vault
+  - pipenv run ansible-playbook -i inventory/qa/hosts playbook.yml --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
+  if: branch = qa

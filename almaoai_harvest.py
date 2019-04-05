@@ -45,7 +45,7 @@ def almaoai_harvest(ds, **kwargs):
         sickle = Sickle(endpoint_url)
         try:
             records = sickle.ListRecords(**{'metadataPrefix': 'marc21', 'set': 'blacklight', 'from': '{}'.format(date)})
-        except :
+        except:
             print("No records matched the date range given")
             records = []
 

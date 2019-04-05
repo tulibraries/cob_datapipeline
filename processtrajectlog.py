@@ -25,13 +25,13 @@ def process_trajectlog(ds, **kwargs):
                 if line.find(errstr) > 0:
                     m = re.search(r"Solr error response: (.*): {", line)
                     if m is not None:
-                       solr_return_code = m.group(1)
-                       num_solr_errors += 1
-                       if solr_return_code != '409':
-                           num_severe_errors += 1
-                       m = re.search(r"source_id:(.*) output_id:(.*)>:", line)
-                       if m is not None:
-                           print("Skipping ID: {}".format(m.group(1)))
+                        solr_return_code = m.group(1)
+                        num_solr_errors += 1
+                        if solr_return_code != '409':
+                            num_severe_errors += 1
+                        m = re.search(r"source_id:(.*) output_id:(.*)>:", line)
+                        if m is not None:
+                            print("Skipping ID: {}".format(m.group(1)))
                 elif line.find(skipstr) > 0:
                     m = re.search(r"ERROR Traject::Indexer#process returning 'false' due to (.*) skipped records.", line)
                     if m is not None:
@@ -53,4 +53,4 @@ def process_trajectlog(ds, **kwargs):
             print("Num skipped: {}".format(num_skipped))
             Variable.set("traject_num_rejected", num_solr_errors)
         except Exception as e:
-            print('Error parsing log {} bailing {}.'.format(trajectlog_fname, e.message))
+            print('Error parsing log {} bailing {}.'.format(trajectlog_fname, str(e)))

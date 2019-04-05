@@ -19,5 +19,5 @@ cd $HOME/tul_cob
 rvm use 2.4.1@tul_cob
 gem install bundler
 bundle install
-SOLR_URL='http://162.216.18.86:8983/solr/blacklight-core' bundle exec traject -c lib/traject/indexer_config.rb ${1}
+SOLR_URL="$2" bundle exec traject -c lib/traject/indexer_config.rb ${1}
 return 0

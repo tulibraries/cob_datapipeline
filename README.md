@@ -18,15 +18,14 @@ These the Airflow expectations for these TUL COB DAGs and scripts to successfull
 
 **Libraries & Packages**
 
-- Python. These steps are tested with the following Python versions:
+- Python. These steps are tested & working with the following Python versions:
   - 3.6.8 (with pip version 18.1)
-  - 3.7.2 presents errors with an `enum34` vs `enum` error.
 - Python Libraries: see the [Pipfile](Pipfile).
-- Ruby (for running Traject via TUL_COB Rails Application) These steps are tested with the following Ruby versions:
+- Ruby (for running Traject via the TUL_COB Rails Application). These steps are tested with the following Ruby versions:
   - 2.4.1
-- Ruby Libraries & Applications:
-  - [tul_cob](https://github.com/tulibraries/tul_cob)
-  - rvm and tul_cob gemset installed:
+- Ruby Libraries:
+  - rvm
+  - [tul_cob](https://github.com/tulibraries/tul_cob) gemset installed:
     ```
     rvm use 2.4.1@tul_cob --create
     ```
@@ -51,23 +50,63 @@ For these TUL COB Dags, the following variables are required:
 
 **Airflow Connections**
 
-WIP.
+For these TUL COB Dags, the following connections are required:
+
+- **AIRFLOW_CONN_SOLR_LEADER**: The HTTP URL for accessing the appropriate TUL COB Solr instance for indexing into. Required is a `conn_id` (the name at the start of this line) and a `conn_uri`, which should include protocol, authentication, and ports.
+- **AIRFLOW_CONN_SLACK_WEBHOOK**: The HTTP Webhook URL for posting TUL COB DAGs notifications to Slack. Required is a `conn_id` (the name at the start of this line) and a `conn_uri`, which should include protocol (usually https for Slack webhooks).
 
 **Environment Variables**
 
-- AIRFLOW_HOME (defaults to ~/airflow)
-- AIRFLOW_DATA_DIR (where to put & pull data processed by Airflow)
-- AIRFLOW_LOGS_DIR (where to put Airflow Logs; also managed in Airflow config)
+No required environment variables exist that are not already set up automatically by the Airflow core deployment, or managed for the DAGs as Airflow variables (see above).
+
+Optional environment variables:
+
+- **AIRFLOW_HOME**: Where Airflow is installed and running from in your environment. If this envvar does not exist, it defaults to `~/airflow`, a directory the Airflow installation will create.
 
 **Infrastructure**
 
-## Linting, Testing, Coverage
-
 WIP.
+
+- Accessible SFTP Server
+- Accessible OAI-PMH API Endpoint, following Alma OAI-PMH Changeset XML data profiles
+- Accessible Solr Endpoint and Collection with TUL Cob Schema.yml
+
+## Linting & Testing
+
+How to run the `pylint` linter on this repository:
+
+```
+# Ensure you have the correct Python & Pip running:
+$ python --version
+  Python 3.6.8
+$ pip --version
+  pip 18.1 from /home/tul08567/.pyenv/versions/3.6.8/lib/python3.6/site-packages/pip (python 3.6)
+# Install Pipenv:
+$ pip install pipenv
+  Collecting pipenv ...
+# Install requirements in Pipenv; requires envvar:
+$ SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
+  Pipfile.lock not found, creating ...
+# Run the linter:
+$ pipenv run pylint cob_datapipeline
+  ...
+```
+
+Linting for Errors only (`pipenv run pylint cob_datapipeline -E`) is run by Travis on every PR.
+
+Currently, there are no tests for this code; they are 'tested' in local Airflow deployments. WIP.
 
 ## Running these DAGs
 
-### Development: Install & Run Airflow & COB DAGs
+### Development: Molecule-Docker Install & Run Airflow & COB DAGs
+
+WIP.
+
+### Development: Ansible-Vagrant Install & Run Airflow & COB DAGs
+
+WIP.
+
+### Development: Manually Install & Run Airflow & COB DAGs
 
 **Requirements Installation & Spin-up**
 
@@ -115,7 +154,7 @@ $ pipenv shell
 (cob_datapipeline) $
 ```
 
-This gets Airflow and needed libraries (for Airflow and for the TUL COB DAGs) installed in your Pipenv virtual environment. You can see and managed the Airflow auto-generated configurations by looking in your `$AIRFLOW_HOME` (by default, `~/airflow`) directory.
+This gets Airflow and needed libraries (for Airflow and for the TUL COB DAGs) installed in your Pipenv virtual environment. You can see and manage the Airflow auto-generated configurations by looking in your `$AIRFLOW_HOME` directory.
 
 Now you have to setup your local environment Airflow database; here, we're just using SQLite for our Airflow database & the `SequentialExecutor`, which runs Airflow jobs on the local machine and without concurrency. You can use other databases and executors if you wish; see the other environment setups to understand how they need to be connected to Airflow:
 
@@ -174,10 +213,10 @@ There are quite a few ways you can get the cob_datapipeline DAGs into that direc
 
 **Set DAG Required Airflow Variables for Local Airflow**
 
-To load the required variables into your local airflow, you can perform the following process:
+To load the required variables into your local airflow, update the local sample variables JSON in this repository to the values, then run:
 
 ```
-(cob_datapipeline) $ airflow variables -i config/airflow-variables.json
+(cob_datapipeline) $ airflow variables -i configs/airflow-variables.json
   [2019-03-21 16:46:26,868] {__init__.py:51} INFO - Using executor SequentialExecutor
   [2019-03-21 16:46:27,030] {models.py:160} WARNING - cryptography not found - values will not be stored encrypted.
   13 of 13 variables successfully updated.
@@ -188,8 +227,31 @@ Note: Airflow does then later update these variables during processes.
 
 **Set DAG Required Airflow Connections for Local Airflow**
 
-WIP.
+To load the required connections into your local airflow, you can perform the following process, where we first delete these connections if they exist, then add them (the Airflow Connections API does not have the idea of updating existing connections):
 
+```
+(cob_datapipeline) $ airflow connections -d --conn_id AIRFLOW_CONN_SOLR_LEADER
+                     {__init__.py:51} INFO - Using executor LocalExecutor
+                     Successfully deleted `conn_id`=AIRFLOW_CONN_SOLR_LEADER
+(cob_datapipeline) $ airflow connections -d --conn_id AIRFLOW_CONN_SLACK_WEBHOOK
+                     {__init__.py:51} INFO - Using executor LocalExecutor
+                     Successfully deleted `conn_id`=AIRFLOW_CONN_SLACK_WEBHOOK
+(cob_datapipeline) $ airflow connections -a --conn_id AIRFLOW_CONN_SOLR_LEADER --conn_uri "http://127.0.0.1:8983"
+                     {__init__.py:51} INFO - Using executor LocalExecutor
+                     Successfully added `conn_id`=AIRFLOW_CONN_SOLR_LEADER : http://127.0.0.1:8983
+(cob_datapipeline) $ airflow connections -a --conn_id AIRFLOW_CONN_SLACK_WEBHOOK --conn_uri "https://hooks.slack.com/your-crazy/slack-webhook-identifiers"
+                     {__init__.py:51} INFO - Using executor LocalExecutor
+                     Successfully added `conn_id`=AIRFLOW_CONN_SLACK_WEBHOOK : https://hooks.slack.com/your-crazy/slack-webhook-identifiers
+```
+
+Note: You can also, optionally register Airflow connections in your Airflow installation via environment variables. See [here](https://airflow.readthedocs.io/en/stable/howto/manage-connections.html#creating-a-connection-with-environment-variables).
+
+**Other Infrastructure**
+
+For local development DAGs runs, besides the above, you need to make sure that you have access to some sort of mock endpoints for the rest of the infrastructure. Here's one way to do this:
+- **Accessible SFTP Server**: Get your local environment IP approved for accessing the Alma Production or Alma Sandbox SFTP Machines.
+- **Accessible OAI-PMH API Endpoint**: Get your local environment IP approved for accessing the Alma Production or Alma Sandbox OAI Endpoints.
+- **Accessible Solr Endpoint and Collection**: Use the [TUL Cob instructions](https://github.com/tulibraries/tul_cob#start-the-application) to pull down and run SolrWrapper from that codebase's setup. Unfortunately, it does require you pull down the whole application and install all the relevant libraries, but you only need to run Solr Wrapper command.
 
 ### Dev: COB DAGS & Airflow Setup on Lurch
 
@@ -234,7 +296,14 @@ $ systemctl start airflow-webserver
 
 ### QA: Deploy COB DAGs to Airflow
 
-WIP.
+The QA Environment runs Airflow with a Postgres metadata database and with LocalExecutor enabled on a single VM. This QA Airflow core setup is built according to our Airflow Playbook via CI/CD from QA branch PR merges to awaiting Terraform-managed Linode infrastructure. The GUI is accessible via Google Authentication and the Airflow RBAC (roles based authorization control) setup.
+
+For these DAGs, merges to the QA branch on this repository rerusn our Airflow Playbook with flags to rerun `cob_datapipeline` DAGs-specific tasks. These:
+- Ensure Airflow core is setup on QA;
+- Set up DAG-specific Variables and Connections;
+- Installs DAG-specific required libraries (Python; Pipenv; Ruby; RVM; see above) to be run by the Airflow core user;
+- Checks out via Git the Airflow DAGs directory, QA branch, to the Airflow DAGs directory;
+- Verifies the DAGs are available for use via the Airflow CLI.
 
 ### Stage: Deploy COB DAGs to Airflow
 

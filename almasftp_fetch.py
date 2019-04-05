@@ -33,7 +33,7 @@ def almasftp_fetch():
         x = p.expect(['Permission denied', 'sftp>'])
         if not x:
             print('Permission denied for password:')
-            print(password)
+            print(passwd)
             p.kill(0)
         else:
             x = p.sendline('cd ' + remotepath)
@@ -41,9 +41,9 @@ def almasftp_fetch():
             x = p.sendline('lcd ' + localpath)
             x = p.expect('sftp>')
             x = p.sendline('mget ' + file_prefix + '*' + file_extension)
-            x = p.expect('sftp>')
+            x = p.expect('sftp>', timeout=360)
             x = p.isalive()
-            x = p.close()
+            p.close()
             retval = p.exitstatus
     except EOF:
         print(str(p))
@@ -54,4 +54,4 @@ def almasftp_fetch():
         print('Transfer failed: TIMEOUT.')
         raise AirflowException('Transfer failed: TIMEOUT.')
     except Exception as e:
-        raise AirflowException('Transfer failed: {}.'.format(e.message))
+        raise AirflowException('Transfer failed: {}.'.format(str(e)))

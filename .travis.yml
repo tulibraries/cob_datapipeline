@@ -1,7 +1,3 @@
-before_install:
-- openssl aes-256-cbc -K $encrypted_ffb341899730_key -iv $encrypted_ffb341899730_iv
-  -in deploy.zip.enc -out .travis/deploy.zip -d
-
 language: python
 python:
 - '3.6'
@@ -38,6 +34,3 @@ deploy:
   script: bash .travis/deploy-master.sh
   on:
     branch: master
-before_install:
-- openssl aes-256-cbc -K $encrypted_ffb341899730_key -iv $encrypted_ffb341899730_iv
-  -in deploy.zip.enc -out .travis/deploy.zip -d

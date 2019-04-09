@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-eval "$(ssh-agent -s)" # Start ssh-agent cache
+ssh -T git@github.com
 
 cd ..
 git clone git@github.com/tulibraries/ansible-playbook-airflow.git # clone deployment playbook

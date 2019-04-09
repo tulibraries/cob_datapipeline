@@ -7,10 +7,14 @@ install:
   - pip install pipenv
   - SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
 
-# lint & code review
+# lint & run tests
 script:
   - pipenv run pylint cob_datapipeline -E
+  # - script: pipenv run pytest
 
-# run tests & generate coverage
-# script:
-#   - pipenv run pytest
+# deploy to qa via ansible
+deploy:
+  provider: script
+  script: bash .travis/deploy.sh
+  on:
+    branch: qa | master

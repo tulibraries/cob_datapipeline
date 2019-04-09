@@ -1,6 +1,6 @@
 # cob_datapipeline
 
-![pylint Score](https://mperlet.github.io/pybadge/badges/2.6.svg)
+![pylint Score](https://mperlet.github.io/pybadge/badges/4.46.svg) [![Build Status](https://travis-ci.com/tulibraries/cob_datapipeline.svg?branch=qa)](https://travis-ci.com/tulibraries/cob_datapipeline)
 
 This is the repository for TUL COB (Temple University Libraries Catalog on Blacklight) Airflow DAGs (Directed Acyclic Graphs, e.g., data processing workflows) along with related scripts.
 

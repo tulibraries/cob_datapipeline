@@ -6,7 +6,7 @@ git clone git@github.com:tulibraries/ansible-playbook-airflow.git # clone deploy
 cd ansible-playbook-airflow
 sudo pip install pipenv # install playbook requirements
 pipenv install # install playbook requirements
-pipenv run ansible-galaxy -r requirements.yml # install playbook role requirements
+pipenv run ansible-galaxy install -r requirements.yml # install playbook role requirements
 cp .circleci/.vault ~/.vault # setup vault password retrieval from travis envvar
 chmod +x ~/.vault  # setup vault password retrieval from travis envvar
 

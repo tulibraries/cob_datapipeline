@@ -12,7 +12,7 @@ fi
 cd $HOME/tul_cob
 rvm use 2.4.1@tul_cob
 gem install bundler
-bundle install
+bundle install --without production
 for f in $1/alma_bibs__*.xml
 do
 bundle exec traject -c lib/traject/indexer_config.rb $f

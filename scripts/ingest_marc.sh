@@ -12,6 +12,6 @@ fi
 cd $HOME/tul_cob
 rvm use 2.4.1@tul_cob
 gem install bundler
-bundle install
+bundle install --without production
 bundle exec traject -c lib/traject/indexer_config.rb ${1}
 return 0

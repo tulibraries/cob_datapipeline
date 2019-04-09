@@ -11,5 +11,5 @@ cp .circleci/.vault ~/.vault # setup vault password retrieval from travis envvar
 chmod +x ~/.vault  # setup vault password retrieval from travis envvar
 
 # deploy to qa using ansible-playbook
-pipenv run ansible-playbook -i inventory/stage/hosts playbook.yml --vault-password-file=~/.vault -e 'ansible_ssh_port=9229' --private_key .travis/.conan_the_deployer
+pipenv run ansible-playbook -i inventory/stage/hosts playbook.yml --vault-password-file=~/.vault -e 'ansible_ssh_port=9229' --private_key ~/.ssh/.conan_the_deployer
 EOF

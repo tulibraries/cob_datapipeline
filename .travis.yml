@@ -12,19 +12,22 @@ before_deploy:
 - openssl aes-256-cbc -K $encrypted_ffb341899730_key -iv $encrypted_ffb341899730_iv
   -in .travis/deploy.zip.enc -out .travis/deploy.zip -d
 - unzip .travis/deploy.zip -d .travis
+- mkdir ~/.ssh
+- mv .travis/.gritty_travis ~/.ssh/.gritty_travis
+- mv .travis/.conan_the_deployer ~/.ssh/.conan_the_deployer
 - eval "$(ssh-agent -s)"
-- chmod 600 .travis/.gritty_travis
-- chmod 600 .travis/.conan_the_deployer
-- echo -e "Host $QA_SERVER\n\tStrictHostKeyChecking no\n\tIdentityFile .travis/.conan_the_deployer\n"
+- chmod 600 ~/.ssh/.gritty_travis
+- chmod 600 ~/.ssh/.conan_the_deployer
+- echo -e "Host $QA_SERVER\n\tStrictHostKeyChecking no\n\tIdentityFile ~/.ssh/.conan_the_deployer\n"
   >> ~/.ssh/config
-- echo -e "Host $STAGE_SERVER\n\tStrictHostKeyChecking no\n\tIdentityFile .travis/.conan_the_deployer\n"
+- echo -e "Host $STAGE_SERVER\n\tStrictHostKeyChecking no\n\tIdentityFile ~/.ssh/.conan_the_deployer\n"
   >> ~/.ssh/config
-- echo -e "Host $PROD_SERVER\n\tStrictHostKeyChecking no\n\tIdentityFile .travis/.conan_the_deployer\n"
+- echo -e "Host $PROD_SERVER\n\tStrictHostKeyChecking no\n\tIdentityFile ~/.ssh/.conan_the_deployer\n"
   >> ~/.ssh/config
-- echo -e "HOST gitserv\n\tHostname remote.server.com\n\tIdentityFile .travis/.gritty_travis\n\tIdentitiesOnly
+- echo -e "HOST gitserv\n\tHostname remote.server.com\n\tIdentityFile ~/.ssh/.gritty_travis\n\tIdentitiesOnly
   yes\n" >> ~/.ssh/config
-- ssh-add .travis/.gritty_travis
-- ssh-add .travis/.conan_the_deployer
+- ssh-add ~/.ssh/.gritty_travis
+- ssh-add ~/.ssh/.conan_the_deployer
 deploy:
 - provider: script
   script: bash .travis/deploy-qa.sh

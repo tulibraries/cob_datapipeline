@@ -1,1 +1,4 @@
 .pytest_cache
+.conan_the_deployer
+.gritty_travis
+deploy.zip

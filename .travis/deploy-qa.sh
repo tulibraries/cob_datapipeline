@@ -1,8 +1,6 @@
 #!/bin/bash
 set -e
 
-ssh vvv -T git@github.com
-
 cd ..
 git clone git@github.com/tulibraries/ansible-playbook-airflow.git # clone deployment playbook
 cd ansible-playbook-airflow
@@ -13,5 +11,5 @@ cp .circleci/.vault ~/.vault # setup vault password retrieval from travis envvar
 chmod +x ~/.vault  # setup vault password retrieval from travis envvar
 
 # deploy to qa using ansible-playbook
-pipenv run ansible-playbook -i inventory/qa/hosts playbook.yml --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
+pipenv run ansible-playbook -i inventory/qa/hosts playbook.yml --vault-password-file=~/.vault -e 'ansible_ssh_port=9229' --private_key ~/.ssh/.conan_the_deployer
 EOF

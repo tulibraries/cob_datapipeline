@@ -12,9 +12,16 @@ script:
   - pipenv run pylint cob_datapipeline -E
   # - script: pipenv run pytest
 
-# deploy to qa via ansible
+after_success:
+  - true
+
+# deploy qa, stage, prod via ansible
 deploy:
-  provider: script
-  script: bash .travis/deploy.sh
-  on:
-    branch: qa | master
+  - provider: script
+    script: bash .travis/deploy-qa.sh
+    on:
+      branch: qa
+  - provider: script
+    script: bash .travis/deploy-master.sh
+    on:
+      branch: master

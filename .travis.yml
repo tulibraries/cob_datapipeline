@@ -1,42 +1,43 @@
+before_install:
+- openssl aes-256-cbc -K $encrypted_ffb341899730_key -iv $encrypted_ffb341899730_iv
+  -in deploy.zip.enc -out .travis/deploy.zip -d
+
 language: python
 python:
-  - "3.6"
-
-# install dependencies
+- '3.6'
 install:
-  - pip install pipenv
-  - SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
-
-# lint & run tests
+- pip install pipenv
+- SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
 script:
-  - pipenv run pylint cob_datapipeline -E
-  # - script: pipenv run pytest
-
+- pipenv run pylint cob_datapipeline -E
 after_success:
-  - true
-
+- true
 before_deploy:
-  - openssl aes-256-cbc -K $encrypted_ffb341899730_key -iv $encrypted_ffb341899730_iv
-    -in .travis/.conan_the_deployer.enc -out .conan_the_deployer -d
-  - openssl aes-256-cbc -K $encrypted_ffb341899730_key -iv $encrypted_ffb341899730_iv
-    -in .travis/.gritty_travis.enc -out .gritty_travis -d
-  - eval "$(ssh-agent -s)"
-  - chmod 600 ./.gritty_travis
-  - chmod 600 ./.conan_the_deployer
-  - echo -e "Host $QA_SERVER\n\tStrictHostKeyChecking no\n\tIdentityFile ~/.ssh/.conan_the_deployer\n" >> ~/.ssh/config
-  - echo -e "Host $STAGE_SERVER\n\tStrictHostKeyChecking no\n\tIdentityFile ~/.ssh/.conan_the_deployer\n" >> ~/.ssh/config
-  - echo -e "Host $PROD_SERVER\n\tStrictHostKeyChecking no\n\tIdentityFile ~/.ssh/.conan_the_deployer\n" >> ~/.ssh/config
-  - echo -e "HOST gitserv\n\tHostname remote.server.com\n\tIdentityFile ~/.ssh/.gritty_travis\n\tIdentitiesOnly yes\n" >> ~/.ssh/config
-  - ssh-add ./.gritty_travis
-  - ssh-add ./.conan_the_deployer
-
-# deploy qa, stage, prod via ansible
+- openssl aes-256-cbc -K $encrypted_ffb341899730_key -iv $encrypted_ffb341899730_iv
+  -in .travis/deploy.zip.enc -out .travis/deploy.zip -d
+- unzip .travis/deploy.zip -d .travis
+- eval "$(ssh-agent -s)"
+- chmod 600 .travis/.gritty_travis
+- chmod 600 .travis/.conan_the_deployer
+- echo -e "Host $QA_SERVER\n\tStrictHostKeyChecking no\n\tIdentityFile .travis/.conan_the_deployer\n"
+  >> ~/.ssh/config
+- echo -e "Host $STAGE_SERVER\n\tStrictHostKeyChecking no\n\tIdentityFile .travis/.conan_the_deployer\n"
+  >> ~/.ssh/config
+- echo -e "Host $PROD_SERVER\n\tStrictHostKeyChecking no\n\tIdentityFile .travis/.conan_the_deployer\n"
+  >> ~/.ssh/config
+- echo -e "HOST gitserv\n\tHostname remote.server.com\n\tIdentityFile .travis/.gritty_travis\n\tIdentitiesOnly
+  yes\n" >> ~/.ssh/config
+- ssh-add .travis/.gritty_travis
+- ssh-add .travis/.conan_the_deployer
 deploy:
-  - provider: script
-    script: bash .travis/deploy-qa.sh
-    on:
-      branch: qa
-  - provider: script
-    script: bash .travis/deploy-master.sh
-    on:
-      branch: master
+- provider: script
+  script: bash .travis/deploy-qa.sh
+  on:
+    branch: qa
+- provider: script
+  script: bash .travis/deploy-master.sh
+  on:
+    branch: master
+before_install:
+- openssl aes-256-cbc -K $encrypted_ffb341899730_key -iv $encrypted_ffb341899730_iv
+  -in deploy.zip.enc -out .travis/deploy.zip -d

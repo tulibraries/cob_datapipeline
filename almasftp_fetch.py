@@ -4,15 +4,6 @@ from pexpect import *
 import sys
 import os
 
-# class DisableLogger():
-#     def __enter__(self):
-#         logging.disable(logging.CRITICAL)
-#
-#     def __exit__(self, a, b, c):
-#         logging.disable(logging.NOTSET)
-# with DisableLogger():
-
-
 def almasftp_fetch():
     host = Variable.get('ALMASFTP_HOST')
     port = Variable.get('ALMASFTP_PORT')
@@ -21,11 +12,16 @@ def almasftp_fetch():
     remotepath = '/incoming'
     localpath = Variable.get("AIRFLOW_DATA_DIR") + "/sftpdump"
 
+    if not os.path.exists(localpath):
+        os.makedirs(localpath)
+
     file_prefix = 'alma_bibs__'
     file_extension = '.xml.tar.gz'
 
-    p = spawn('sftp -P {} {}@{}'.format(port, user, host))
-    # p.logfile = sys.stdout
+    sftpcmd = 'sftp -P {} {}@{}'.format(port, user, host)
+    print(sftpcmd)
+    # pexpect defaults to a bytestream for logging which airflow can't handle, so force it to speak unicode
+    p = spawn(sftpcmd, encoding='utf-8')
 
     try:
         p.expect('(?i)password:')
@@ -36,6 +32,7 @@ def almasftp_fetch():
             print(passwd)
             p.kill(0)
         else:
+            p.logfile = sys.stdout
             x = p.sendline('cd ' + remotepath)
             x = p.expect('sftp>')
             x = p.sendline('lcd ' + localpath)

@@ -1,5 +1,12 @@
 #!/bin/bash --login
-
+source $HOME/.bashrc
+whoami
+pwd
+echo $HOME
+which ruby
+which gem
+which bundle
+ruby -v
 
 cd $HOME/tul_cob
 gem install bundler

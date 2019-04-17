@@ -1,4 +1,12 @@
 #!/bin/bash --login
+source $HOME/.bashrc
+whoami
+pwd
+echo $HOME
+which ruby
+which gem
+which bundle
+ruby -v
 
 if [ ! -e ${1} ]
 then

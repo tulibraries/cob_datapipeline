@@ -17,7 +17,7 @@ def process_trajectlog(ds, **kwargs):
     batcherrstr = "Error in Solr batch add. Will retry documents individually at performance penalty"
     errstr = "Could not add record"
     finishstr = "INFO finished Traject::Indexer#process: "
-    trajectlog_fname = '{}/traject_log_{}.tmp'.format(Variable.get("AIRFLOW_DATA_DIR"), kwargs['marcfilename'])
+    trajectlog_fname = '{}/traject_log_{}.log'.format(Variable.get("AIRFLOW_LOG_DIR"), kwargs['marcfilename'])
     print('Parsing {}'.format(trajectlog_fname))
     with open(trajectlog_fname) as fd:
         try:

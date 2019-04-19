@@ -18,7 +18,7 @@ def almaoai_harvest(ds, **kwargs):
         # This can be verified at https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request?verb=Identify
         UTC_DATESTAMP_FSTR = '%Y-%m-%dT%H:%M:%SZ'
         data_dir = Variable.get("AIRFLOW_DATA_DIR")
-        endpoint_url = Variable.get("ALMA_OAI_ENDPOINT") #'https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request'
+        endpoint_url = Variable.get("ALMA_OAI_ENDPOINT") + "/request" #'https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request'
         date_current_harvest = datetime.datetime.now().strftime(UTC_DATESTAMP_FSTR)
         num_deleted_recs = 0
         num_updated_recs = 0

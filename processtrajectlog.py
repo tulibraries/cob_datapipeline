@@ -1,5 +1,6 @@
 from airflow.models import Variable
 from airflow import AirflowException
+import time
 import os
 import re
 
@@ -39,18 +40,12 @@ def process_trajectlog(ds, **kwargs):
                         #Variable.set("traject_num_rejected", num_skipped)
                     else:
                         print(line)
-                # this is redundant with the info from the oaiharvest
-                # elif line.find(finishstr) > 0:
-                #     m = re.search(r'INFO finished Traject::Indexer#process: (.*)', line)
-                #     if m != None:
-                #         num_ingested = m.group(1)
-                #         print(num_ingested)
-                #     else:
-                #         print( line )
-            #os.remove(trajectlog_fname) #contents are also in the ingest_marc task so we don't need this anymore
-            print("Num severe errors: {}".format(num_severe_errors))
-            print("Num solr errors: {}".format(num_solr_errors))
-            print("Num skipped: {}".format(num_skipped))
-            Variable.set("traject_num_rejected", num_solr_errors)
         except Exception as e:
             print('Error parsing log {} bailing {}.'.format(trajectlog_fname, str(e)))
+
+    print("Num severe errors: {}".format(num_severe_errors))
+    print("Num solr errors: {}".format(num_solr_errors))
+    print("Num skipped: {}".format(num_skipped))
+    Variable.set("traject_num_rejected", num_solr_errors)
+    if os.path.isfile(trajectlog_fname):
+        os.rename(trajectlog_fname, '{}-{}.log'.format(trajectlog_fname, time.time()))

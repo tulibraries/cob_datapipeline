@@ -9,12 +9,13 @@ import os
 def ingest_sftpmarc(dag):
     # http://162.216.18.86:8983/solr/blacklight-core
     conn = BaseHook.get_connection('AIRFLOW_CONN_SOLR_LEADER')
-    solr_endpoint = 'http://' + conn.host + ':' + str(conn.port) + '/solr/' + Variable.get('BLACKLIGHT_CORE_NAME')  
+    solr_endpoint = 'http://' + conn.host + ':' + str(conn.port) + '/solr/' + Variable.get('BLACKLIGHT_CORE_NAME')
     ingest_command = Variable.get("AIRFLOW_HOME") + "/dags/cob_datapipeline/scripts/ingest_marc_multi.sh"
     marcfilepath = Variable.get("AIRFLOW_DATA_DIR") + "/sftpdump/"
     logfile = "{}/traject_log_{}.log".format(Variable.get("AIRFLOW_LOG_DIR"), "sftp")
     if not os.path.exists(logfile):
-        with open(logfile, 'w'): pass
+        with open(logfile, 'w'):
+            pass
 
     if os.path.isfile(ingest_command):
         t1 = BashOperator(

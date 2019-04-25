@@ -32,7 +32,9 @@ default_args = {
 }
 
 dag = DAG(
-    'tul_cob_reindex', default_args=default_args, catchup=False, schedule_interval=None)
+    'tul_cob_reindex', default_args=default_args, catchup=False,
+    max_active_runs=1, schedule_interval=None
+)
 
 
 almasftp_task = task_almasftp(dag)

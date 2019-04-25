@@ -4,6 +4,7 @@ from pexpect import *
 import sys
 import os
 
+
 def almasftp_fetch():
     host = Variable.get('ALMASFTP_HOST')
     port = Variable.get('ALMASFTP_PORT')

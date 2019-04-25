@@ -15,8 +15,27 @@ from cob_datapipeline.task_slackpost import task_slackpostonsuccess, task_slackp
 from cob_datapipeline.processtrajectlog import process_trajectlog
 from cob_datapipeline.task_solrgetnumdocs import task_solrgetnumdocs
 
-core_name = Variable.get("BLACKLIGHT_CORE_NAME")
+#
+# INIT SYSTEMWIDE VARIABLES
+#
+# check for existence of systemwide variables shared across tasks that can be
+# initialized here if not found (i.e. if this is a new installation)
+#
+try:
+    oai_publish_interval = Variable.get("ALMA_OAI_PUBLISH_INTERVAL")
+    dag_run_interval = timedelta(hours=int(oai_publish_interval))
+except KeyError:
+    Variable.set("ALMA_OAI_PUBLISH_INTERVAL", "6")
+    dag_run_interval = timedelta(hours=6)
 
+try:
+    date_last_harvest = Variable.get("almaoai_last_harvest_date")
+except KeyError:
+    Variable.set("almaoai_last_harvest_date", datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'))
+
+#
+# CREATE DAG
+#
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -31,16 +50,24 @@ default_args = {
 }
 
 dag = DAG(
-    'tul_cob', default_args=default_args, catchup=False, schedule_interval=timedelta(hours=6))
+    'tul_cob', default_args=default_args, max_active_runs=1,
+    catchup=False, schedule_interval=dag_run_interval
+)
 
+#
+# CREATE TASKS
+#
+# Tasks with all logic contained in a single operator can be declared here.
+# Tasks with custom logic are relegated to individual Python files.
+#
 marcfilename = 'oairecords.xml'
 ingest_marc = ingest_marc(dag, marcfilename, 'ingest_marc')
 
+core_name = Variable.get("BLACKLIGHT_CORE_NAME")
 pause_replication = task_solr_replication(dag, core_name, "disable")
 resume_replication = task_solr_replication(dag, core_name, "enable")
 solr_commit = task_solrcommit(dag, core_name, "solr_commit")
 
-success_msg = "" #"{{ execution_date }} Task Instance: {{ ti }} DAG: {{ dag }} Task: {{ task }} DAG Run: {{ dag_run }}"
 post_slack = PythonOperator(
     task_id='slack_post_succ',
     python_callable=task_slackpostonsuccess,
@@ -78,6 +105,9 @@ parse_traject = PythonOperator(
 get_num_solr_docs_pre = task_solrgetnumdocs(dag, core_name, 'get_num_solr_docs_pre')
 get_num_solr_docs_post = task_solrgetnumdocs(dag, core_name, 'get_num_solr_docs_post')
 
+#
+# SET UP TASK DEPENDENCIES
+#
 oaiharvest.set_upstream(get_num_solr_docs_pre)
 pause_replication.set_upstream(oaiharvest)
 ingest_marc.set_upstream(pause_replication)

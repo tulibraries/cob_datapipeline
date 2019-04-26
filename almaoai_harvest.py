@@ -98,7 +98,7 @@ def almaoai_harvest(ds, **kwargs):
         if num_updated_recs == 0:
             print("Got no OAI records, we'll revisit this date next harvest.")
         else:
-            Variable.set("almaoai_last_harvest_date", date_current_harvest)
+            Variable.set("almaoai_last_harvest_date", harvest_until_date)
     except Exception as e:
         print(str(e))
         if outfile is not None:

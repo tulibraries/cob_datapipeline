@@ -16,9 +16,20 @@ from cob_datapipeline.task_solrcommit import task_solrcommit
 from cob_datapipeline.task_slackpost import task_slackpostonsuccess, task_slackpostonfail
 from cob_datapipeline.task_solrgetnumdocs import task_solrgetnumdocs
 
-core_name = Variable.get("BLACKLIGHT_CORE_NAME")
-solr_endpoint_update = '/solr/' + core_name + '/update'
+# INIT SYSTEMWIDE VARIABLES
+#
+# check for existence of systemwide variables shared across tasks that can be
+# initialized here if not found (i.e. if this is a new installation)
+#
+try:
+    latest_release = Variable.get("GIT_PULL_TULCOB_LATEST_RELEASE")
+except KeyError:
+    Variable.set("GIT_PULL_TULCOB_LATEST_RELEASE", "false")
+    latest_release = Variable.get("GIT_PULL_TULCOB_LATEST_RELEASE")
 
+#
+# CREATE DAG
+#
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -36,11 +47,17 @@ dag = DAG(
     max_active_runs=1, schedule_interval=None
 )
 
-
+#
+# CREATE TASKS
+#
+# Tasks with all logic contained in a single operator can be declared here.
+# Tasks with custom logic are relegated to individual Python files.
+#
 almasftp_task = task_almasftp(dag)
-git_pull_tulcob_task = task_git_pull_tulcob(dag)
+git_pull_tulcob_task = task_git_pull_tulcob(dag, latest_release)
 addxmlns_task = task_addxmlns(dag)
 
+core_name = Variable.get("BLACKLIGHT_CORE_NAME")
 pause_replication = task_solr_replication(dag, core_name, "disable")
 resume_replication = task_solr_replication(dag, core_name, "enable")
 solr_commit_postclear = task_solrcommit(dag, core_name, "solr_commit_postclear")
@@ -51,7 +68,6 @@ get_num_solr_docs_post = task_solrgetnumdocs(dag, core_name, 'get_num_solr_docs_
 ingestsftpmarc_task = ingest_sftpmarc(dag)
 ingest_marc_boundwith = ingest_marc(dag, 'boundwith_merged.xml', 'ingest_boundwith_merged')
 
-
 parse_sftpdump = PythonOperator(
     task_id='parse_sftpdump',
     provide_context=True,
@@ -59,6 +75,7 @@ parse_sftpdump = PythonOperator(
     op_kwargs={},
     dag=dag)
 
+solr_endpoint_update = '/solr/' + core_name + '/update'
 clear_index = SimpleHttpOperator(
     task_id='clear_index',
     method='GET',
@@ -75,6 +92,9 @@ post_slack = PythonOperator(
     dag=dag
 )
 
+#
+# SET UP TASK DEPENDENCIES
+#
 git_pull_tulcob_task.set_upstream(get_num_solr_docs_pre)
 almasftp_task.set_upstream(git_pull_tulcob_task)
 addxmlns_task.set_upstream(almasftp_task)

@@ -45,7 +45,7 @@ except KeyError:
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2018, 12, 13, 03),
+    'start_date': datetime(2018, 12, 13, 3),
     'email': ['tug76662@temple.edu'],
     'email_on_failure': False,
     'email_on_retry': False,

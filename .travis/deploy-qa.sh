@@ -2,7 +2,7 @@
 set -e
 
 cd ..
-git clone git@github.com:tulibraries/ansible-playbook-airflow.git # clone deployment playbook
+git clone --single-branch --branch qa git@github.com:tulibraries/ansible-playbook-airflow.git # clone deployment playbook
 cd ansible-playbook-airflow
 sudo pip install pipenv # install playbook requirements
 pipenv install # install playbook requirements

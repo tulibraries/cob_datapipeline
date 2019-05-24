@@ -11,7 +11,7 @@ def task_git_pull_tulcob(dag, latest_release):
     if os.path.isfile(command):
         t1 = BashOperator(
             task_id='git_pull_tulcob',
-            bash_command=command + '{} '.format(latest_release),
+            bash_command=command + ' {} '.format(latest_release),
             dag=dag
         )
 

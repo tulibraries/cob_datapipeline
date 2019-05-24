@@ -5,13 +5,13 @@ from airflow import AirflowException
 import os
 
 
-def task_git_pull_tulcob(dag, latest_release):
+def task_git_pull_tulcob(dag, latest_release, git_ref):
     command = Variable.get("AIRFLOW_HOME") + "/dags/cob_datapipeline/scripts/git_pull_tul_cob.sh"
 
     if os.path.isfile(command):
         t1 = BashOperator(
             task_id='git_pull_tulcob',
-            bash_command=command + ' {} '.format(latest_release),
+            bash_command=command + ' {} {}'.format(latest_release, git_ref),
             dag=dag
         )
 

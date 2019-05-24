@@ -31,11 +31,6 @@ deploy:
   script: bash .travis/deploy-stage.sh
   on:
     branch: master
-- provider: script
-  script: bash .travis/deploy-prod.sh
-  on:
-    branch: master
-    tags: true
 
 notifications:
   slack:

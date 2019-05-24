@@ -27,6 +27,12 @@ except KeyError:
     Variable.set("GIT_PULL_TULCOB_LATEST_RELEASE", "false")
     latest_release = Variable.get("GIT_PULL_TULCOB_LATEST_RELEASE")
 
+try:
+    git_ref = Variable.get("GIT_PULL_TULCOB_BRANCH_NAME")
+except KeyError:
+    Variable.set("GIT_PULL_TULCOB_BRANCH_NAME", "qa")
+    git_ref = Variable.get("GIT_PULL_TULCOB_BRANCH_NAME")
+
 #
 # CREATE DAG
 #
@@ -54,7 +60,7 @@ dag = DAG(
 # Tasks with custom logic are relegated to individual Python files.
 #
 almasftp_task = task_almasftp(dag)
-git_pull_tulcob_task = task_git_pull_tulcob(dag, latest_release)
+git_pull_tulcob_task = task_git_pull_tulcob(dag, latest_release, git_ref)
 addxmlns_task = task_addxmlns(dag)
 
 core_name = Variable.get("BLACKLIGHT_CORE_NAME")

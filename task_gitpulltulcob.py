@@ -1,12 +1,11 @@
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
-from airflow.models import Variable
 from airflow import AirflowException
+from cob_datapipeline.globals import AIRFLOW_HOME
 import os
 
-
 def task_git_pull_tulcob(dag, latest_release, git_ref):
-    command = Variable.get("AIRFLOW_HOME") + "/dags/cob_datapipeline/scripts/git_pull_tul_cob.sh"
+    command = AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/git_pull_tul_cob.sh"
 
     if os.path.isfile(command):
         t1 = BashOperator(

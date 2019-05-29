@@ -1,4 +1,12 @@
-.pytest_cache
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+.pytest_cache/
 .conan_the_deployer
 .gritty_travis
 deploy.zip

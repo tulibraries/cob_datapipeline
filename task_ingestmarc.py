@@ -12,6 +12,7 @@ def ingest_marc(dag, marcfilename, taskid):
     solr_endpoint = 'http://' + conn.host + ':' + str(conn.port) + '/solr/' + Variable.get('BLACKLIGHT_CORE_NAME')
     infilename = Variable.get("AIRFLOW_DATA_DIR") + '/' + marcfilename
     ingest_command = Variable.get("AIRFLOW_HOME") + "/dags/cob_datapipeline/scripts/ingest_marc.sh"
+    harvest_from_date = Variable.get("almaoai_last_harvest_from_date")
     logfile = "{}/traject_log_{}.log".format(Variable.get("AIRFLOW_LOG_DIR"), marcfilename)
     if not os.path.exists(logfile):
         with open(logfile, 'w'):
@@ -20,7 +21,7 @@ def ingest_marc(dag, marcfilename, taskid):
     if os.path.isfile(ingest_command):
         t1 = BashOperator(
             task_id=taskid,
-            bash_command="source {} {} {}  2>&1  | tee {}".format(ingest_command, infilename, solr_endpoint, logfile) + ' ',
+            bash_command="source {} {} {} {}  2>&1  | tee {}".format(ingest_command, infilename, solr_endpoint, harvest_from_date, logfile) + ' ',
             dag=dag
         )
     else:

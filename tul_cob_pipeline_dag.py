@@ -31,7 +31,13 @@ except KeyError:
 try:
     date_last_harvest = Variable.get("almaoai_last_harvest_date")
 except KeyError:
-    Variable.set("almaoai_last_harvest_date", datetime.datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'))
+    Variable.set("almaoai_last_harvest_date", datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'))
+
+try:
+    date_last_harvest = Variable.get("almaoai_last_harvest_from_date")
+except KeyError:
+    Variable.set("almaoai_last_harvest_from_date", datetime.now().strftime('%Y-%m-%dT%H:%M:%SZ'))
+
 
 #
 # CREATE DAG

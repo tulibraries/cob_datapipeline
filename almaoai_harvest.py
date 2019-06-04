@@ -50,7 +50,8 @@ def almaoai_harvest(ds, **kwargs):
         print("Harvesting {}".format(harvest_args))
         try:
             records = sickle.ListRecords(**harvest_args)
-        except:
+        except Exception as ex:
+            print(str(ex))
             print("No records matched the date range given")
             records = []
 
@@ -99,8 +100,9 @@ def almaoai_harvest(ds, **kwargs):
             print("Got no OAI records, we'll revisit this date next harvest.")
         else:
             Variable.set("almaoai_last_harvest_date", harvest_until_date)
-    except Exception as e:
-        print(str(e))
+            Variable.set("almaoai_last_harvest_from_date", harvest_from_date)
+    except Exception as ex:
+        print(str(ex))
         if outfile is not None:
             if outfile.closed is not True:
                 outfile.close()

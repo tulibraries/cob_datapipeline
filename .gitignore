@@ -10,3 +10,5 @@ __pycache__/
 .conan_the_deployer
 .gritty_travis
 deploy.zip
+dags
+data

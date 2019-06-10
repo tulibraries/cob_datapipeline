@@ -1,22 +1,18 @@
+"""Unit Tests for Basic Validation of All DAGs."""
 import unittest
 from airflow.models import DagBag
 
 class TestDagIntegrity(unittest.TestCase):
+    """Primary Class for Testing all DAGs' validation."""
 
     LOAD_SECOND_THRESHOLD = 2
 
     def setUp(self):
+        """Method to set up the DAG Validation Class instance for testing."""
         self.dagbag = DagBag()
 
-    @unittest.skip("Dags need to be refactored to be testable first.")
     def test_import_dags(self):
-        """
-        Unfortunately most of these dags error out in test context because
-        they are dependent on global variables that are saved to DB.
-
-        I wrote cob_datapipeline.globals specifically to allow getting default
-        values without need of a DB (as is the case in the unit test context)
-        """
+        """Unit Test runs import of all DAGs defined & log Airflow errors."""
         self.assertFalse(
             len(self.dagbag.import_errors),
             'DAG import failures. Errors: {}'.format(

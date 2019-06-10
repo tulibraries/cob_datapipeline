@@ -6,6 +6,7 @@ install:
 - SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
 script:
 - pipenv run pylint cob_datapipeline -E
+- pipenv run pytest
 after_success:
 - true
 before_deploy:

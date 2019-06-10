@@ -2,18 +2,18 @@
 import os
 import unittest
 import airflow
-from cob_datapipeline.tul_cob_az_reindex_dag import dag
+from cob_datapipeline.tul_cob_az_reindex_dag import AZ_DAG
 
 class TestTulCobAZReindexDag(unittest.TestCase):
     """Primary Class for Testing the TUL Cob Reindex DAG."""
 
     def setUp(self):
         """Method to set up the DAG Class instance for testing."""
-        self.tasks = list(map(lambda t: t.task_id, dag.tasks))
+        self.tasks = list(map(lambda t: t.task_id, AZ_DAG.tasks))
 
     def test_dag_loads(self):
         """Unit test that the DAG identifier is set correctly."""
-        self.assertEqual(dag.dag_id, "tul_cob_az_reindex")
+        self.assertEqual(AZ_DAG.dag_id, "tul_cob_az_reindex")
 
     def test_dag_tasks_present(self):
         """Unit test that the DAG instance contains the expected tasks."""
@@ -37,12 +37,12 @@ class TestTulCobAZReindexDag(unittest.TestCase):
         }
 
         for task, upstream_task in expected_task_deps.items():
-            actual_ut = dag.get_task(task).upstream_list[0].task_id
+            actual_ut = AZ_DAG.get_task(task).upstream_list[0].task_id
             self.assertEqual(upstream_task, actual_ut)
 
     def test_get_database_docs(self):
         """Unit test that the DAG instance can find required database harvest bash script."""
-        task = dag.get_task("get_database_docs")
+        task = AZ_DAG.get_task("get_database_docs")
         airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
         expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/get_database_docs.sh"
         self.assertEqual(task.bash_command, expected_bash_path)
@@ -51,7 +51,7 @@ class TestTulCobAZReindexDag(unittest.TestCase):
 
     def test_ingest_databases_task(self):
         """Unit test that the DAG instance can find required solr indexing bash script."""
-        task = dag.get_task("ingest_databases")
+        task = AZ_DAG.get_task("ingest_databases")
         airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
         expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/ingest_databases.sh"
         self.assertEqual(task.bash_command, expected_bash_path)

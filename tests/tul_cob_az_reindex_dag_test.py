@@ -44,7 +44,7 @@ class TestTulCobAZReindexDag(unittest.TestCase):
         """Unit test that the DAG instance can find required database harvest bash script."""
         task = AZ_DAG.get_task("get_database_docs")
         airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
-        expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/get_database_docs.sh"
+        expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/get_database_docs.sh "
         self.assertEqual(task.bash_command, expected_bash_path)
         self.assertEqual(task.env["AZ_CLIENT_ID"], "AZ_CLIENT_ID")
         self.assertEqual(task.env["AZ_CLIENT_SECRET"], "AZ_CLIENT_SECRET")
@@ -53,7 +53,7 @@ class TestTulCobAZReindexDag(unittest.TestCase):
         """Unit test that the DAG instance can find required solr indexing bash script."""
         task = AZ_DAG.get_task("ingest_databases")
         airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
-        expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/ingest_databases.sh"
+        expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/ingest_databases.sh "
         self.assertEqual(task.bash_command, expected_bash_path)
         self.assertEqual(task.env["SOLR_AZ_URL"], "http://127.0.0.1:8983/solr/az-database")
         self.assertEqual(task.env["AIRFLOW_HOME"], os.getcwd())

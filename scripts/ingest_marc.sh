@@ -3,6 +3,9 @@
 # Argument 2 is the SOLR URL
 # Argument 3 is the harvest-from date
 source $HOME/.bashrc
+echo $1
+echo $2
+echo $3
 whoami
 pwd
 echo $HOME

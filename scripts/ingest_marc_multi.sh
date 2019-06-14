@@ -1,5 +1,9 @@
 #!/bin/bash --login
+# Argument 1 is the directory containing MARCXML files to ingest
+# Argument 2 is the SOLR URL
 source $HOME/.bashrc
+echo $1
+echo $2
 whoami
 pwd
 echo $HOME

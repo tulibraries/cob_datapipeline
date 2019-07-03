@@ -25,6 +25,8 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AZ_CLIENT_SECRET", "AZ_CLIENT_SECRET")
     airflow.models.Variable.set("GIT_PULL_TULCOB_LATEST_RELEASE", "false")
     airflow.models.Variable.set("GIT_PULL_TULCOB_BRANCH_NAME", "qa")
+    airflow.models.Variable.set("AZ_INDEX_SCHEDULE_INTERVAL", "@weekly")
+
     solr = airflow.models.Connection(
                 conn_id="AIRFLOW_CONN_SOLR_LEADER",
                 conn_type="http",

@@ -11,7 +11,7 @@ LATEST_RELEASE = airflow.models.Variable.get("GIT_PULL_TULCOB_LATEST_RELEASE")
 GIT_REF = airflow.models.Variable.get("GIT_PULL_TULCOB_BRANCH_NAME")
 AZ_CORE = airflow.models.Variable.get("AZ_CORE")
 SOLR_CONN = airflow.hooks.base_hook.BaseHook.get_connection("AIRFLOW_CONN_SOLR_LEADER")
-
+AZ_INDEX_SCHEDULE_INTERVAL = airflow.models.Variable.get("AZ_INDEX_SCHEDULE_INTERVAL")
 #
 # CREATE DAG
 #
@@ -29,7 +29,7 @@ DEFAULT_ARGS = {
 
 AZ_DAG = airflow.DAG(
     'tul_cob_az_reindex', default_args=DEFAULT_ARGS, catchup=False,
-    max_active_runs=1, schedule_interval=None
+    max_active_runs=1, schedule_interval=AZ_INDEX_SCHEDULE_INTERVAL
 )
 
 #

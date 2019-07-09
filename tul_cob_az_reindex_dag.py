@@ -6,8 +6,6 @@ from cob_datapipeline.task_ingest_databases import ingest_databases
 from cob_datapipeline.task_slackpost import task_az_slackpostonsuccess, task_slackpostonfail
 from cob_datapipeline.task_solrgetnumdocs import task_solrgetnumdocs
 
-LATEST_RELEASE = airflow.models.Variable.get("GIT_PULL_TULCOB_LATEST_RELEASE")
-GIT_REF = airflow.models.Variable.get("GIT_PULL_TULCOB_BRANCH_NAME")
 AZ_CORE = airflow.models.Variable.get("AZ_CORE")
 SOLR_CONN = airflow.hooks.base_hook.BaseHook.get_connection("AIRFLOW_CONN_SOLR_LEADER")
 AZ_INDEX_SCHEDULE_INTERVAL = airflow.models.Variable.get("AZ_INDEX_SCHEDULE_INTERVAL")

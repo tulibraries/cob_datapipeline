@@ -26,6 +26,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("GIT_PULL_TULCOB_LATEST_RELEASE", "false")
     airflow.models.Variable.set("GIT_PULL_TULCOB_BRANCH_NAME", "qa")
     airflow.models.Variable.set("AZ_INDEX_SCHEDULE_INTERVAL", "@weekly")
+    airflow.models.Variable.set("AZ_BRANCH", "AZ_BRANCH")
 
     solr = airflow.models.Connection(
                 conn_id="AIRFLOW_CONN_SOLR_LEADER",

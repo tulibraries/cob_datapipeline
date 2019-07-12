@@ -1,7 +1,7 @@
 #!/bin/bash
 # Argument 1 is the LATEST_RELEASE flag, if "true" fetch latest tagged release
 # Argument 2, if arg 1 is not true, is any git ref or branch to switch to
-cd $HOME/tul_cob
+cd $HOME/cob_index
 
 git fetch https://github.com/tulibraries/cob_index.git  --tags
 git reset --hard HEAD

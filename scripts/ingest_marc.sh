@@ -19,7 +19,7 @@ then
   exit 1
 fi
 
-cd $HOME/tul_cob
+cd $HOME/cob_index
 gem install bundler
 bundle install
 SOLR_URL="$2" ALMAOAI_LAST_HARVEST_FROM_DATE="$3" bundle exec traject -c lib/traject/indexer_config.rb ${1}

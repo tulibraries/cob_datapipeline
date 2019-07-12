@@ -12,7 +12,7 @@ which gem
 which bundle
 ruby -v
 
-cd $HOME/tul_cob
+cd $HOME/cob_index
 gem install bundler
 bundle install
 for f in $1/alma_bibs__*.xml

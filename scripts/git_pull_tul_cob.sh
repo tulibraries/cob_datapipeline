@@ -3,7 +3,7 @@
 # Argument 2, if arg 1 is not true, is any git ref or branch to switch to
 cd $HOME/tul_cob
 
-git fetch https://github.com/tulibraries/tul_cob.git  --tags
+git fetch https://github.com/tulibraries/cob_index.git  --tags
 git reset --hard HEAD
 
 if [ $1 == "true" ]; then

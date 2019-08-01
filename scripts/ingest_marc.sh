@@ -22,5 +22,5 @@ fi
 cd $HOME/cob_index
 gem install bundler
 bundle install
-SOLR_URL="$2" ALMAOAI_LAST_HARVEST_FROM_DATE="$3" bundle exec traject -c lib/traject/indexer_config.rb ${1}
+ SOLR_URL="$2" ALMAOAI_LAST_HARVEST_FROM_DATE="$3" bundle exec traject -c lib/cob_index/indexer_config.rb ${1}
 return 0

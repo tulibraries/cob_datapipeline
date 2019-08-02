@@ -39,7 +39,7 @@ def almasftp_fetch():
             x = p.sendline('lcd ' + localpath)
             x = p.expect('sftp>')
             x = p.sendline('mget ' + file_prefix + '*' + file_extension)
-            x = p.expect('sftp>', timeout=360)
+            x = p.expect('sftp>', timeout=720)
             x = p.isalive()
             p.close()
             retval = p.exitstatus

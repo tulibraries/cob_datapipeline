@@ -1,17 +1,14 @@
-import airflow
-from airflow import utils
+from datetime import datetime, timedelta
 from airflow import DAG
 from airflow.models import Variable
-from datetime import datetime, timedelta
 from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.task_almasftp import task_almasftp
 from cob_datapipeline.task_ingestsftpmarc import ingest_sftpmarc
 from cob_datapipeline.task_ingestmarc import ingest_marc
-from cob_datapipeline.parsesftpdump import parse_sftpdump
+from cob_datapipeline.parsesftpdump import parse_sftpdump_dates, renamesftpfiles_onsuccess
 from cob_datapipeline.task_gitpulltulcob import task_git_pull_tulcob
 from cob_datapipeline.task_addxmlns import task_addxmlns
-from cob_datapipeline.task_solr_replication import task_solr_replication
 from cob_datapipeline.task_solrcommit import task_solrcommit
 from cob_datapipeline.task_slackpost import task_slackpostonsuccess, task_slackpostonfail
 from cob_datapipeline.task_solrgetnumdocs import task_solrgetnumdocs
@@ -64,8 +61,8 @@ git_pull_tulcob_task = task_git_pull_tulcob(dag, latest_release, git_ref)
 addxmlns_task = task_addxmlns(dag)
 
 core_name = Variable.get("BLACKLIGHT_CORE_NAME")
-pause_replication = task_solr_replication(dag, core_name, "disable")
-resume_replication = task_solr_replication(dag, core_name, "enable")
+# pause_replication = task_solr_replication(dag, core_name, "disable")
+# resume_replication = task_solr_replication(dag, core_name, "enable")
 solr_commit_postclear = task_solrcommit(dag, core_name, "solr_commit_postclear")
 solr_commit_postindex = task_solrcommit(dag, core_name, "solr_commit_postindex")
 get_num_solr_docs_pre = task_solrgetnumdocs(dag, core_name, 'get_num_solr_docs_pre')
@@ -74,10 +71,10 @@ get_num_solr_docs_post = task_solrgetnumdocs(dag, core_name, 'get_num_solr_docs_
 ingestsftpmarc_task = ingest_sftpmarc(dag)
 ingest_marc_boundwith = ingest_marc(dag, 'boundwith_merged.xml', 'ingest_boundwith_merged')
 
-parse_sftpdump = PythonOperator(
+parse_sftpdump_dates = PythonOperator(
     task_id='parse_sftpdump',
     provide_context=True,
-    python_callable=parse_sftpdump,
+    python_callable=parse_sftpdump_dates,
     op_kwargs={},
     dag=dag)
 
@@ -98,19 +95,29 @@ post_slack = PythonOperator(
     dag=dag
 )
 
+rename_sftpdump = PythonOperator(
+    task_id='archive_sftpdump',
+    python_callable=renamesftpfiles_onsuccess,
+    provide_context=True,
+    op_kwargs={},
+    dag=dag
+)
+
 #
 # SET UP TASK DEPENDENCIES
 #
 git_pull_tulcob_task.set_upstream(get_num_solr_docs_pre)
-almasftp_task.set_upstream(git_pull_tulcob_task)
+clear_index.set_upstream(get_num_solr_docs_pre)
+almasftp_task.set_upstream(get_num_solr_docs_pre)
 addxmlns_task.set_upstream(almasftp_task)
-pause_replication.set_upstream(addxmlns_task)
-clear_index.set_upstream(pause_replication)
 solr_commit_postclear.set_upstream(clear_index)
+ingestsftpmarc_task.set_upstream(git_pull_tulcob_task)
+ingestsftpmarc_task.set_upstream(addxmlns_task)
 ingestsftpmarc_task.set_upstream(solr_commit_postclear)
-parse_sftpdump.set_upstream(ingestsftpmarc_task)
-ingest_marc_boundwith.set_upstream(parse_sftpdump)
+parse_sftpdump_dates.set_upstream(ingestsftpmarc_task)
+ingest_marc_boundwith.set_upstream(parse_sftpdump_dates)
 solr_commit_postindex.set_upstream(ingest_marc_boundwith)
 get_num_solr_docs_post.set_upstream(solr_commit_postindex)
-resume_replication.set_upstream(get_num_solr_docs_post)
-post_slack.set_upstream(resume_replication)
+rename_sftpdump.set_upstream(parse_sftpdump_dates)
+post_slack.set_upstream(get_num_solr_docs_post)
+post_slack.set_upstream(rename_sftpdump)

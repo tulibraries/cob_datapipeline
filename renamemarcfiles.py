@@ -7,15 +7,13 @@ import time
 
 
 def renamemarcfiles_onsuccess(ds, **kwargs):
-    outfile = None
-    deletedfile = None
-    date_current_harvest = datetime.datetime.now()
     date = Variable.get("almaoai_last_harvest_date")
 
-    outfilename = Variable.get("AIRFLOW_DATA_DIR") + '/oairecords.xml'
-    if os.path.isfile(outfilename):
-        os.rename(outfilename, Variable.get("AIRFLOW_DATA_DIR") + '/oairecords-{}-{}.xml'.format(date, time.time()))
+    filelist = ['oairecords.xml','oairecords_deleted.xml', 'boundwith_children.xml',
+                'boundwith_parents.xml', 'boundwith_merged.xml']
 
-    deletedfilename = Variable.get("AIRFLOW_DATA_DIR") + '/oairecords_deleted.xml'
-    if os.path.isfile(deletedfilename):
-        os.rename(deletedfilename, Variable.get("AIRFLOW_DATA_DIR") + '/oairecords_deleted-{}-{}.xml'.format(date, time.time()))
+    for file in filelist:
+        outfilename = Variable.get("AIRFLOW_DATA_DIR") + '/' + file
+        if os.path.isfile(outfilename):
+            tokens = file.split('.')
+            os.rename(outfilename, Variable.get("AIRFLOW_DATA_DIR") + '/{}-{}-{}.xml'.format(tokens[0], date, time.time()))

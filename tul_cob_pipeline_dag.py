@@ -14,6 +14,9 @@ from cob_datapipeline.task_solrcommit import task_solrcommit
 from cob_datapipeline.task_slackpost import task_slackpostonsuccess, task_slackpostonfail
 from cob_datapipeline.processtrajectlog import process_trajectlog
 from cob_datapipeline.task_solrgetnumdocs import task_solrgetnumdocs
+from cob_datapipeline.boundwith_fetch import get_boundwith_children, get_boundwith_parents
+from cob_datapipeline.task_ingestboundwith import ingest_boundwith
+from cob_datapipeline.task_boundwithprocess import boundwith_process
 
 #
 # INIT SYSTEMWIDE VARIABLES
@@ -68,6 +71,8 @@ dag = DAG(
 #
 marcfilename = 'oairecords.xml'
 ingest_marc = ingest_marc(dag, marcfilename, 'ingest_marc')
+ingest_boundwith = ingest_boundwith(dag)
+boundwith_process = boundwith_process(dag)
 
 core_name = Variable.get("BLACKLIGHT_CORE_NAME")
 pause_replication = task_solr_replication(dag, core_name, "disable")
@@ -117,7 +122,9 @@ get_num_solr_docs_post = task_solrgetnumdocs(dag, core_name, 'get_num_solr_docs_
 oaiharvest.set_upstream(get_num_solr_docs_pre)
 pause_replication.set_upstream(oaiharvest)
 ingest_marc.set_upstream(pause_replication)
-do_deletes.set_upstream(ingest_marc)
+boundwith_process.set_upstream(ingest_marc)
+ingest_boundwith.set_upstream(boundwith_process)
+do_deletes.set_upstream(ingest_boundwith)
 solr_commit.set_upstream(do_deletes)
 get_num_solr_docs_post.set_upstream(solr_commit)
 rename_marc.set_upstream(get_num_solr_docs_post)

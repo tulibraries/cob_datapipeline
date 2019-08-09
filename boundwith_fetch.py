@@ -6,7 +6,7 @@ from airflow.models import Variable
 
 '''
 https://api-na.hosted.exlibrisgroup.com/almaws/v1/conf/sets/4165880080003811/
-     members?limit=100&offset=0&apikey=l8xxd75172f85e234579b0fc90808c086e6f
+     members?limit=100&offset=0&apikey=xxxx
 '''
 
 ALMA_REST_ENDPOINT = 'https://api-na.hosted.exlibrisgroup.com/almaws/v1/'

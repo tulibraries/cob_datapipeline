@@ -7,7 +7,7 @@ from cob_datapipeline.almaoai_harvest import boundwithparents_oai_harvest
 
 # INIT SYSTEMWIDE VARIABLES
 #
-ALMA_API_KEY = 'l8xxd75172f85e234579b0fc90808c086e6f'
+ALMA_API_KEY = Variable.get("ALMA_API_KEY")
 
 # check for existence of systemwide variables shared across tasks that can be
 # initialized here if not found (i.e. if this is a new installation)

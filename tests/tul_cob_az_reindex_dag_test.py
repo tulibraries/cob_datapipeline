@@ -15,6 +15,10 @@ class TestTulCobAZReindexDag(unittest.TestCase):
         """Unit test that the DAG identifier is set correctly."""
         self.assertEqual(AZ_DAG.dag_id, "tul_cob_az_reindex")
 
+    def test_dag_interval_is_variable(self):
+        """Unit test that the DAG schedule is set by configuration"""
+        self.assertEqual(AZ_DAG.schedule_interval, "@weekly")
+
     def test_dag_tasks_present(self):
         """Unit test that the DAG instance contains the expected tasks."""
         self.assertEqual(self.tasks, [
@@ -48,3 +52,4 @@ class TestTulCobAZReindexDag(unittest.TestCase):
         self.assertEqual(task.env["AZ_BRANCH"], "AZ_BRANCH")
         self.assertEqual(task.env["AZ_CLIENT_ID"], "AZ_CLIENT_ID")
         self.assertEqual(task.env["AZ_CLIENT_SECRET"], "AZ_CLIENT_SECRET")
+        self.assertEqual(task.env["SOLR_AZ_URL"], "http://127.0.0.1:8983/solr/az-database")

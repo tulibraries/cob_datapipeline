@@ -7,7 +7,10 @@ from airflow import AirflowException
 from cob_datapipeline.oai_harvest import oai_harvest
 
 NEW_FIRST_LINE = '<?xml version="1.0" encoding="UTF-8"?>'
-NEW_ROOT = '<collection xmlns="http://www.loc.gov/MARC21/slim" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.loc.gov/MARC21/slim http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd">'
+NEW_ROOT = '<collection xmlns="http://www.loc.gov/MARC21/slim" \
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" \
+xsi:schemaLocation="http://www.loc.gov/MARC21/slim \
+http://www.loc.gov/standards/marcxml/schema/MARC21slim.xsd">'
 NEW_ROOT_CLOSING_TAG = '</collection>'
 
 
@@ -110,6 +113,9 @@ def almaoai_harvest(ds, **kwargs):
         process_kwargs = {'outfile': outfile, 'deletedfile': deletedfile, 'num_updated_recs': 0, 'num_deleted_recs': 0}
 
         oai_harvest(endpoint_url, set_spec, tulcob_process_records, process_kwargs, **kwargs)
+
+        num_updated_recs = process_kwargs['num_updated_recs']
+        num_deleted_recs = process_kwargs['num_deleted_recs']
 
         outfile.write(NEW_ROOT_CLOSING_TAG)
         outfile.close()

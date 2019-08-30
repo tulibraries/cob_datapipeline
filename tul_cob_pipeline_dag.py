@@ -1,5 +1,4 @@
 import airflow
-from airflow import utils
 from airflow import DAG
 from airflow.models import Variable
 from datetime import datetime, timedelta
@@ -14,7 +13,6 @@ from cob_datapipeline.task_solrcommit import task_solrcommit
 from cob_datapipeline.task_slackpost import task_slackpostonsuccess, task_slackpostonfail
 from cob_datapipeline.processtrajectlog import process_trajectlog
 from cob_datapipeline.task_solrgetnumdocs import task_solrgetnumdocs
-from cob_datapipeline.boundwith_fetch import get_boundwith_children, get_boundwith_parents
 from cob_datapipeline.task_ingestboundwith import ingest_boundwith
 from cob_datapipeline.task_boundwithprocess import boundwith_process
 
@@ -112,6 +110,7 @@ parse_traject = PythonOperator(
     op_kwargs={'marcfilename': marcfilename},
     dag=dag
 )
+
 
 get_num_solr_docs_pre = task_solrgetnumdocs(dag, core_name, 'get_num_solr_docs_pre')
 get_num_solr_docs_post = task_solrgetnumdocs(dag, core_name, 'get_num_solr_docs_post')

@@ -2,7 +2,6 @@ from sickle import Sickle
 from sickle.oaiexceptions import NoRecordsMatch
 from airflow import AirflowException
 
-
 def oai_harvest(oai_endpoint_url, set_name, process_method, process_method_args, **kwargs):
     """ Harvest data from a given OAI endpoint
         oai_endpoint_url: http URL for the OAI endpoint
@@ -42,6 +41,4 @@ def oai_harvest(oai_endpoint_url, set_name, process_method, process_method_args,
 
     except Exception as ex:
         print(str(ex))
-        if record is not None:
-            print(record.raw)
         raise AirflowException('Harvest failed.')

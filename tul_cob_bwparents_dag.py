@@ -1,13 +1,18 @@
 from airflow import DAG
 from datetime import datetime, timedelta
+from airflow import AirflowException
 from airflow.models import Variable
 from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.task_slackpost import task_slackpostonsuccess, task_slackpostonfail
 from cob_datapipeline.almaoai_harvest import boundwithparents_oai_harvest
+from cob_datapipeline.boundwith_fetch import create_boundwith_children_itemized_set
 
 # INIT SYSTEMWIDE VARIABLES
 #
-ALMA_API_KEY = Variable.get("ALMA_API_KEY")
+try:
+    ALMA_API_KEY = Variable.get("ALMA_API_KEY")
+except KeyError:
+    raise AirflowException("Need to set ALMA_API_KEY")
 
 # check for existence of systemwide variables shared across tasks that can be
 # initialized here if not found (i.e. if this is a new installation)
@@ -20,9 +25,6 @@ default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
     'start_date': datetime(2019, 6, 6, 12, 0, 0),
-    'email': ['tug76662@temple.edu'],
-    'email_on_failure': True,
-    'email_on_retry': True,
     'on_failure_callback': task_slackpostonfail,
     'retries': 0,
     'retry_delay': timedelta(minutes=10),
@@ -47,9 +49,17 @@ post_slack = PythonOperator(
     dag=dag
 )
 
-fetch_children = PythonOperator(
+fetch_parents = PythonOperator(
     task_id='fetch_boundwith_parents',
     python_callable=boundwithparents_oai_harvest,
+    provide_context=True,
+    op_kwargs={'apikey': ALMA_API_KEY},
+    dag=dag
+)
+
+create_children = PythonOperator(
+    task_id='create_boundwith_children_itemized_set',
+    python_callable=create_boundwith_children_itemized_set,
     provide_context=True,
     op_kwargs={'apikey': ALMA_API_KEY},
     dag=dag
@@ -59,5 +69,5 @@ fetch_children = PythonOperator(
 # SET UP TASK DEPENDENCIES
 #
 
-
-post_slack.set_upstream(fetch_children)
+fetch_parents.set_upstream(create_children)
+post_slack.set_upstream(fetch_parents)

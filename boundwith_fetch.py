@@ -3,6 +3,7 @@ import os.path
 import urllib
 import xmltodict
 from airflow.models import Variable
+from airflow import AirflowException
 
 '''
 https://api-na.hosted.exlibrisgroup.com/almaws/v1/conf/sets/4165880080003811/
@@ -21,7 +22,7 @@ SET_XML_BEGIN = '<set link="string"> <name>Boundwith Children Testing</name> \
 SET_XML_END = '</set>'
 MEMBER_XML = '<member link=""><id>0</id><description>Description</description></member>'
 
-
+DICT_CONSTRUCTOR_LAMBA = lambda *args, **kwargs: defaultdict(list, *args, **kwargs)
 
 # importlib.reload(xmltodict)
 
@@ -31,8 +32,7 @@ def delete_old_boundwith_itemized_children(apikey):
                                   BOUNDWITH_ITEMIZED_SETID+'?apikey='+apikey)
     data = file.read()
     file.close()
-    setdata = xmltodict.parse(data, dict_constructor=
-                              lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
+    setdata = xmltodict.parse(data, dict_constructor=DICT_CONSTRUCTOR_LAMBA)
     numrecords = int(setdata['set'][0]['number_of_members'][0]['#text'][0])
     # loop through results and save them aside to delete later
     offset = 0
@@ -54,8 +54,7 @@ def delete_old_boundwith_itemized_children(apikey):
         membersstart = str(data).find('<members')
         membersend = str(data).find('</members>')
         membersxml = str(data)[membersstart:membersend+10]
-        membersxml = xmltodict.parse(membersxml, dict_constructor=
-                                     lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
+        membersxml = xmltodict.parse(membersxml, dict_constructor=DICT_CONSTRUCTOR_LAMBA)
         # just take the xml wholesale and use it for itemized set member request
         # doing it one page at a time ensures we never hit the 1000 member limit
         if membersxml != None:
@@ -72,13 +71,47 @@ def delete_old_boundwith_itemized_children(apikey):
                                                              BOUNDWITH_ITEMIZED_SETID, apikey)
         postreq = urllib.request.Request(requrl, data=rmsetxml.encode('utf-8'),
                                          headers={'Content-Type': 'application/xml'}, method='POST')
-        file = urllib.request.urlopen(postreq)
-        data = file.read()
-        print(data)
-        file.close()
+        try:
+            httpresponse = urllib.request.urlopen(postreq)
+        except urllib.error.HTTPError as ex:
+            print(ex)
+            print(requrl)
+            print(rmsetxml)
+            raise AirflowException('Could not POST delete members to URL {}'.format(requrl))
+        data = httpresponse.read()
+        # print('Set POST response: {}\n'.format(data))
+        httpresponse.close()
     return setdata
 
-def get_boundwith_children(ds, **kwargs):
+def extract_members_from_xml(xmldata):
+    # hack up this xml the dumb way because who cares
+    membersstart = str(xmldata).find('<members')
+    membersend = str(xmldata).find('</members>')
+    membersxml = str(xmldata)[membersstart:membersend+10]
+    membersxml = xmltodict.parse(membersxml, dict_constructor=DICT_CONSTRUCTOR_LAMBA)
+    return membersxml
+
+def extract_child_xml(datafieldxml):
+    # iterate throught the parent bib xml to find the child id(s)
+    # 774w fields = boundwith children ids
+    childrenxml = ''
+    for datafield in datafieldxml:
+        if datafield['@tag'] == '774':
+            for subfield in datafield['subfield']:
+                if subfield['@code'] == 'w':
+                    childid = subfield['#text'][0]
+                    # print("childid: {}".format(childid))
+                    newmemberxml = xmltodict.parse(MEMBER_XML,
+                                                   dict_constructor=DICT_CONSTRUCTOR_LAMBA)
+                    newmemberxml['member'][0]['id'] = childid
+                    newmemberxml['member'][0]['@link'] = ALMA_REST_ENDPOINT+ \
+                                                         ALMA_BIBS_API_PATH+ \
+                                                         str(childid)
+                    childrenxml += xmltodict.unparse(newmemberxml, full_document=False)
+    return childrenxml
+
+
+def create_boundwith_children_itemized_set(ds, **kwargs):
     apikey = kwargs['apikey']
     # start by getting all the parent records
     # get set info for num records
@@ -86,17 +119,18 @@ def get_boundwith_children(ds, **kwargs):
                                   BOUNDWITH_HOST_RECORDS_SETID+'?apikey='+apikey)
     data = file.read()
     file.close()
-    setdata = xmltodict.parse(data, dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
+    setdata = xmltodict.parse(data, dict_constructor=DICT_CONSTRUCTOR_LAMBA)
     numrecords = int(setdata['set'][0]['number_of_members'][0]['#text'][0])
     #
     #
     # then delete old records from existing boundwith itemized set
     childrenset = delete_old_boundwith_itemized_children(apikey)
-    # get the boundwith parent IDs
+    # page through boundwith parent records & get the boundwith parent IDs
     offset = 0
     numperpage = 100
-    # page through boundwith parent records
+    print("Boundwith parents numrecords: {}".format(numrecords))
     while offset < numrecords:
+        # get a page of results from the set
         requrl = "{}{}{}{}?limit={}&offset={}&apikey={}".format(ALMA_REST_ENDPOINT,
                                                                 ALMA_SETS_API_PATH,
                                                                 BOUNDWITH_HOST_RECORDS_SETID,
@@ -105,47 +139,50 @@ def get_boundwith_children(ds, **kwargs):
                                                                 str(offset),
                                                                 apikey)
         file = urllib.request.urlopen(requrl)
-        data = file.read()
+        parentxmldata = file.read()
         file.close()
-        # hack up this xml the dumb way because who cares
-        membersstart = str(data).find('<members')
-        membersend = str(data).find('</members>')
-        membersxml = str(data)[membersstart:membersend+10]
-        membersxml = xmltodict.parse(membersxml, dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
+        # get the set members
+        membersxml = extract_members_from_xml(parentxmldata)
         # iterate over every set member (parent) to get all child ids
+        # print("membersxml: {}".format(membersxml))
+        # print("members: {}".format(membersxml['members'][0]['member']))
         for member in membersxml['members'][0]['member']:
+            # get the parent's full bib record from the alma API
             parentbiburl = member['@link']
+            # print(parentbiburl)
             file = urllib.request.urlopen(parentbiburl+'?apikey='+apikey)
-            data = file.read()
+            childxmldata = file.read()
             file.close()
-            childrenxml = ''
-            parentbibxml = xmltodict.parse(data, dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
-            # iterate throught the xml to find the child id(s)
-            # 774w fields = boundwith children ids
-            for datafield in parentbibxml['bib'][0]['record'][0]['datafield']:
-                if datafield['@tag'] == '774':
-                    for subfield in datafield['subfield']:
-                        if subfield['@code'] == 'w':
-                            childid = subfield['#text'][0]
-                            newmemberxml = xmltodict.parse(MEMBER_XML, dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
-                            newmemberxml['member'][0]['id'] = childid
-                            newmemberxml['member'][0]['@link'] = ALMA_REST_ENDPOINT+ALMA_BIBS_API_PATH+str(childid)
-                            childrenxml += xmltodict.unparse(newmemberxml, full_document=False)
-        # add members to set POST /almaws/v1/conf/sets/{set_id}
-        # can't get xmltodict to add children and unparse successfully
-        # so we're doing this the dumb way too
-        addsetxml = xmltodict.unparse(childrenset)
-        membersstart = str(addsetxml).find('</number_of_members>')+len('</number_of_members>')
-        addsetxml = str(addsetxml)[:membersstart] + '<members>' + childrenxml + '</members>' + str(addsetxml)[membersstart:]
-        postreq = urllib.request.Request(ALMA_REST_ENDPOINT+ALMA_SETS_API_PATH+BOUNDWITH_ITEMIZED_SETID+'?op=add_members&apikey='+apikey, data=addsetxml.encode('utf-8'), headers={'Content-Type': 'application/xml'}, method='POST')
-        err = None
-        try:
-            file = urllib.request.urlopen(postreq)
-        except urllib.error.HTTPError as ex:
-            err = ex
-            print(err)
-        data = file.read()
-        file.close()
+            parentbibxml = xmltodict.parse(childxmldata, dict_constructor=DICT_CONSTRUCTOR_LAMBA)
+            # get the child ids from the parent xml
+            childrenxml = extract_child_xml(parentbibxml['bib'][0]['record'][0]['datafield'])
+            # can't get xmltodict to add children and unparse successfully
+            # so we're doing this the dumb way too
+            addsetxml = xmltodict.unparse(childrenset)
+            membersstart = str(addsetxml).find('</number_of_members>')+len('</number_of_members>')
+            addsetxml = str(addsetxml)[:membersstart] + '<members>' + \
+                        childrenxml + '</members>' + SET_XML_END
+            # print("Add set XML:\n" + addsetxml)
+            # add members to set POST /almaws/v1/conf/sets/{set_id}
+            postrequrl = '{}{}{}?op=add_members&apikey={}'.format(ALMA_REST_ENDPOINT,
+                                                                  ALMA_SETS_API_PATH,
+                                                                  BOUNDWITH_ITEMIZED_SETID,
+                                                                  apikey)
+            postreq = urllib.request.Request(postrequrl,
+                                             data=addsetxml.encode('utf-8'),
+                                             headers={'Content-Type': 'application/xml'},
+                                             method='POST')
+            try:
+                httpresponse = urllib.request.urlopen(postreq)
+            except urllib.error.HTTPError as ex:
+                print(ex)
+                print(ex.file.read())
+                # print(postrequrl)
+                print(addsetxml)
+                # raise AirflowException('Could not POST new children set members to URL {}'.format(requrl))
+        # data = httpresponse.read()
+        # print('httpresponse: {}'.format(data))
+        httpresponse.close()
         offset += numperpage
 
 
@@ -157,7 +194,7 @@ def get_boundwith_parents(ds, **kwargs):
     file = urllib.request.urlopen(ALMA_REST_ENDPOINT+ALMA_SETS_API_PATH+BOUNDWITH_HOST_RECORDS_SETID+'?apikey='+apikey)
     data = file.read()
     file.close()
-    setdata = xmltodict.parse(data, dict_constructor=lambda *args, **kwargs: defaultdict(list, *args, **kwargs))
+    setdata = xmltodict.parse(data, dict_constructor=DICT_CONSTRUCTOR_LAMBA)
     numrecords = int(setdata['set'][0]['number_of_members'][0]['#text'][0])
     # open MARC XML FILE
     # data_dir = Variable.get("AIRFLOW_DATA_DIR")

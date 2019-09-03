@@ -5,6 +5,9 @@ from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.task_ingest_databases import ingest_databases
 from cob_datapipeline.task_slackpost import task_az_slackpostonsuccess, task_slackpostonfail
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
+from airflow.models import Variable
+from airflow.hooks import BaseHook
+from airflow.operators.http_operator import SimpleHttpOperator
 
 #
 # INIT SYSTEMWIDE VARIABLES
@@ -14,7 +17,7 @@ from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 #
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
-SOLR_CONN = airflow.hooks.base_hook.BaseHook.get_connection("SOLRCLOUD")
+SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
 CONFIGSET = Variable.get("AZ_CONFIGSET")
 COLLECTION = CONFIGSET + "-" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 SOLR_ENDPOINT = "http://" + SOLR_CONN.host + ":" + str(SOLR_CONN.port) + "/solr/" + COLLECTION
@@ -48,9 +51,27 @@ AZ_DAG = airflow.DAG(
 #
 
 
-get_num_solr_docs_pre = task_solrgetnumdocs(AZ_DAG, CONFIGSET, 'get_num_solr_docs_pre', conn_id=SOLR_CONN.id)
+get_num_solr_docs_pre = task_solrgetnumdocs(AZ_DAG, CONFIGSET, 'get_num_solr_docs_pre', conn_id=SOLR_CONN.conn_id)
+CREATE_COLLECTION = SimpleHttpOperator(
+   task_id="create_collection",
+   method='GET',
+   http_conn_id='SOLRCLOUD',
+   endpoint="solr/admin/collections",
+   data={
+       "action": "CREATE",
+       "name": COLLECTION,
+       "numShards": "1",
+       "replicationFactor": "3",
+       "maxShardsPerNode": "1",
+       "collection.configName": CONFIGSET
+       },
+   headers={},
+   dag=AZ_DAG,
+   log_response=True
+)
+
 ingest_databases_task = ingest_databases(dag=AZ_DAG, conn=SOLR_CONN)
-get_num_solr_docs_post = task_solrgetnumdocs(AZ_DAG, CONFIGSET, 'get_num_solr_docs_post', conn_id=SOLRCLOUD.id)
+get_num_solr_docs_post = task_solrgetnumdocs(AZ_DAG, CONFIGSET, 'get_num_solr_docs_post', conn_id=SOLR_CONN.conn_id)
 post_slack = PythonOperator(
     task_id='slack_post_succ',
     python_callable=task_az_slackpostonsuccess,
@@ -61,6 +82,7 @@ post_slack = PythonOperator(
 #
 # SET UP TASK DEPENDENCIES
 #
-ingest_databases_task.set_upstream(get_num_solr_docs_pre)
+CREATE_COLLECTION.set_upstream(get_num_solr_docs_pre)
+ingest_databases_task.set_upstream(CREATE_COLLECTION)
 get_num_solr_docs_post.set_upstream(ingest_databases_task)
 post_slack.set_upstream(get_num_solr_docs_post)

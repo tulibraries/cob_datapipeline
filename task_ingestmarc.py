@@ -21,7 +21,7 @@ def ingest_marc(dag, marcfilename, taskid):
     if os.path.isfile(ingest_command):
         t1 = BashOperator(
             task_id=taskid,
-            bash_command="source {} {} {} {}  2>&1  | tee {}".format(ingest_command, infilename, solr_endpoint, harvest_from_date, logfile) + ' ',
+            bash_command="source {} {} {} {} {} 2>&1 ".format(ingest_command, infilename, solr_endpoint, harvest_from_date, logfile) + ' ',
             dag=dag
         )
     else:

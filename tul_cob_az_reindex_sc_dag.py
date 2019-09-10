@@ -62,7 +62,7 @@ CREATE_COLLECTION = SimpleHttpOperator(
        "action": "CREATE",
        "name": COLLECTION,
        "numShards": "1",
-       "replicationFactor": "3",
+       "replicationFactor": "1",
        "maxShardsPerNode": "1",
        "collection.configName": CONFIGSET
        },

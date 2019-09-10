@@ -38,9 +38,13 @@ def ingest_databases(dag, conn, task_id="ingest_databases", solr_az_url=None):
         "AZ_CLIENT_ID": AZ_CLIENT_ID,
         "AZ_CLIENT_SECRET": AZ_CLIENT_SECRET,
         "AZ_BRANCH": AZ_BRANCH,
-        "SOLR_AUTH_USER": conn.login,
-        "SOLR_AUTH_PASSWORD": conn._password,
     })
+
+    if conn.login != None and conn.password != None:
+        env.update({
+            "SOLR_AUTH_USER": conn.login,
+            "SOLR_AUTH_PASSWORD": conn.password,
+            })
     return BashOperator(
         task_id=task_id,
         bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_databases.sh ",

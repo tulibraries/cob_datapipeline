@@ -28,7 +28,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AZ_INDEX_SCHEDULE_INTERVAL", "@weekly")
     airflow.models.Variable.set("AZ_BRANCH", "AZ_BRANCH")
     airflow.models.Variable.set("SOLR_AUTH_USER", "SOLR_AUTH_USER")
-    airflow.models.Variable.set("SOLR_AUTH_PASSWOR", "SOLR_AUTH_PASSWORD")
+    airflow.models.Variable.set("SOLR_AUTH_PASSWORD", "SOLR_AUTH_PASSWORD")
     airflow.models.Variable.set("WEB_CONTENT_CORE", "WEB_CONTENT_CORE")
     airflow.models.Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "WEB_CONTENT_SCHEDULE_INTERVAL")
     airflow.models.Variable.set("WEB_CONTENT_BRANCH", "WEB_CONTENT_BRANCH")

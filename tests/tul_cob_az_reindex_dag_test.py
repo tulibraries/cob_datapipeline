@@ -56,8 +56,3 @@ class TestTulCobAZReindexDag(unittest.TestCase):
         self.assertEqual(task.env["SOLR_AUTH_USER"], "SOLR_AUTH_USER")
         self.assertEqual(task.env["SOLR_AUTH_PASSWORD"], "SOLR_AUTH_PASSWORD")
         self.assertEqual(task.env["SOLR_AZ_URL"], "http://127.0.0.1:8983/solr/az-database")
-
-    def test_ingest_databases_task_az_url_override(self):
-        "Test that we can override az_url"
-        task = ingest_databases(None, None, "test_ingest_databases_task", "https://example.com/foo")
-        self.assertEqual(task.env["SOLR_AZ_URL"], "https://example.com/foo")

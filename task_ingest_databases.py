@@ -1,6 +1,7 @@
 """Airflow Task to index AZ Database records into Solr."""
 import os
 import airflow
+import re
 from airflow.operators.bash_operator import BashOperator
 
 AIRFLOW_HOME = airflow.models.Variable.get("AIRFLOW_HOME")
@@ -28,7 +29,7 @@ def ingest_databases(dag, conn, task_id="ingest_databases", solr_az_url=None):
     if solr_az_url:
         solr_url = solr_az_url
     else:
-        solr_url = 'http://' + conn.host + ':' + str(conn.port) + '/solr/' + AZ_CORE
+        solr_url = get_solr_url(conn, AZ_CORE)
 
     env = dict(os.environ)
     env.update({
@@ -48,3 +49,27 @@ def ingest_databases(dag, conn, task_id="ingest_databases", solr_az_url=None):
         env=env,
         dag=dag
     )
+
+
+def get_solr_url(conn, core):
+    """  Generates a solr url from  passed in connection and core.
+
+    Parameters:
+        conn (airflow.models.connection): Connection object representing solr we index to.
+        core (str)  The solr collection or configuration  to use.
+
+    Returns:
+        solr_url (str): A solr URL.
+
+    """
+    solr_url = conn.host
+
+    if not re.match("^http", solr_url):
+        solr_url = 'http://' + solr_url
+
+    if conn.port:
+        solr_url = solr_url + ':' + str(conn.port)
+
+    solr_url += '/solr/' + core
+
+    return solr_url

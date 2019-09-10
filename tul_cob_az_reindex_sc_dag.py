@@ -20,7 +20,7 @@ from airflow.operators.http_operator import SimpleHttpOperator
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
 CONFIGSET = Variable.get("AZ_CONFIGSET")
-COLLECTION = CONFIGSET + "-" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+COLLECTION = CONFIGSET + "-" + datetime.now().strftime('%Y-%m-%d_%H')
 SOLR_URL = get_solr_url(SOLR_CONN, COLLECTION)
 
 AZ_INDEX_SCHEDULE_INTERVAL = airflow.models.Variable.get("AZ_INDEX_SCHEDULE_INTERVAL")

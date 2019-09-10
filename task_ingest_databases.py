@@ -11,7 +11,7 @@ AZ_CLIENT_ID = airflow.models.Variable.get("AZ_CLIENT_ID")
 AZ_CLIENT_SECRET = airflow.models.Variable.get("AZ_CLIENT_SECRET")
 AZ_BRANCH = airflow.models.Variable.get("AZ_BRANCH")
 SOLR_AUTH_USER = airflow.models.Variable.get("SOLR_AUTH_USER")
-SOLR_AUTH_PASSWORD = airflow.models.Variable.get("SOLR_AUTH_USER")
+SOLR_AUTH_PASSWORD = airflow.models.Variable.get("SOLR_AUTH_PASSWORD")
 
 def ingest_databases(dag, conn, task_id="ingest_databases", solr_az_url=None):
     """Task for ingesting items

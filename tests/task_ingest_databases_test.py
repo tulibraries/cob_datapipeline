@@ -10,8 +10,28 @@ class TestIngestDatabasesTask(unittest.TestCase):
 
     def test_ingest_databases_task_az_url_override(self):
         "Test that we can override az_url"
-        task = ingest_databases(None, None, "test_ingest_databases_task", "https://example.com/foo")
+        conn = airflow.models.Connection(
+                conn_id="test",
+                conn_type="http",
+                host="example.com",
+                port="8983")
+        core = "foo"
+        task = ingest_databases(None, conn, "test_ingest_databases_task", "https://example.com/foo")
         self.assertEqual(task.env["SOLR_AZ_URL"], "https://example.com/foo")
+
+    def test_ingest_databases_task_adds_user_password(self):
+        conn = airflow.models.Connection(
+                conn_id="test",
+                conn_type="http",
+                host="example.com",
+                port="8983",
+                login="foo",
+                password="bar"
+                )
+        core = "foo"
+        task = ingest_databases(None, conn, "test_ingest_databases_task", "https://example.com/foo")
+        self.assertEqual(task.env["SOLR_AUTH_USER"], "foo")
+        self.assertEqual(task.env["SOLR_AUTH_PASSWORD"], "bar")
 
     def test_get_solr_url_without_http_in_host(self):
         conn = airflow.models.Connection(

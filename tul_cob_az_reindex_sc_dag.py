@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 import airflow
 from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.task_ingest_databases import ingest_databases
+from cob_datapipeline.task_ingest_databases import get_solr_url
 from cob_datapipeline.task_slackpost import task_az_slackpostonsuccess, task_slackpostonfail
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from airflow.models import Variable
@@ -20,7 +21,7 @@ from airflow.operators.http_operator import SimpleHttpOperator
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
 CONFIGSET = Variable.get("AZ_CONFIGSET")
 COLLECTION = CONFIGSET + "-" + datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-SOLR_ENDPOINT = "http://" + SOLR_CONN.host + ":" + str(SOLR_CONN.port) + "/solr/" + COLLECTION
+SOLR_URL = get_solr_url(SOLR_CONN, COLLECTION)
 
 AZ_INDEX_SCHEDULE_INTERVAL = airflow.models.Variable.get("AZ_INDEX_SCHEDULE_INTERVAL")
 #
@@ -70,7 +71,7 @@ CREATE_COLLECTION = SimpleHttpOperator(
    log_response=True
 )
 
-ingest_databases_task = ingest_databases(dag=AZ_DAG, conn=SOLR_CONN)
+ingest_databases_task = ingest_databases(dag=AZ_DAG, conn=SOLR_CONN, solr_az_url=SOLR_URL)
 get_num_solr_docs_post = task_solrgetnumdocs(AZ_DAG, CONFIGSET, 'get_num_solr_docs_post', conn_id=SOLR_CONN.conn_id)
 post_slack = PythonOperator(
     task_id='slack_post_succ',

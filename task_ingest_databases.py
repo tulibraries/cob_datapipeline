@@ -11,8 +11,6 @@ AZ_CORE = airflow.models.Variable.get("AZ_CORE")
 AZ_CLIENT_ID = airflow.models.Variable.get("AZ_CLIENT_ID")
 AZ_CLIENT_SECRET = airflow.models.Variable.get("AZ_CLIENT_SECRET")
 AZ_BRANCH = airflow.models.Variable.get("AZ_BRANCH")
-SOLR_AUTH_USER = airflow.models.Variable.get("SOLR_AUTH_USER")
-SOLR_AUTH_PASSWORD = airflow.models.Variable.get("SOLR_AUTH_PASSWORD")
 
 def ingest_databases(dag, conn, task_id="ingest_databases", solr_az_url=None):
     """Task for ingesting items
@@ -40,8 +38,8 @@ def ingest_databases(dag, conn, task_id="ingest_databases", solr_az_url=None):
         "AZ_CLIENT_ID": AZ_CLIENT_ID,
         "AZ_CLIENT_SECRET": AZ_CLIENT_SECRET,
         "AZ_BRANCH": AZ_BRANCH,
-        "SOLR_AUTH_USER": SOLR_AUTH_USER,
-        "SOLR_AUTH_PASSWORD": SOLR_AUTH_PASSWORD,
+        "SOLR_AUTH_USER": conn.login,
+        "SOLR_AUTH_PASSWORD": conn._password,
     })
     return BashOperator(
         task_id=task_id,
@@ -68,7 +66,7 @@ def get_solr_url(conn, core):
         solr_url = 'http://' + solr_url
 
     if conn.port:
-        solr_url = solr_url + ':' + str(conn.port)
+        solr_url += ':' + str(conn.port)
 
     solr_url += '/solr/' + core
 

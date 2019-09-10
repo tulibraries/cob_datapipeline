@@ -53,6 +53,6 @@ class TestTulCobAZReindexDag(unittest.TestCase):
         self.assertEqual(task.env["AZ_BRANCH"], "AZ_BRANCH")
         self.assertEqual(task.env["AZ_CLIENT_ID"], "AZ_CLIENT_ID")
         self.assertEqual(task.env["AZ_CLIENT_SECRET"], "AZ_CLIENT_SECRET")
-        self.assertEqual(task.env["SOLR_AUTH_USER"], "SOLR_AUTH_USER")
-        self.assertEqual(task.env["SOLR_AUTH_PASSWORD"], "SOLR_AUTH_PASSWORD")
+        self.assertEqual(task.env["SOLR_AUTH_USER"], None)
+        self.assertEqual(task.env["SOLR_AUTH_PASSWORD"], None)
         self.assertEqual(task.env["SOLR_AZ_URL"], "http://127.0.0.1:8983/solr/az-database")

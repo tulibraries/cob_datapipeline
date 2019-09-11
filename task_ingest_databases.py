@@ -12,13 +12,14 @@ AZ_CLIENT_ID = airflow.models.Variable.get("AZ_CLIENT_ID")
 AZ_CLIENT_SECRET = airflow.models.Variable.get("AZ_CLIENT_SECRET")
 AZ_BRANCH = airflow.models.Variable.get("AZ_BRANCH")
 
-def ingest_databases(dag, conn, task_id="ingest_databases", solr_az_url=None):
+def ingest_databases(dag, conn, task_id="ingest_databases", solr_az_url=None, delete=False):
     """Task for ingesting items
 
     Parameters:
         dag (airflow.models.Dag): The dag we will run this task in.
         conn (airflow.models.connection): Connection object representing solr we index to.
         task_id (str): A label for this task.
+        delete (bool): Whether or not to delete collection before ingesting.
 
     Returns:
         t1 (airflow.models.Task): The represention of this task.
@@ -45,6 +46,10 @@ def ingest_databases(dag, conn, task_id="ingest_databases", solr_az_url=None):
             "SOLR_AUTH_USER": conn.login,
             "SOLR_AUTH_PASSWORD": conn.password,
             })
+
+    if delete:
+        env.update({ "AZ_DELETE_SWITCH": "--delete" })
+
     return BashOperator(
         task_id=task_id,
         bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_databases.sh ",

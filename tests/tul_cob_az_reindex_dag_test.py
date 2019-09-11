@@ -53,4 +53,5 @@ class TestTulCobAZReindexDag(unittest.TestCase):
         self.assertEqual(task.env["AZ_BRANCH"], "AZ_BRANCH")
         self.assertEqual(task.env["AZ_CLIENT_ID"], "AZ_CLIENT_ID")
         self.assertEqual(task.env["AZ_CLIENT_SECRET"], "AZ_CLIENT_SECRET")
+        self.assertEqual(task.env["AZ_DELETE_SWITCH"], "--delete")
         self.assertEqual(task.env["SOLR_AZ_URL"], "http://127.0.0.1:8983/solr/az-database")

@@ -36,7 +36,7 @@ AZ_DAG = airflow.DAG(
 # Tasks with custom logic are relegated to individual Python files.
 #
 get_num_solr_docs_pre = task_solrgetnumdocs(AZ_DAG, AZ_CORE, 'get_num_solr_docs_pre')
-ingest_databases_task = ingest_databases(dag=AZ_DAG, conn=SOLR_CONN)
+ingest_databases_task = ingest_databases(dag=AZ_DAG, conn=SOLR_CONN, delete=True)
 get_num_solr_docs_post = task_solrgetnumdocs(AZ_DAG, AZ_CORE, 'get_num_solr_docs_post')
 post_slack = PythonOperator(
     task_id='slack_post_succ',

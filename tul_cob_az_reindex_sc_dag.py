@@ -9,7 +9,7 @@ from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from airflow.models import Variable
 from airflow.hooks import BaseHook
 from airflow.operators.http_operator import SimpleHttpOperator
-from tulflow import harvest, tasks
+from tulflow import tasks
 
 #
 # INIT SYSTEMWIDE VARIABLES

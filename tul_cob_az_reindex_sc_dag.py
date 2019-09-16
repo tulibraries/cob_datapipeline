@@ -9,6 +9,7 @@ from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from airflow.models import Variable
 from airflow.hooks import BaseHook
 from airflow.operators.http_operator import SimpleHttpOperator
+from tulflow import harvest, tasks
 
 #
 # INIT SYSTEMWIDE VARIABLES
@@ -20,6 +21,7 @@ from airflow.operators.http_operator import SimpleHttpOperator
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
 CONFIGSET = Variable.get("AZ_CONFIGSET")
+REPLICATION_FACTOR = Variable.get("AZ_REPLICATION_FACTOR")
 TIMESTAMP = "{{ execution_date.strftime('%Y-%m-%d_%H-%M-%S') }}"
 COLLECTION = CONFIGSET + "-" + TIMESTAMP
 SOLR_URL = get_solr_url(SOLR_CONN, COLLECTION)
@@ -54,24 +56,7 @@ AZ_DAG = airflow.DAG(
 
 
 get_num_solr_docs_pre = task_solrgetnumdocs(AZ_DAG, CONFIGSET, 'get_num_solr_docs_pre', conn_id=SOLR_CONN.conn_id)
-CREATE_COLLECTION = SimpleHttpOperator(
-   task_id="create_collection",
-   method='GET',
-   http_conn_id='SOLRCLOUD',
-   endpoint="solr/admin/collections",
-   data={
-       "action": "CREATE",
-       "name": COLLECTION,
-       "numShards": "1",
-       "replicationFactor": "1",
-       "maxShardsPerNode": "1",
-       "collection.configName": CONFIGSET
-       },
-   headers={},
-   dag=AZ_DAG,
-   log_response=True
-)
-
+CREATE_COLLECTION = tasks.create_sc_collection(AZ_DAG, SOLR_CONN.conn_id, COLLECTION, REPLICATION_FACTOR, CONFIGSET)
 ingest_databases_task = ingest_databases(dag=AZ_DAG, conn=SOLR_CONN, solr_az_url=SOLR_URL)
 get_num_solr_docs_post = task_solrgetnumdocs(AZ_DAG, CONFIGSET, 'get_num_solr_docs_post', conn_id=SOLR_CONN.conn_id)
 post_slack = PythonOperator(

@@ -8,6 +8,7 @@ setuptools = "*"
 xmltodict = "*"
 sickle = "*"
 pexpect = "*"
+tulflow = ">=0.0.8"
 
 [dev-packages]
 pytest = "*"

@@ -8,8 +8,8 @@ from cob_datapipeline.task_slackpost import task_az_slackpostonsuccess, task_sla
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from airflow.models import Variable
 from airflow.hooks import BaseHook
-from airflow.operators.http_operator import SimpleHttpOperator
-from tulflow import tasks
+from tulflow.tasks import create_sc_collection
+
 
 #
 # INIT SYSTEMWIDE VARIABLES
@@ -56,7 +56,7 @@ AZ_DAG = airflow.DAG(
 
 
 get_num_solr_docs_pre = task_solrgetnumdocs(AZ_DAG, CONFIGSET, 'get_num_solr_docs_pre', conn_id=SOLR_CONN.conn_id)
-CREATE_COLLECTION = tasks.create_sc_collection(AZ_DAG, SOLR_CONN.conn_id, COLLECTION, REPLICATION_FACTOR, CONFIGSET)
+CREATE_COLLECTION = create_sc_collection(AZ_DAG, SOLR_CONN.conn_id, COLLECTION, REPLICATION_FACTOR, CONFIGSET)
 ingest_databases_task = ingest_databases(dag=AZ_DAG, conn=SOLR_CONN, solr_az_url=SOLR_URL)
 get_num_solr_docs_post = task_solrgetnumdocs(AZ_DAG, CONFIGSET, 'get_num_solr_docs_post', conn_id=SOLR_CONN.conn_id)
 post_slack = PythonOperator(

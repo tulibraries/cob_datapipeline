@@ -19,6 +19,7 @@ def ingest_databases(dag, conn, task_id="ingest_databases", solr_az_url=None, de
         dag (airflow.models.Dag): The dag we will run this task in.
         conn (airflow.models.connection): Connection object representing solr we index to.
         task_id (str): A label for this task.
+        solr_az_url (str): A URL that overrides the default SOLR_AZ_URL.
         delete (bool): Whether or not to delete collection before ingesting.
 
     Returns:

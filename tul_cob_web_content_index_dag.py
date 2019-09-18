@@ -36,7 +36,7 @@ WEB_CONTENT_DAG = airflow.DAG(
 # Tasks with custom logic are relegated to individual Python files.
 #
 get_num_solr_docs_pre = task_solrgetnumdocs(WEB_CONTENT_DAG, WEB_CONTENT_CORE, 'get_num_solr_docs_pre')
-ingest_web_content_task = ingest_web_content(dag=WEB_CONTENT_DAG, conn=SOLR_CONN)
+ingest_web_content_task = ingest_web_content(dag=WEB_CONTENT_DAG, conn=SOLR_CONN, delete=True)
 get_num_solr_docs_post = task_solrgetnumdocs(WEB_CONTENT_DAG, WEB_CONTENT_CORE, 'get_num_solr_docs_post')
 post_slack = PythonOperator(
     task_id='slack_post_succ',

@@ -12,27 +12,28 @@ AZ_CLIENT_ID = airflow.models.Variable.get("AZ_CLIENT_ID")
 AZ_CLIENT_SECRET = airflow.models.Variable.get("AZ_CLIENT_SECRET")
 AZ_BRANCH = airflow.models.Variable.get("AZ_BRANCH")
 
-def ingest_databases(dag, conn, task_id="ingest_databases", solr_az_url=None, delete=False):
+def ingest_databases(dag, conn, task_id="ingest_databases", solr_url=None, delete=False):
     """Task for ingesting items
 
     Parameters:
         dag (airflow.models.Dag): The dag we will run this task in.
         conn (airflow.models.connection): Connection object representing solr we index to.
         task_id (str): A label for this task.
+        solr_url (str): A URL that overrides the default SOLR_AZ_URL.
         delete (bool): Whether or not to delete collection before ingesting.
 
     Returns:
         t1 (airflow.models.Task): The represention of this task.
     """
 
-    if solr_az_url:
-        solr_url = solr_az_url
+    if solr_url:
+        solr_az_url = solr_url
     else:
-        solr_url = get_solr_url(conn, AZ_CORE)
+        solr_az_url = get_solr_url(conn, AZ_CORE)
 
     env = dict(os.environ)
     env.update({
-        "SOLR_AZ_URL": solr_url,
+        "SOLR_AZ_URL": solr_az_url,
         "AIRFLOW_HOME": AIRFLOW_HOME,
         "AIRFLOW_DATA_DIR": AIRFLOW_DATA_DIR,
         "AIRFLOW_LOG_DIR": AIRFLOW_LOG_DIR,

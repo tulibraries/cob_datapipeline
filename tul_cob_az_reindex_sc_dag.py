@@ -58,7 +58,7 @@ AZ_DAG = airflow.DAG(
 get_num_solr_docs_pre = task_solrgetnumdocs(AZ_DAG, CONFIGSET, 'get_num_solr_docs_pre', conn_id=SOLR_CONN.conn_id)
 CREATE_COLLECTION = create_sc_collection(AZ_DAG, SOLR_CONN.conn_id, COLLECTION, REPLICATION_FACTOR, CONFIGSET)
 ingest_databases_task = ingest_databases(dag=AZ_DAG, conn=SOLR_CONN, solr_url=SOLR_URL)
-get_num_solr_docs_post = task_solrgetnumdocs(AZ_DAG, CONFIGSET, 'get_num_solr_docs_post', conn_id=SOLR_CONN.conn_id)
+get_num_solr_docs_post = task_solrgetnumdocs(AZ_DAG, COLLECTION, 'get_num_solr_docs_post', conn_id=SOLR_CONN.conn_id)
 post_slack = PythonOperator(
     task_id='slack_post_succ',
     python_callable=task_az_slackpostonsuccess,

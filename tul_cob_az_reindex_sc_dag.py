@@ -8,7 +8,7 @@ from cob_datapipeline.task_slackpost import task_az_slackpostonsuccess, task_sla
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from airflow.models import Variable
 from airflow.hooks import BaseHook
-from tulflow.tasks import create_sc_collection
+from tulflow.tasks import create_sc_collection, swap_sc_alias
 
 
 #
@@ -59,6 +59,7 @@ get_num_solr_docs_pre = task_solrgetnumdocs(AZ_DAG, CONFIGSET, 'get_num_solr_doc
 CREATE_COLLECTION = create_sc_collection(AZ_DAG, SOLR_CONN.conn_id, COLLECTION, REPLICATION_FACTOR, CONFIGSET)
 ingest_databases_task = ingest_databases(dag=AZ_DAG, conn=SOLR_CONN, solr_url=SOLR_URL)
 get_num_solr_docs_post = task_solrgetnumdocs(AZ_DAG, COLLECTION, 'get_num_solr_docs_post', conn_id=SOLR_CONN.conn_id)
+SOLR_ALIAS_SWAP = swap_sc_alias(AZ_DAG, SOLR_CONN.conn_id, COLLECTION, CONFIGSET)
 post_slack = PythonOperator(
     task_id='slack_post_succ',
     python_callable=task_az_slackpostonsuccess,
@@ -72,4 +73,5 @@ post_slack = PythonOperator(
 CREATE_COLLECTION.set_upstream(get_num_solr_docs_pre)
 ingest_databases_task.set_upstream(CREATE_COLLECTION)
 get_num_solr_docs_post.set_upstream(ingest_databases_task)
-post_slack.set_upstream(get_num_solr_docs_post)
+SOLR_ALIAS_SWAP.set_upstream(get_num_solr_docs_post)
+post_slack.set_upstream(SOLR_ALIAS_SWAP)

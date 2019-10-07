@@ -21,9 +21,12 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AIRFLOW_DATA_DIR", repo_dir + '/data')
     airflow.models.Variable.set("AIRFLOW_LOG_DIR", repo_dir + '/logs')
     airflow.models.Variable.set("AZ_CORE", "az-database")
+    airflow.models.Variable.set("BLACKLIGHT_CORE_NAME", "tul_cob-catalog")
     airflow.models.Variable.set("AZ_CLIENT_ID", "AZ_CLIENT_ID")
     airflow.models.Variable.set("AZ_CLIENT_SECRET", "AZ_CLIENT_SECRET")
-    airflow.models.Variable.set("GIT_PULL_TULCOB_LATEST_RELEASE", "false")
+    airflow.models.Variable.set("CATALOG_CONFIGSET", "tul_cob-catalog-0")
+    airflow.models.Variable.set("CATALOG_REPLICATION_FACTOR", 2)
+    airflow.models.Variable.set("GIT_PULL_TULCOB_LATEST_RELEASE", False)
     airflow.models.Variable.set("GIT_PULL_TULCOB_BRANCH_NAME", "qa")
     airflow.models.Variable.set("AZ_INDEX_SCHEDULE_INTERVAL", "@weekly")
     airflow.models.Variable.set("AZ_BRANCH", "AZ_BRANCH")
@@ -48,9 +51,18 @@ def pytest_sessionstart():
                 host="127.0.0.1/services",
                 port="",
                 )
+    solrcloud = airflow.models.Connection(
+               conn_id="SOLRCLOUD",
+               conn_type="http",
+               host="127.0.0.1",
+               port="8983",
+               login="puppy",
+               password="chow"
+               )
     airflow_session = airflow.settings.Session()
     airflow_session.add(solr)
     airflow_session.add(slack)
+    airflow_session.add(solrcloud)
     airflow_session.commit()
 
 def pytest_sessionfinish():

@@ -80,7 +80,6 @@ almasftp_task = PythonOperator(
      },
     dag=DAG
 )
-
 git_pull_catalog_sc_task = BashOperator(
     task_id="git_pull_catalog_sc",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/git_pull_catalog_sc.sh ",
@@ -91,7 +90,8 @@ git_pull_catalog_sc_task = BashOperator(
      },
     dag=DAG
 )
-# addxmlns_task = task_addxmlns(DAG)
+create_sc_collection = create_sc_collection(DAG, SOLR_CONN.conn_id, COLLECTION, REPLICATION_FACTOR, CONFIGSET)
+addxmlns_task = task_addxmlns(DAG)
 
 get_num_solr_docs_post = task_solrgetnumdocs(DAG, CONFIGSET, "get_num_solr_docs_post", conn_id=SOLR_CONN.conn_id)
 
@@ -134,16 +134,14 @@ get_num_solr_docs_post = task_solrgetnumdocs(DAG, CONFIGSET, "get_num_solr_docs_
 # SET UP TASK DEPENDENCIES
 #
 git_pull_catalog_sc_task.set_upstream(get_num_solr_docs_pre)
-# clear_index.set_upstream(get_num_solr_docs_pre)
 almasftp_task.set_upstream(get_num_solr_docs_pre)
-# addxmlns_task.set_upstream(almasftp_task)
-# solr_commit_postclear.set_upstream(clear_index)
+create_sc_collection.set_upstream(almasftp_task)
+addxmlns_task.set_upstream(create_sc_collection)
 # ingestsftpmarc_task.set_upstream(git_pull_tulcob_task)
 # ingestsftpmarc_task.set_upstream(addxmlns_task)
 # ingestsftpmarc_task.set_upstream(solr_commit_postclear)
 # parse_sftpdump_dates.set_upstream(ingestsftpmarc_task)
 # ingest_marc_boundwith.set_upstream(parse_sftpdump_dates)
-# solr_commit_postindex.set_upstream(ingest_marc_boundwith)
 # get_num_solr_docs_post.set_upstream(solr_commit_postindex)
 # rename_sftpdump.set_upstream(parse_sftpdump_dates)
 # post_slack.set_upstream(get_num_solr_docs_post)

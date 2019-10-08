@@ -91,7 +91,14 @@ git_pull_catalog_sc_task = BashOperator(
     dag=DAG
 )
 create_sc_collection = create_sc_collection(DAG, SOLR_CONN.conn_id, COLLECTION, REPLICATION_FACTOR, CONFIGSET)
-addxmlns_task = task_addxmlns(DAG)
+addxmlns_task = BashOperator(
+    task_id="addxmlns",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_addxmlns.sh ",
+    env={
+        "ALMASFTP_HARVEST_PATH": ALMASFTP_HARVEST_PATH
+     },
+    dag=DAG
+)
 
 get_num_solr_docs_post = task_solrgetnumdocs(DAG, CONFIGSET, "get_num_solr_docs_post", conn_id=SOLR_CONN.conn_id)
 

@@ -1,9 +1,9 @@
 import os
 import unittest
 import airflow
-from cob_datapipeline.tul_cob_fullreindex_sc_dag import DAG
+from cob_datapipeline.catalog_full_reindex_sc_dag import DAG
 
-class TestTulCobFullreindexScDag(unittest.TestCase):
+class TestCatalogFullReindexScDag(unittest.TestCase):
     """Unit Test for catalog full reindex solrcloud dag file."""
 
     def setUp(self):

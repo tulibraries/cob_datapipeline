@@ -3,10 +3,8 @@ from datetime import datetime, timedelta
 import airflow
 from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.operators.python_operator import PythonOperator
-from airflow.contrib.operators.sftp_operator import SFTPOperator
-from airflow.contrib.hooks import SSHHook
 from airflow.operators.bash_operator import BashOperator
-from cob_datapipeline.sc_almasftp_fetch import almasftp_fetch
+from cob_datapipeline.almasftp_sc_fetch import almasftp_sc_fetch
 from cob_datapipeline.task_ingestsftpmarc import ingest_sftpmarc
 from cob_datapipeline.task_ingestmarc import ingest_marc
 from cob_datapipeline.task_ingest_databases import get_solr_url
@@ -69,29 +67,20 @@ DAG = airflow.DAG(
 # Tasks with custom logic are relegated to individual Python files.
 #
 get_num_solr_docs_pre = task_solrgetnumdocs(DAG, CONFIGSET, "get_num_solr_docs_pre", conn_id=SOLR_CONN.conn_id)
-# almasftp_task = PythonOperator(
-#     task_id="almasftp",
-#     python_callable=almasftp_fetch,
-#     op_kwargs={
-#         "host": ALMASFTP_HOST,
-#         "port": ALMASFTP_PORT,
-#         "user": ALMASFTP_USER,
-#         "passwd": ALMASFTP_PASSWD,
-#         "remotepath": ALMASFTP_PATH,
-#         "localpath": ALMASFTP_HARVEST_PATH
-#      },
-#     dag=DAG
-# )
-almasftp_task = SFTPOperator(
-       task_id="almasftp",
-       ssh_conn_id="AIRFLOW_CONN_ALMASFTP",
-       # ssh_hook=SSHHook(ssh_conn_id=AIRFLOW_CONN_ALMASFTP),
-       local_filepath=ALMASFTP_HARVEST_PATH + "/test.xml",
-       remote_filepath="/incoming/test_alma_bibs_2019041016_11157338920003811_new.xml.tar.gz",
-       operation="get",
-       create_intermediate_dirs=True,
-       dag=DAG
+almasftp_task = PythonOperator(
+    task_id="almasftp",
+    python_callable=almasftp_sc_fetch,
+    op_kwargs={
+        "host": ALMASFTP_HOST,
+        "port": ALMASFTP_PORT,
+        "user": ALMASFTP_USER,
+        "passwd": ALMASFTP_PASSWD,
+        "remotepath": ALMASFTP_PATH,
+        "localpath": ALMASFTP_HARVEST_PATH
+     },
+    dag=DAG
 )
+
 git_pull_catalog_sc_task = BashOperator(
     task_id="git_pull_catalog_sc",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/git_pull_catalog_sc.sh ",

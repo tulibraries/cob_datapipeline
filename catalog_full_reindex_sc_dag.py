@@ -8,7 +8,7 @@ from cob_datapipeline.almasftp_sc_fetch import almasftp_sc_fetch
 from cob_datapipeline.task_ingestsftpmarc import ingest_sftpmarc
 from cob_datapipeline.task_ingestmarc import ingest_marc
 from cob_datapipeline.task_ingest_databases import get_solr_url
-from cob_datapipeline.parsesftpdump import parse_sftpdump_dates, renamesftpfiles_onsuccess
+from cob_datapipeline.sc_parsesftpdump import parse_sftpdump_dates, renamesftpfiles_onsuccess
 from cob_datapipeline.task_addxmlns import task_addxmlns
 from cob_datapipeline.task_solrcommit import task_solrcommit
 from cob_datapipeline.task_slackpost import task_slackpostonsuccess, task_slackpostonfail
@@ -110,15 +110,19 @@ ingestsftpmarc_task = BashOperator(
     dag=DAG
 )
 get_num_solr_docs_post = task_solrgetnumdocs(DAG, CONFIGSET, "get_num_solr_docs_post", conn_id=SOLR_CONN.conn_id)
+parse_sftpdump_dates = PythonOperator(
+    task_id="parse_sftpdump",
+    provide_context=True,
+    python_callable=parse_sftpdump_dates,
+    op_kwargs={
+        "INGEST_COMMAND": AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc_multi.sh",
+        "ALMASFTP_HARVEST_PATH": ALMASFTP_HARVEST_PATH
+    },
+    dag=DAG
+)
+
 # ingest_marc_boundwith = ingest_marc(DAG, "boundwith_merged.xml", "ingest_boundwith_merged")
 
-# parse_sftpdump_dates = PythonOperator(
-#     task_id="parse_sftpdump",
-#     provide_context=True,
-#     python_callable=parse_sftpdump_dates,
-#     op_kwargs={},
-#     DAG=DAG)
-#
 # solr_endpoint_update = "/solr/" + CONFIGSET + "/update"
 # clear_index = SimpleHttpOperator(
 #     task_id="clear_index",
@@ -153,7 +157,7 @@ create_sc_collection.set_upstream(almasftp_task)
 addxmlns_task.set_upstream(create_sc_collection)
 ingestsftpmarc_task.set_upstream(git_pull_catalog_sc_task)
 ingestsftpmarc_task.set_upstream(addxmlns_task)
-# parse_sftpdump_dates.set_upstream(ingestsftpmarc_task)
+parse_sftpdump_dates.set_upstream(ingestsftpmarc_task)
 # ingest_marc_boundwith.set_upstream(parse_sftpdump_dates)
 # get_num_solr_docs_post.set_upstream(solr_commit_postindex)
 # rename_sftpdump.set_upstream(parse_sftpdump_dates)

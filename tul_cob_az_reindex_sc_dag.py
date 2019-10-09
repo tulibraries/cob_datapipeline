@@ -10,7 +10,6 @@ from airflow.models import Variable
 from airflow.hooks import BaseHook
 from tulflow.tasks import create_sc_collection, swap_sc_alias
 
-
 #
 # INIT SYSTEMWIDE VARIABLES
 #

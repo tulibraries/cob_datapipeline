@@ -24,6 +24,9 @@ from tulflow.tasks import create_sc_collection, swap_sc_alias
 AIRFLOW_HOME = Variable.get("AIRFLOW_HOME")
 GIT_BRANCH = Variable.get("GIT_PULL_TULCOB_BRANCH_NAME")
 LATEST_RELEASE = Variable.get("GIT_PULL_TULCOB_LATEST_RELEASE")
+almaoai_last_harvest_from_date = Variable.get("almaoai_last_harvest_from_date")
+almaoai_last_harvest_date = Variable.get("almaoai_last_harvest_date")
+ALMASFTP_HARVEST_RAW_DATE = Variable.get("ALMASFTP_HARVEST_RAW_DATE")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
@@ -41,7 +44,6 @@ ALMASFTP_USER = Variable.get("ALMASFTP_USER")
 ALMASFTP_PASSWD = Variable.get("ALMASFTP_PASSWD")
 ALMASFTP_PATH = "/incoming"
 ALMASFTP_HARVEST_PATH = Variable.get("AIRFLOW_DATA_DIR") + "/sftpdump"
-AIRFLOW_CONN_ALMASFTP = BaseHook.get_connection("AIRFLOW_CONN_ALMASFTP")
 
 # CREATE DAG
 DEFAULT_ARGS = {
@@ -89,7 +91,7 @@ git_pull_catalog_sc_task = BashOperator(
     dag=DAG
 )
 create_sc_collection = create_sc_collection(DAG, SOLR_CONN.conn_id, COLLECTION, REPLICATION_FACTOR, CONFIGSET)
-addxmlns_task = BashOperator(
+sc_addxmlns_task = BashOperator(
     task_id="addxmlns",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_addxmlns.sh ",
     env={
@@ -151,9 +153,9 @@ post_slack = PythonOperator(
 git_pull_catalog_sc_task.set_upstream(get_num_solr_docs_pre)
 almasftp_task.set_upstream(get_num_solr_docs_pre)
 create_sc_collection.set_upstream(almasftp_task)
-addxmlns_task.set_upstream(create_sc_collection)
+sc_addxmlns_task.set_upstream(create_sc_collection)
 ingestsftpmarc_task.set_upstream(git_pull_catalog_sc_task)
-ingestsftpmarc_task.set_upstream(addxmlns_task)
+ingestsftpmarc_task.set_upstream(sc_addxmlns_task)
 parse_sftpdump_dates.set_upstream(ingestsftpmarc_task)
 ingest_marc_boundwith.set_upstream(parse_sftpdump_dates)
 SOLR_ALIAS_SWAP.set_upstream(ingest_marc_boundwith)

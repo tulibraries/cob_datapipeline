@@ -10,7 +10,7 @@ from cob_datapipeline.task_ingest_databases import get_solr_url
 from cob_datapipeline.sc_parsesftpdump import parse_sftpdump_dates
 from cob_datapipeline.task_addxmlns import task_addxmlns
 from cob_datapipeline.task_solrcommit import task_solrcommit
-from cob_datapipeline.task_slackpost import task_slackpostonsuccess, task_slackpostonfail
+from cob_datapipeline.task_slackpost import task_catalog_slackpostonsuccess, task_slackpostonfail
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
@@ -140,25 +140,14 @@ rename_sftpdump = BashOperator(
      },
     dag=DAG
 )
-# PythonOperator(
-#     task_id=,
-#     python_callable=renamesftpfiles_onsuccess,
-#     provide_context=True,
-#     op_kwargs={},
-#     DAG=DAG
-# )
-# post_slack = PythonOperator(
-#     task_id="slack_post_succ",
-#     python_callable=task_slackpostonsuccess,
-#     provide_context=True,
-#     DAG=DAG
-# )
-#
+post_slack = PythonOperator(
+   task_id='slack_post_succ',
+   python_callable=task_catalog_slackpostonsuccess,
+   provide_context=True,
+   dag=DAG
+)
 
-
-#
 # SET UP TASK DEPENDENCIES
-#
 git_pull_catalog_sc_task.set_upstream(get_num_solr_docs_pre)
 almasftp_task.set_upstream(get_num_solr_docs_pre)
 create_sc_collection.set_upstream(almasftp_task)
@@ -170,5 +159,5 @@ ingest_marc_boundwith.set_upstream(parse_sftpdump_dates)
 SOLR_ALIAS_SWAP.set_upstream(ingest_marc_boundwith)
 get_num_solr_docs_post.set_upstream(SOLR_ALIAS_SWAP)
 rename_sftpdump.set_upstream(parse_sftpdump_dates)
-# post_slack.set_upstream(get_num_solr_docs_post)
-# post_slack.set_upstream(rename_sftpdump)
+post_slack.set_upstream(get_num_solr_docs_post)
+post_slack.set_upstream(rename_sftpdump)

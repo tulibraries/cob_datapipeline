@@ -62,6 +62,8 @@ def task_az_slackpostonsuccess(dag, **context):
     return task_generic_slackpostsuccess(dag, message).execute(context=context)
 
 task_web_content_slackpostonsuccess = task_az_slackpostonsuccess
+task_catalog_slackpostonsuccess = task_az_slackpostonsuccess
+
 
 def task_slackpostonfail(context):
     """Task Method to Post Failed DAG or Task Completion on Slack."""

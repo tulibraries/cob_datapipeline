@@ -41,6 +41,7 @@ def parse_sftpdump_dates(**kwargs):
         datestamp = get_dump_date(marcdircontents)
         if datestamp is not None:
             #  MAYBE TRY TO PARSE THESE OUT IN THE FUTURE?
+            Variable.set("ALMASFTP_HARVEST_RAW_DATE", datestamp)
             Variable.set("almaoai_last_num_oai_update_recs", 0)
             Variable.set("almaoai_last_num_oai_delete_recs", 0)
             date = time.strptime(datestamp[:8], "%Y%m%d")
@@ -51,28 +52,3 @@ def parse_sftpdump_dates(**kwargs):
     else:
         raise Exception(str(os.path.isfile(ingest_command)) +
                         " Cannot locate {}".format(ingest_command))
-
-def renamesftpfiles_onsuccess(ds, **kwargs):
-    marcdircontents = os.listdir(marcfilepath)
-    datestamp = get_dump_date(marcdircontents)
-    if datestamp is not None:
-        try:
-            # compress dump
-            zipfilename = "{}{}".format(MARCFILE_PREFIX, datestamp)
-            tarcmd = "cd {} && tar -cvzf {}.tar.gz {}*.xml".format(marcfilepath,
-                                                                   zipfilename,
-                                                                   MARCFILE_PREFIX)
-            print(tarcmd)
-            os.system(tarcmd)
-        except FileExistsError as ex:
-            print(str(ex))
-            # We already have this dump archived, so just delete the files
-            # in the finally block
-        finally:
-            delcmd = "cd {} && rm -f {}{}*.xml".format(marcfilepath,
-                                                       MARCFILE_PREFIX,
-                                                       datestamp)
-            print(delcmd)
-            os.system(delcmd)
-    else:
-        print("No previous sftp export to archive.")

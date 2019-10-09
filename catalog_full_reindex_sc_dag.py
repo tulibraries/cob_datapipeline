@@ -99,10 +99,17 @@ addxmlns_task = BashOperator(
      },
     dag=DAG
 )
-
+ingestsftpmarc_task = BashOperator(
+    task_id="ingest_sftp_marc",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc_multi.sh ",
+    env={
+        "HOME": AIRFLOW_HOME,
+        "ALMASFTP_HARVEST_PATH": ALMASFTP_HARVEST_PATH,
+        "SOLR_URL": SOLR_URL
+     },
+    dag=DAG
+)
 get_num_solr_docs_post = task_solrgetnumdocs(DAG, CONFIGSET, "get_num_solr_docs_post", conn_id=SOLR_CONN.conn_id)
-
-# ingestsftpmarc_task = ingest_sftpmarc(DAG)
 # ingest_marc_boundwith = ingest_marc(DAG, "boundwith_merged.xml", "ingest_boundwith_merged")
 
 # parse_sftpdump_dates = PythonOperator(
@@ -144,9 +151,8 @@ git_pull_catalog_sc_task.set_upstream(get_num_solr_docs_pre)
 almasftp_task.set_upstream(get_num_solr_docs_pre)
 create_sc_collection.set_upstream(almasftp_task)
 addxmlns_task.set_upstream(create_sc_collection)
-# ingestsftpmarc_task.set_upstream(git_pull_tulcob_task)
-# ingestsftpmarc_task.set_upstream(addxmlns_task)
-# ingestsftpmarc_task.set_upstream(solr_commit_postclear)
+ingestsftpmarc_task.set_upstream(git_pull_catalog_sc_task)
+ingestsftpmarc_task.set_upstream(addxmlns_task)
 # parse_sftpdump_dates.set_upstream(ingestsftpmarc_task)
 # ingest_marc_boundwith.set_upstream(parse_sftpdump_dates)
 # get_num_solr_docs_post.set_upstream(solr_commit_postindex)

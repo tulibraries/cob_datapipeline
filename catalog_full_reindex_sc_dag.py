@@ -6,7 +6,6 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 from cob_datapipeline.almasftp_sc_fetch import almasftp_sc_fetch
 from cob_datapipeline.task_ingestsftpmarc import ingest_sftpmarc
-from cob_datapipeline.task_ingestmarc import ingest_marc
 from cob_datapipeline.task_ingest_databases import get_solr_url
 from cob_datapipeline.sc_parsesftpdump import parse_sftpdump_dates, renamesftpfiles_onsuccess
 from cob_datapipeline.task_addxmlns import task_addxmlns
@@ -120,8 +119,18 @@ parse_sftpdump_dates = PythonOperator(
     },
     dag=DAG
 )
-
-# ingest_marc_boundwith = ingest_marc(DAG, "boundwith_merged.xml", "ingest_boundwith_merged")
+ingest_marc_boundwith = BashOperator(
+    task_id="ingest_boundwith_merged",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh ",
+    env={
+        "HOME": AIRFLOW_HOME,
+        "SOLR_URL": SOLR_URL,
+        "ALMASFTP_HARVEST_PATH": ALMASFTP_HARVEST_PATH,
+        "DATA_IN": "boundwith_merged.xml",
+        "ALMAOAI_LAST_HARVEST_FROM_DATE": Variable.get("almaoai_last_harvest_from_date")
+     },
+    dag=DAG
+)
 
 # solr_endpoint_update = "/solr/" + CONFIGSET + "/update"
 # clear_index = SimpleHttpOperator(
@@ -158,7 +167,7 @@ addxmlns_task.set_upstream(create_sc_collection)
 ingestsftpmarc_task.set_upstream(git_pull_catalog_sc_task)
 ingestsftpmarc_task.set_upstream(addxmlns_task)
 parse_sftpdump_dates.set_upstream(ingestsftpmarc_task)
-# ingest_marc_boundwith.set_upstream(parse_sftpdump_dates)
+ingest_marc_boundwith.set_upstream(parse_sftpdump_dates)
 # get_num_solr_docs_post.set_upstream(solr_commit_postindex)
 # rename_sftpdump.set_upstream(parse_sftpdump_dates)
 # post_slack.set_upstream(get_num_solr_docs_post)

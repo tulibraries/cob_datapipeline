@@ -11,12 +11,9 @@ UTC_DATESTAMP_FSTR = "%Y-%m-%dT%H:%M:%SZ"
 MARCFILE_PREFIX = "alma_bibs__"
 MARCFILE_EXTENSION = "xml"
 
-# parse filename for datestamp
-# e.g. alma_bibs__2018041306_6863237930003811_new_61.xml
+# Parse filename for datestamp. (e.g. alma_bibs__2018041306_6863237930003811_new_61.xml)
 def get_dump_date(marcdircontents):
-    """
-    Gets dump date, parses filenames in the directory and returns the first date it finds.
-    """
+    # Gets dump date, parses filenames in the directory and returns the first date it finds.
     datestamp = None
     datestampregex = re.compile(r"alma_bibs__(.*)_(.*).xml")
     marcfileregex = re.compile(MARCFILE_PREFIX + r".*\." + MARCFILE_EXTENSION + "$")
@@ -29,9 +26,7 @@ def get_dump_date(marcdircontents):
     return datestamp
 
 def parse_sftpdump_dates(**kwargs):
-    """
-    Assigns date variables and resets oai variables for full reindex.
-    """
+    # Assigns date variables and resets oai variables for full reindex.
     ingest_command = kwargs.get("INGEST_COMMAND")
     marcfilepath = kwargs.get("ALMASFTP_HARVEST_PATH")
     date = None
@@ -45,8 +40,8 @@ def parse_sftpdump_dates(**kwargs):
             Variable.set("almaoai_last_num_oai_update_recs", 0)
             Variable.set("almaoai_last_num_oai_delete_recs", 0)
             date = time.strptime(datestamp[:8], "%Y%m%d")
-            Variable.set("almaoai_last_harvest_date", time.strftime(UTC_DATESTAMP_FSTR, date))
-            Variable.set("almaoai_last_harvest_from_date", time.strftime(UTC_DATESTAMP_FSTR, date))
+            Variable.set("ALMAOAI_LAST_HARVEST_DATE", time.strftime(UTC_DATESTAMP_FSTR, date))
+            Variable.set("ALMAOAI_LAST_HARVEST_FROM_DATE", time.strftime(UTC_DATESTAMP_FSTR, date))
         else:
             raise Exception("Cannot find a datestamp in {}".format(marcfilepath))
     else:

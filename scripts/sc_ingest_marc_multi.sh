@@ -1,5 +1,5 @@
 #/bin/bash --login
-# have any error in following cause bash script to fail
+
 set -e
 
 source $HOME/.bashrc
@@ -10,7 +10,7 @@ cd tmp/cob_index
 gem install bundler
 bundle install
 
-for file in $ALMASFTP_HARVEST_PATH/alma_bibs__*.xml
+for file in $ALMASFTP_HARVEST_PATH/$DATA_IN
 do
   bundle exec cob_index ingest $file
 done

@@ -1,13 +1,13 @@
-"""Airflow DAG to index tul_cob catalog into Solr."""
+# Airflow DAG to index tul_cob catalog into Solr.
 from datetime import datetime, timedelta
 import airflow
 from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
-from cob_datapipeline.almasftp_sc_fetch import almasftp_sc_fetch
+from cob_datapipeline.sc_almasftp_fetch import almasftp_sc_fetch
 from cob_datapipeline.task_ingestsftpmarc import ingest_sftpmarc
 from cob_datapipeline.task_ingest_databases import get_solr_url
-from cob_datapipeline.sc_parsesftpdump import parse_sftpdump_dates
+from cob_datapipeline.sc_parse_sftpdump_dates import parse_sftpdump_dates
 from cob_datapipeline.task_addxmlns import task_addxmlns
 from cob_datapipeline.task_solrcommit import task_solrcommit
 from cob_datapipeline.task_slackpost import task_catalog_slackpostonsuccess, task_slackpostonfail
@@ -16,16 +16,17 @@ from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
 from tulflow.tasks import create_sc_collection, swap_sc_alias
 
-# INIT SYSTEMWIDE VARIABLES
-#
-# check for existence of systemwide variables shared across tasks that can be
-# initialized here if not found (i.e. if this is a new installation)
-#
+"""
+INIT SYSTEMWIDE VARIABLES
+Check for existence of systemwide variables shared across tasks that can be
+initialized here if not found (i.e. if this is a new installation)
+"""
+
 AIRFLOW_HOME = Variable.get("AIRFLOW_HOME")
 GIT_BRANCH = Variable.get("GIT_PULL_TULCOB_BRANCH_NAME")
 LATEST_RELEASE = Variable.get("GIT_PULL_TULCOB_LATEST_RELEASE")
-almaoai_last_harvest_from_date = Variable.get("almaoai_last_harvest_from_date")
-almaoai_last_harvest_date = Variable.get("almaoai_last_harvest_date")
+ALMAOAI_LAST_HARVEST_FROM_DATE = Variable.get("ALMAOAI_LAST_HARVEST_FROM_DATE")
+ALMAOAI_LAST_HARVEST_DATE = Variable.get("ALMAOAI_LAST_HARVEST_DATE")
 ALMASFTP_HARVEST_RAW_DATE = Variable.get("ALMASFTP_HARVEST_RAW_DATE")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
@@ -56,19 +57,19 @@ DEFAULT_ARGS = {
 }
 
 DAG = airflow.DAG(
-    "catalog_full_reindex_sc", default_args=DEFAULT_ARGS, catchup=False,
+    "sc_catalog_full_reindex", default_args=DEFAULT_ARGS, catchup=False,
     max_active_runs=1, schedule_interval=None
 )
 
-#
-# CREATE TASKS
-#
-# Tasks with all logic contained in a single operator can be declared here.
-# Tasks with custom logic are relegated to individual Python files.
-#
-get_num_solr_docs_pre = task_solrgetnumdocs(DAG, CONFIGSET, "get_num_solr_docs_pre", conn_id=SOLR_CONN.conn_id)
-almasftp_task = PythonOperator(
-    task_id="almasftp",
+"""
+CREATE TASKS
+Tasks with all logic contained in a single operator can be declared here.
+Tasks with custom logic are relegated to individual Python files.
+"""
+
+GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(DAG, CONFIGSET, "get_num_solr_docs_pre", conn_id=SOLR_CONN.conn_id)
+ALMA_SFTP = PythonOperator(
+    task_id="alma_sftp",
     python_callable=almasftp_sc_fetch,
     op_kwargs={
         "host": ALMASFTP_HOST,
@@ -80,9 +81,10 @@ almasftp_task = PythonOperator(
      },
     dag=DAG
 )
-git_pull_catalog_sc_task = BashOperator(
-    task_id="git_pull_catalog_sc",
-    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/git_pull_catalog_sc.sh ",
+
+SC_CATALOG_GIT_PULL = BashOperator(
+    task_id="sc_catalog_git_pull",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_catalog_git_pull.sh ",
     env={
         "LATEST_RELEASE": LATEST_RELEASE,
         "GIT_BRANCH": GIT_BRANCH,
@@ -90,17 +92,20 @@ git_pull_catalog_sc_task = BashOperator(
      },
     dag=DAG
 )
-create_sc_collection = create_sc_collection(DAG, SOLR_CONN.conn_id, COLLECTION, REPLICATION_FACTOR, CONFIGSET)
-sc_addxmlns_task = BashOperator(
-    task_id="addxmlns",
-    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_addxmlns.sh ",
+
+SC_CREATE_COLLECTION = create_sc_collection(DAG, SOLR_CONN.conn_id, COLLECTION, REPLICATION_FACTOR, CONFIGSET)
+
+SC_ADD_XML_NAMESPACES = BashOperator(
+    task_id="sc_add_xml_namespaces",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_add_xml_namespaces.sh ",
     env={
         "ALMASFTP_HARVEST_PATH": ALMASFTP_HARVEST_PATH
      },
     dag=DAG
 )
-ingestsftpmarc_task = BashOperator(
-    task_id="ingest_sftp_marc",
+
+SC_INGEST_SFTP_MARC = BashOperator(
+    task_id="sc_ingest_sftp_marc",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc_multi.sh ",
     env={
         "HOME": AIRFLOW_HOME,
@@ -109,8 +114,9 @@ ingestsftpmarc_task = BashOperator(
      },
     dag=DAG
 )
-parse_sftpdump_dates = PythonOperator(
-    task_id="parse_sftpdump",
+
+SC_PARSE_SFTPDUMP_DATES = PythonOperator(
+    task_id="sc_parse_sftpdump_dates",
     provide_context=True,
     python_callable=parse_sftpdump_dates,
     op_kwargs={
@@ -119,21 +125,25 @@ parse_sftpdump_dates = PythonOperator(
     },
     dag=DAG
 )
-ingest_marc_boundwith = BashOperator(
-    task_id="ingest_boundwith_merged",
+
+SC_INGEST_MARC_BOUNDWITH = BashOperator(
+    task_id="sc_ingest_marc_boundwith",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh ",
     env={
         "HOME": AIRFLOW_HOME,
         "SOLR_URL": SOLR_URL,
         "ALMASFTP_HARVEST_PATH": ALMASFTP_HARVEST_PATH,
         "DATA_IN": "boundwith_merged.xml",
-        "ALMAOAI_LAST_HARVEST_FROM_DATE": Variable.get("almaoai_last_harvest_from_date")
+        "ALMAOAI_LAST_HARVEST_FROM_DATE": Variable.get("ALMAOAI_LAST_HARVEST_FROM_DATE")
      },
     dag=DAG
 )
+
 SOLR_ALIAS_SWAP = swap_sc_alias(DAG, SOLR_CONN.conn_id, COLLECTION, ALIAS)
-get_num_solr_docs_post = task_solrgetnumdocs(DAG, ALIAS, "get_num_solr_docs_post", conn_id=SOLR_CONN.conn_id)
-rename_sftpdump = BashOperator(
+
+GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(DAG, ALIAS, "get_num_solr_docs_post", conn_id=SOLR_CONN.conn_id)
+
+ARCHIVE_SFTPDUMP = BashOperator(
     task_id="archive_sftpdump",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_sftp_cleanup.sh ",
     env={
@@ -142,7 +152,8 @@ rename_sftpdump = BashOperator(
      },
     dag=DAG
 )
-post_slack = PythonOperator(
+
+POST_SLACK = PythonOperator(
    task_id='slack_post_succ',
    python_callable=task_catalog_slackpostonsuccess,
    provide_context=True,
@@ -150,16 +161,16 @@ post_slack = PythonOperator(
 )
 
 # SET UP TASK DEPENDENCIES
-git_pull_catalog_sc_task.set_upstream(get_num_solr_docs_pre)
-almasftp_task.set_upstream(get_num_solr_docs_pre)
-create_sc_collection.set_upstream(almasftp_task)
-sc_addxmlns_task.set_upstream(create_sc_collection)
-ingestsftpmarc_task.set_upstream(git_pull_catalog_sc_task)
-ingestsftpmarc_task.set_upstream(sc_addxmlns_task)
-parse_sftpdump_dates.set_upstream(ingestsftpmarc_task)
-ingest_marc_boundwith.set_upstream(parse_sftpdump_dates)
-SOLR_ALIAS_SWAP.set_upstream(ingest_marc_boundwith)
-get_num_solr_docs_post.set_upstream(SOLR_ALIAS_SWAP)
-rename_sftpdump.set_upstream(parse_sftpdump_dates)
-post_slack.set_upstream(get_num_solr_docs_post)
-post_slack.set_upstream(rename_sftpdump)
+ALMA_SFTP.set_upstream(GET_NUM_SOLR_DOCS_PRE)
+SC_CATALOG_GIT_PULL.set_upstream(GET_NUM_SOLR_DOCS_PRE)
+SC_CREATE_COLLECTION.set_upstream(ALMA_SFTP)
+SC_ADD_XML_NAMESPACES.set_upstream(SC_CREATE_COLLECTION)
+SC_INGEST_SFTP_MARC.set_upstream(SC_CATALOG_GIT_PULL)
+SC_INGEST_SFTP_MARC.set_upstream(SC_ADD_XML_NAMESPACES)
+SC_PARSE_SFTPDUMP_DATES.set_upstream(SC_INGEST_SFTP_MARC)
+SC_INGEST_MARC_BOUNDWITH.set_upstream(SC_PARSE_SFTPDUMP_DATES)
+SOLR_ALIAS_SWAP.set_upstream(SC_INGEST_MARC_BOUNDWITH)
+GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_ALIAS_SWAP)
+ARCHIVE_SFTPDUMP.set_upstream(SC_PARSE_SFTPDUMP_DATES)
+POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_POST)
+POST_SLACK.set_upstream(ARCHIVE_SFTPDUMP)

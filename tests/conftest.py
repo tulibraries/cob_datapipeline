@@ -43,12 +43,14 @@ def pytest_sessionstart():
     airflow.models.Variable.set("GIT_PULL_TULCOB_BRANCH_NAME", "qa")
     airflow.models.Variable.set("SOLR_AUTH_USER", "SOLR_AUTH_USER")
     airflow.models.Variable.set("SOLR_AUTH_PASSWORD", "SOLR_AUTH_PASSWORD")
-    airflow.models.Variable.set("WEB_CONTENT_CORE", "WEB_CONTENT_CORE")
-    airflow.models.Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "WEB_CONTENT_SCHEDULE_INTERVAL")
-    airflow.models.Variable.set("WEB_CONTENT_BRANCH", "WEB_CONTENT_BRANCH")
+    airflow.models.Variable.set("WEB_CONTENT_BASE_URL", "WEB_CONTENT_BASE_URL")
     airflow.models.Variable.set("WEB_CONTENT_BASIC_AUTH_USER", "WEB_CONTENT_BASIC_AUTH_USER")
     airflow.models.Variable.set("WEB_CONTENT_BASIC_AUTH_PASSWORD", "WEB_CONTENT_BASIC_AUTH_PASSWORD")
-    airflow.models.Variable.set("WEB_CONTENT_BASE_URL", "WEB_CONTENT_BASE_URL")
+    airflow.models.Variable.set("WEB_CONTENT_BRANCH", "WEB_CONTENT_BRANCH")
+    airflow.models.Variable.set("WEB_CONTENT_CONFIGSET", "tul_cob-web-1")
+    airflow.models.Variable.set("WEB_CONTENT_CORE", "WEB_CONTENT_CORE")
+    airflow.models.Variable.set("WEB_CONTENT_REPLICATION_FACTOR", 2)
+    airflow.models.Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "WEB_CONTENT_SCHEDULE_INTERVAL")
 
     solr = airflow.models.Connection(
                 conn_id="AIRFLOW_CONN_SOLR_LEADER",

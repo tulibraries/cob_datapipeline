@@ -1,4 +1,4 @@
-"""Airflow DAG to index Web Content into SolrCloud."""
+# Airflow DAG to index Web Content into SolrCloud.
 from datetime import datetime, timedelta
 import airflow
 from airflow.operators.python_operator import PythonOperator
@@ -7,15 +7,15 @@ from cob_datapipeline.task_ingest_databases import get_solr_url
 from cob_datapipeline.task_slackpost import task_web_content_slackpostonsuccess, task_slackpostonfail
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from airflow.models import Variable
-from airflow.hooks import BaseHook
+from airflow.hooks.base_hook import BaseHook
 from tulflow.tasks import create_sc_collection, swap_sc_alias
 
-#
-# INIT SYSTEMWIDE VARIABLES
-#
-# check for existence of systemwide variables shared across tasks that can be
-# initialized here if not found (i.e. if this is a new installation) & defaults exist
-#
+"""
+INIT SYSTEMWIDE VARIABLES
+
+check for existence of systemwide variables shared across tasks that can be
+initialized here if not found (i.e. if this is a new installation) & defaults exist
+"""
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
@@ -26,9 +26,8 @@ COLLECTION = CONFIGSET + "-" + TIMESTAMP
 SOLR_URL = get_solr_url(SOLR_CONN, COLLECTION)
 
 SCHEDULE_INTERVAL = airflow.models.Variable.get("WEB_CONTENT_SCHEDULE_INTERVAL")
-#
+
 # CREATE DAG
-#
 DEFAULT_ARGS = {
     'owner': 'airflow',
     'depends_on_past': False,
@@ -42,35 +41,37 @@ DEFAULT_ARGS = {
 }
 
 DAG = airflow.DAG(
-    'tul_cob_web_content_sc_reindex', default_args=DEFAULT_ARGS, catchup=False,
+    'sc_web_content_reindex', default_args=DEFAULT_ARGS, catchup=False,
     max_active_runs=1, schedule_interval=SCHEDULE_INTERVAL
 )
 
-#
-# CREATE TASKS
-#
-# Tasks with all logic contained in a single operator can be declared here.
-# Tasks with custom logic are relegated to individual Python files.
-#
+"""
+CREATE TASKS
 
+Tasks with all logic contained in a single operator can be declared here.
+Tasks with custom logic are relegated to individual Python files.
+"""
 
-get_num_solr_docs_pre = task_solrgetnumdocs(DAG, CONFIGSET, 'get_num_solr_docs_pre', conn_id=SOLR_CONN.conn_id)
+GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(DAG, CONFIGSET, 'get_num_solr_docs_pre', conn_id=SOLR_CONN.conn_id)
+
 CREATE_COLLECTION = create_sc_collection(DAG, SOLR_CONN.conn_id, COLLECTION, REPLICATION_FACTOR, CONFIGSET)
-ingest_web_content_task = ingest_web_content(dag=DAG, conn=SOLR_CONN, solr_url=SOLR_URL)
-get_num_solr_docs_post = task_solrgetnumdocs(DAG, COLLECTION, 'get_num_solr_docs_post', conn_id=SOLR_CONN.conn_id)
-post_slack = PythonOperator(
+
+INGEST_WEB_CONTENT = ingest_web_content(dag=DAG, conn=SOLR_CONN, solr_url=SOLR_URL)
+
+GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(DAG, COLLECTION, 'get_num_solr_docs_post', conn_id=SOLR_CONN.conn_id)
+
+SOLR_ALIAS_SWAP = swap_sc_alias(DAG, SOLR_CONN.conn_id, COLLECTION, CONFIGSET)
+
+POST_SLACK = PythonOperator(
     task_id='slack_post_succ',
     python_callable=task_web_content_slackpostonsuccess,
     provide_context=True,
     dag=DAG
 )
-SOLR_ALIAS_SWAP = swap_sc_alias(DAG, SOLR_CONN.conn_id, COLLECTION, CONFIGSET)
 
-#
 # SET UP TASK DEPENDENCIES
-#
-CREATE_COLLECTION.set_upstream(get_num_solr_docs_pre)
-ingest_web_content_task.set_upstream(CREATE_COLLECTION)
-get_num_solr_docs_post.set_upstream(ingest_web_content_task)
-SOLR_ALIAS_SWAP.set_upstream(get_num_solr_docs_post)
-post_slack.set_upstream(SOLR_ALIAS_SWAP)
+CREATE_COLLECTION.set_upstream(GET_NUM_SOLR_DOCS_PRE)
+INGEST_WEB_CONTENT.set_upstream(CREATE_COLLECTION)
+GET_NUM_SOLR_DOCS_POST.set_upstream(INGEST_WEB_CONTENT)
+SOLR_ALIAS_SWAP.set_upstream(GET_NUM_SOLR_DOCS_POST)
+POST_SLACK.set_upstream(SOLR_ALIAS_SWAP)

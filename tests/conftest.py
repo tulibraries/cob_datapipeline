@@ -2,6 +2,7 @@
 import os
 import subprocess
 import airflow
+from datetime import datetime, timedelta
 
 def pytest_sessionstart():
     """
@@ -24,6 +25,9 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AIRFLOW_USER_HOME", repo_dir)
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_FROM_DATE", "none")
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_DATE", "none")
+    airflow.models.Variable.set("ALMA_OAI_ENDPOINT", "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST")
+    airflow.models.Variable.set("ALMA_HARVEST_FROM_DATE", "2019-08-10T01:02:03Z")
+    airflow.models.Variable.set("ALMA_OAI_PUBLISH_INTERVAL", "6")
     airflow.models.Variable.set("ALMASFTP_HARVEST_PATH", repo_dir + "/data/sftpdump/")
     airflow.models.Variable.set("ALMASFTP_HOST", "127.0.0.1")
     airflow.models.Variable.set("ALMASFTP_PORT", 9229 )

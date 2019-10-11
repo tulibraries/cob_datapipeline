@@ -28,6 +28,7 @@ class TestCatalogFullReindexScDag(unittest.TestCase):
             "archive_s3_data",
             "solr_alias_swap",
             "get_num_solr_docs_post",
+            "update_date_variables",
             "slack_post_succ"
             ])
 
@@ -42,7 +43,8 @@ class TestCatalogFullReindexScDag(unittest.TestCase):
             "index_sftp_marc": ["create_collection"],
             "archive_s3_data": ["index_sftp_marc"],
             "solr_alias_swap": ["archive_s3_data"],
-            "get_num_solr_docs_post": ["solr_alias_swap"],
+            "update_date_variables": ["solr_alias_swap"],
+            "get_num_solr_docs_post": ["update_date_variables"],
             "slack_post_succ": ["get_num_solr_docs_post"],
         }
         for task, upstream_tasks in expected_task_deps.items():

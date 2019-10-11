@@ -4,6 +4,7 @@ set -e
 set -o pipefail
 
 source $HOME/.bashrc
+export PATH=$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH
 
 get_latest_release_number() {
   curl --silent "https://github.com/$1/releases/latest" | sed 's#.*tag/\(.*\)\".*#\1#'
@@ -14,6 +15,7 @@ if [ $LATEST_RELEASE == "true" ]; then
 fi
 
 git clone https://github.com/tulibraries/cob_index.git tmp/cob_index --branch=$GIT_BRANCH
+echo $GIT_BRANCH
 cd tmp/cob_index
 gem install bundler
 bundle install --without=debug
@@ -23,4 +25,6 @@ data_in=$(aws s3api list-objects --bucket $BUCKET --prefix $FOLDER | jq -r '.Con
 for file in $data_in
 do
   bundle exec cob_index ingest https://$BUCKET.s3.amazonaws.com/$file
+  donefile=$(echo $file | sed "s/alma_bibs/done_alma_bibs/g")
+  aws s3 mv s3://$BUCKET/$file s3://$BUCKET/$donefile
 done

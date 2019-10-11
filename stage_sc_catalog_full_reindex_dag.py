@@ -6,7 +6,7 @@ from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.contrib.operators.s3_list_operator import S3ListOperator
-from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
+from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data, update_variables, parse_dates_from_s3_keys
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slackpost import task_catalog_slackpostonsuccess
 from tulflow import tasks
@@ -172,6 +172,19 @@ GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     conn_id=SOLR_CONN.conn_id
 )
 
+UPDATE_DATE_VARIABLES = PythonOperator(
+    task_id="update_date_variables",
+    provide_context=True,
+    python_callable=update_variables,
+    op_kwargs={
+        "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_alma_s3_data') }}",
+        "UPDATE": {
+            "ALMA_HARVEST_FROM_DATE": parse_dates_from_s3_keys
+        }
+    },
+    dag=DAG
+)
+
 POST_SLACK = PythonOperator(
     task_id="slack_post_succ",
     python_callable=task_catalog_slackpostonsuccess,
@@ -188,5 +201,6 @@ CREATE_COLLECTION.set_upstream(PREPARE_ALMA_DATA)
 INDEX_SFTP_MARC.set_upstream(CREATE_COLLECTION)
 ARCHIVE_S3_DATA.set_upstream(INDEX_SFTP_MARC)
 SOLR_ALIAS_SWAP.set_upstream(ARCHIVE_S3_DATA)
-GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_ALIAS_SWAP)
+UPDATE_DATE_VARIABLES.set_upstream(SOLR_ALIAS_SWAP)
+GET_NUM_SOLR_DOCS_POST.set_upstream(UPDATE_DATE_VARIABLES)
 POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_POST)

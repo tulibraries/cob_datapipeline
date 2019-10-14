@@ -11,9 +11,10 @@ UTC_DATESTAMP_FSTR = "%Y-%m-%dT%H:%M:%SZ"
 MARCFILE_PREFIX = "alma_bibs__"
 MARCFILE_EXTENSION = "xml"
 
+
 # Parse filename for datestamp. (e.g. alma_bibs__2018041306_6863237930003811_new_61.xml)
 def get_dump_date(marcdircontents):
-    # Gets dump date, parses filenames in the directory and returns the first date it finds.
+    """Gets dump date, parses filenames in the directory and returns the first date it finds."""
     datestamp = None
     datestampregex = re.compile(r"alma_bibs__(.*)_(.*).xml")
     marcfileregex = re.compile(MARCFILE_PREFIX + r".*\." + MARCFILE_EXTENSION + "$")
@@ -25,8 +26,9 @@ def get_dump_date(marcdircontents):
                 break
     return datestamp
 
+
 def parse_sftpdump_dates(**kwargs):
-    # Assigns date variables and resets oai variables for full reindex.
+    """Assigns date variables and resets oai variables for full reindex."""
     ingest_command = kwargs.get("INGEST_COMMAND")
     marcfilepath = kwargs.get("ALMASFTP_HARVEST_PATH")
     date = None

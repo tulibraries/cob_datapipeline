@@ -82,17 +82,6 @@ ALMA_SFTP = PythonOperator(
     dag=DAG
 )
 
-SC_CATALOG_GIT_PULL = BashOperator(
-    task_id="sc_catalog_git_pull",
-    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_catalog_git_pull.sh ",
-    env={
-        "LATEST_RELEASE": LATEST_RELEASE,
-        "GIT_BRANCH": GIT_BRANCH,
-        "HOME": AIRFLOW_HOME
-     },
-    dag=DAG
-)
-
 SC_CREATE_COLLECTION = create_sc_collection(DAG, SOLR_CONN.conn_id, COLLECTION, REPLICATION_FACTOR, CONFIGSET)
 
 SC_ADD_XML_NAMESPACES = BashOperator(
@@ -109,8 +98,11 @@ SC_INGEST_SFTP_MARC = BashOperator(
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc_multi.sh ",
     env={
         "HOME": AIRFLOW_HOME,
+        "SOLR_URL": SOLR_URL,
         "ALMASFTP_HARVEST_PATH": ALMASFTP_HARVEST_PATH,
-        "SOLR_URL": SOLR_URL
+        "DATA_IN": "alma_bib__*.xml",
+        "GIT_BRANCH": GIT_BRANCH,
+        "LATEST_RELEASE": LATEST_RELEASE,
      },
     dag=DAG
 )
@@ -128,13 +120,14 @@ SC_PARSE_SFTPDUMP_DATES = PythonOperator(
 
 SC_INGEST_MARC_BOUNDWITH = BashOperator(
     task_id="sc_ingest_marc_boundwith",
-    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh ",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc_multi.sh ",
     env={
         "HOME": AIRFLOW_HOME,
         "SOLR_URL": SOLR_URL,
         "ALMASFTP_HARVEST_PATH": ALMASFTP_HARVEST_PATH,
         "DATA_IN": "boundwith_merged.xml",
-        "ALMAOAI_LAST_HARVEST_FROM_DATE": Variable.get("ALMAOAI_LAST_HARVEST_FROM_DATE")
+        "GIT_BRANCH": GIT_BRANCH,
+        "LATEST_RELEASE": LATEST_RELEASE,
      },
     dag=DAG
 )
@@ -162,10 +155,8 @@ POST_SLACK = PythonOperator(
 
 # SET UP TASK DEPENDENCIES
 ALMA_SFTP.set_upstream(GET_NUM_SOLR_DOCS_PRE)
-SC_CATALOG_GIT_PULL.set_upstream(GET_NUM_SOLR_DOCS_PRE)
 SC_CREATE_COLLECTION.set_upstream(ALMA_SFTP)
 SC_ADD_XML_NAMESPACES.set_upstream(SC_CREATE_COLLECTION)
-SC_INGEST_SFTP_MARC.set_upstream(SC_CATALOG_GIT_PULL)
 SC_INGEST_SFTP_MARC.set_upstream(SC_ADD_XML_NAMESPACES)
 SC_PARSE_SFTPDUMP_DATES.set_upstream(SC_INGEST_SFTP_MARC)
 SC_INGEST_MARC_BOUNDWITH.set_upstream(SC_PARSE_SFTPDUMP_DATES)

@@ -19,7 +19,6 @@ class TestCatalogFullReindexScDag(unittest.TestCase):
         self.assertEqual(self.tasks, [
             "get_num_solr_docs_pre",
             "alma_sftp",
-            "sc_catalog_git_pull",
             "create_collection",
             "sc_add_xml_namespaces",
             "sc_ingest_sftp_marc",
@@ -35,10 +34,8 @@ class TestCatalogFullReindexScDag(unittest.TestCase):
         # Unit test that the DAG instance contains the expected dependencies.
         expected_task_deps = {
             "alma_sftp": ["get_num_solr_docs_pre"],
-            "sc_catalog_git_pull": ["get_num_solr_docs_pre"],
             "create_collection": ["alma_sftp"],
             "sc_add_xml_namespaces": ["create_collection"],
-            "sc_ingest_sftp_marc": ["sc_add_xml_namespaces", "sc_catalog_git_pull"],
             "sc_parse_sftpdump_dates": ["sc_ingest_sftp_marc"],
             "sc_ingest_marc_boundwith": ["sc_parse_sftpdump_dates"],
             "solr_alias_swap": ["sc_ingest_marc_boundwith"],
@@ -49,15 +46,6 @@ class TestCatalogFullReindexScDag(unittest.TestCase):
         for task, upstream_tasks in expected_task_deps.items():
             upstream_list = [up_task.task_id for up_task in DAG.get_task(task).upstream_list]
             self.assertCountEqual(upstream_tasks, upstream_list)
-
-    def test_sc_catalog_git_pull(self):
-        # Test that we pull the correct branch from GitHub
-        airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
-        task = DAG.get_task("sc_catalog_git_pull")
-        expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/sc_catalog_git_pull.sh "
-        self.assertEqual(task.env["LATEST_RELEASE"], "False")
-        self.assertEqual(task.env["GIT_BRANCH"], "qa")
-        self.assertEqual(task.bash_command, expected_bash_path)
 
     def test_sc_add_xml_namespaces(self):
         # Test that we inject namespaces and untar files correctly
@@ -81,11 +69,10 @@ class TestCatalogFullReindexScDag(unittest.TestCase):
         # Test that we ingest the boundwith.xml file
         airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
         task = DAG.get_task("sc_ingest_marc_boundwith")
-        expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh "
+        expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/sc_ingest_marc_multi.sh "
         self.assertEqual(task.env["HOME"], os.getcwd())
         self.assertEqual(task.env["ALMASFTP_HARVEST_PATH"], os.getcwd() + "/data/sftpdump")
         self.assertEqual(task.env["DATA_IN"], "boundwith_merged.xml")
-        self.assertEqual(task.env["ALMAOAI_LAST_HARVEST_FROM_DATE"], "none")
         self.assertEqual(task.bash_command, expected_bash_path)
 
     def test_archive_sftpdump(self):

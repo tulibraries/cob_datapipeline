@@ -5,11 +5,12 @@ from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from cob_datapipeline.sc_parse_sftpdump_dates import parse_sftpdump_dates
-from cob_datapipeline.task_ingest_databases import get_solr_url
+from airflow.contrib.operators.s3_list_operator import S3ListOperator
+from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slackpost import task_catalog_slackpostonsuccess, task_slackpostonfail
-from tulflow.tasks import create_sc_collection, swap_sc_alias
+from tulflow.tasks import create_sc_collection, get_solr_url, swap_sc_alias
+
 
 
 """
@@ -20,11 +21,10 @@ initialized here if not found (i.e. if this is a new installation)
 
 AIRFLOW_HOME = Variable.get("AIRFLOW_HOME")
 AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
+
+# cob_index Indexer Library Variables
 GIT_BRANCH = Variable.get("GIT_PULL_TULCOB_BRANCH_NAME")
 LATEST_RELEASE = Variable.get("GIT_PULL_TULCOB_LATEST_RELEASE")
-ALMAOAI_LAST_HARVEST_FROM_DATE = Variable.get("ALMAOAI_LAST_HARVEST_FROM_DATE")
-ALMAOAI_LAST_HARVEST_DATE = Variable.get("ALMAOAI_LAST_HARVEST_DATE")
-ALMASFTP_HARVEST_RAW_DATE = Variable.get("ALMASFTP_HARVEST_RAW_DATE")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
@@ -71,16 +71,42 @@ GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     conn_id=SOLR_CONN.conn_id
 )
 
-SC_PREPARE_S3_DATA = BashOperator(
-    task_id="sc_prepare_s3_data",
-    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_prepare_s3_data.sh ",
-    env={
+LIST_ALMA_S3_DATA = S3ListOperator(
+    task_id='list_alma_s3_data',
+    bucket=AIRFLOW_DATA_BUCKET,
+    prefix=ALMASFTP_S3_PREFIX + "/alma_bibs__",
+    delimiter='/',
+    aws_conn_id=AIRFLOW_S3.conn_id,
+    dag=DAG
+)
+
+PREPARE_BOUNDWITHS = PythonOperator(
+    task_id='prepare_boundwiths',
+    provide_context=True,
+    python_callable=prepare_boundwiths,
+    op_kwargs={
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP,
-        "HOME": AIRFLOW_USER_HOME,
-        "SOURCE_FOLDER": ALMASFTP_S3_PREFIX
+        "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP + "/lookup.tsv",
+        "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_alma_s3_data') }}",
+        "SOURCE_FOLDER": ALMASFTP_S3_PREFIX + "/alma_bibs__boundwith"
+    },
+    dag=DAG
+)
+
+PREPARE_ALMA_DATA = PythonOperator(
+    task_id="prepare_alma_data",
+    python_callable=prepare_alma_data,
+    op_kwargs={
+        "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
+        "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
+        "BUCKET": AIRFLOW_DATA_BUCKET,
+        "DEST_PREFIX": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP,
+        "LOOKUP_KEY": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP + "/lookup.tsv",
+        "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_alma_s3_data') }}",
+        "SOURCE_PREFIX": ALMASFTP_S3_PREFIX + "/" + "alma_bibs__",
+        "SOURCE_SUFFIX": ".tar.gz"
     },
     dag=DAG
 )
@@ -94,12 +120,13 @@ SC_CREATE_COLLECTION = create_sc_collection(
 )
 
 SC_INDEX_SFTP_MARC = BashOperator(
-    task_id="sc_index_sftp_marc",
+    task_id="index_sftp_marc",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh ",
     env={
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
+        "DATA_IN": "{{ ti.xcom_pull(task_ids='list_alma_s3_data') }}",
         "FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP,
         "GIT_BRANCH": GIT_BRANCH,
         "HOME": AIRFLOW_USER_HOME,
@@ -115,11 +142,11 @@ ARCHIVE_S3_DATA = BashOperator(
     task_id="archive_s3_data",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_archive_s3_data.sh ",
     env={
+        "AIRFLOW_HOME": AIRFLOW_HOME,
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/archived/" + TIMESTAMP,
-        "HOME": AIRFLOW_USER_HOME,
         "SOURCE_FOLDER": ALMASFTP_S3_PREFIX
     },
     dag=DAG
@@ -147,8 +174,10 @@ POST_SLACK = PythonOperator(
 )
 
 # SET UP TASK DEPENDENCIES
-SC_PREPARE_S3_DATA.set_upstream(GET_NUM_SOLR_DOCS_PRE)
-SC_CREATE_COLLECTION.set_upstream(SC_PREPARE_S3_DATA)
+LIST_ALMA_S3_DATA.set_upstream(GET_NUM_SOLR_DOCS_PRE)
+PREPARE_BOUNDWITHS.set_upstream(LIST_ALMA_S3_DATA)
+PREPARE_ALMA_DATA.set_upstream(PREPARE_BOUNDWITHS)
+SC_CREATE_COLLECTION.set_upstream(PREPARE_ALMA_DATA)
 SC_INDEX_SFTP_MARC.set_upstream(SC_CREATE_COLLECTION)
 ARCHIVE_S3_DATA.set_upstream(SC_INDEX_SFTP_MARC)
 SOLR_ALIAS_SWAP.set_upstream(ARCHIVE_S3_DATA)

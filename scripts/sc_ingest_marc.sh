@@ -2,17 +2,24 @@
 
 set -e
 source $HOME/.bashrc
+export PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH"
 
-# check that the MARC XML file exists
-if [ ! -e $ALMASFTP_HARVEST_PATH/$DATA_IN ]
-then
-  exit 1
+get_latest_release_number() {
+  curl --silent "https://github.com/$1/releases/latest" | sed 's#.*tag/\(.*\)\".*#\1#'
+}
+
+if [ $LATEST_RELEASE == "true" ]; then
+  GIT_BRANCH=`get_latest_release_number tulibraries/cob_index`
 fi
 
-export PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH"
-# grab the catalog indexer (ruby / traject) & install related gems
-git clone https://github.com/tulibraries/cob_index.git tmp/cob_index
+git clone https://github.com/tulibraries/cob_index.git tmp/cob_index --branch=$GIT_BRANCH
 cd tmp/cob_index
 gem install bundler
 bundle install
-bundle exec cob_index ingest $ALMASFTP_HARVEST_PATH/$DATA_IN
+
+data_in = `aws s3api list-objects --bucket $BUCKET --prefix $FOLDER | jq -r '.Contents[].Key'`
+
+for file in data_in
+do
+  bundle exec cob_index ingest https://$BUCKET.s3.amazonaws.com/$FOLDER/$file
+done

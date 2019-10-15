@@ -75,11 +75,11 @@ SC_PREPARE_S3_DATA = BashOperator(
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_prepare_s3_data.sh ",
     env={
         "AIRFLOW_HOME": AIRFLOW_HOME,
-        "BUCKET": AIRFLOW_DATA_BUCKET,
-        "DEST_FOLDER": AIRFLOW_DATA_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP,
-        "SOURCE_FOLDER": AIRFLOW_DATA_PREFIX,
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
+        "BUCKET": AIRFLOW_DATA_BUCKET,
+        "DEST_FOLDER": AIRFLOW_DATA_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP,
+        "SOURCE_FOLDER": AIRFLOW_DATA_PREFIX
     },
     dag=DAG
 )
@@ -96,28 +96,33 @@ SC_INDEX_SFTP_MARC = BashOperator(
     task_id="sc_index_sftp_marc",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh ",
     env={
-        "HOME": AIRFLOW_HOME,
+        "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
+        "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "FOLDER": AIRFLOW_DATA_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP,
         "GIT_BRANCH": GIT_BRANCH,
+        "HOME": AIRFLOW_HOME,
         "LATEST_RELEASE": LATEST_RELEASE,
-        "SOLR_URL": SOLR_URL,
-        "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
-        "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
+        "SOLR_AUTH_USER": SOLR_CONN.login,
+        "SOLR_AUTH_PASSWORD": SOLR_CONN.password,
+        "SOLR_URL": SOLR_URL
     },
     dag=DAG
 )
 
-# SC_PARSE_SFTPDUMP_DATES = PythonOperator(
-#     task_id="sc_parse_sftpdump_dates",
-#     provide_context=True,
-#     python_callable=parse_sftpdump_dates,
-#     op_kwargs={
-#         "INGEST_COMMAND": AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh",
-#         "ALMASFTP_HARVEST_PATH": ALMASFTP_HARVEST_PATH
-#     },
-#     dag=DAG
-# )
+ARCHIVE_S3_DATA = BashOperator(
+    task_id="archive_s3_data",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_archive_s3_data.sh ",
+    env={
+        "AIRFLOW_HOME": AIRFLOW_HOME,
+        "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
+        "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
+        "BUCKET": AIRFLOW_DATA_BUCKET,
+        "DEST_FOLDER": AIRFLOW_DATA_PREFIX + "/archived/" + TIMESTAMP,
+        "SOURCE_FOLDER": AIRFLOW_DATA_PREFIX
+    },
+    dag=DAG
+)
 
 SOLR_ALIAS_SWAP = swap_sc_alias(
     DAG,
@@ -144,6 +149,7 @@ POST_SLACK = PythonOperator(
 SC_PREPARE_S3_DATA.set_upstream(GET_NUM_SOLR_DOCS_PRE)
 SC_CREATE_COLLECTION.set_upstream(SC_PREPARE_S3_DATA)
 SC_INDEX_SFTP_MARC.set_upstream(SC_CREATE_COLLECTION)
-SOLR_ALIAS_SWAP.set_upstream(SC_INDEX_SFTP_MARC)
+ARCHIVE_S3_DATA.set_upstream(SC_INDEX_SFTP_MARC)
+SOLR_ALIAS_SWAP.set_upstream(ARCHIVE_S3_DATA)
 GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_ALIAS_SWAP)
 POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_POST)

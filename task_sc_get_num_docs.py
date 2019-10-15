@@ -1,6 +1,5 @@
 from airflow.operators.http_operator import SimpleHttpOperator
 
-
 def task_solrgetnumdocs(dag, alias_name, taskid, conn_id):
     solr_endpoint_select = '/solr/' + alias_name + '/select'
 

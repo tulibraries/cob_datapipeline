@@ -1,11 +1,11 @@
-# Unit Tests for the TUL Cob AZ Reindex DAG.
+# Unit Tests for the TUL Cob AZ Reindex SC DAG.
 import os
 import unittest
 import airflow
-from cob_datapipeline.tul_cob_az_reindex_dag import AZ_DAG
+from cob_datapipeline.sc_az_reindex_dag import AZ_DAG
 from cob_datapipeline.task_ingest_databases import ingest_databases
 
-class TestTulCobAZReindexDag(unittest.TestCase):
+class TestScAZReindexDag(unittest.TestCase):
     # Primary Class for Testing the TUL Cob Reindex DAG.
 
     def setUp(self):
@@ -14,7 +14,7 @@ class TestTulCobAZReindexDag(unittest.TestCase):
 
     def test_dag_loads(self):
         # Unit test that the DAG identifier is set correctly.
-        self.assertEqual(AZ_DAG.dag_id, "tul_cob_az_reindex")
+        self.assertEqual(AZ_DAG.dag_id, "sc_az_reindex")
 
     def test_dag_interval_is_variable(self):
         # Unit test that the DAG schedule is set by configuration
@@ -24,17 +24,21 @@ class TestTulCobAZReindexDag(unittest.TestCase):
         # Unit test that the DAG instance contains the expected tasks.
         self.assertEqual(self.tasks, [
             "get_num_solr_docs_pre",
+            "create_collection",
             "ingest_databases",
             "get_num_solr_docs_post",
+            "solr_alias_swap",
             "slack_post_succ",
             ])
 
     def test_dag_task_order(self):
         # Unit test that the DAG instance contains the expected dependencies.
         expected_task_deps = {
-            "ingest_databases": "get_num_solr_docs_pre",
+            "create_collection": "get_num_solr_docs_pre",
+            "ingest_databases": "create_collection",
             "get_num_solr_docs_post": "ingest_databases",
-            "slack_post_succ": "get_num_solr_docs_post",
+            "solr_alias_swap": "get_num_solr_docs_post",
+            "slack_post_succ": "solr_alias_swap",
         }
 
         for task, upstream_task in expected_task_deps.items():
@@ -53,5 +57,4 @@ class TestTulCobAZReindexDag(unittest.TestCase):
         self.assertEqual(task.env["AZ_BRANCH"], "AZ_BRANCH")
         self.assertEqual(task.env["AZ_CLIENT_ID"], "AZ_CLIENT_ID")
         self.assertEqual(task.env["AZ_CLIENT_SECRET"], "AZ_CLIENT_SECRET")
-        self.assertEqual(task.env["AZ_DELETE_SWITCH"], "--delete")
-        self.assertEqual(task.env["SOLR_AZ_URL"], "http://127.0.0.1:8983/solr/az-database")
+        self.assertEqual(task.env["SOLR_AZ_URL"], "http://127.0.0.1:8983/solr/tul_cob-az-1-{{ execution_date.strftime('%Y-%m-%d_%H-%M-%S') }}")

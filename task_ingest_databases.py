@@ -1,4 +1,4 @@
-"""Airflow Task to index AZ Database records into Solr."""
+# Airflow Task to index AZ Database records into Solr.
 import os
 import airflow
 import re
@@ -57,7 +57,6 @@ def ingest_databases(dag, conn, task_id="ingest_databases", solr_url=None, delet
         env=env,
         dag=dag
     )
-
 
 def get_solr_url(conn, core):
     """  Generates a solr url from  passed in connection and core.

@@ -18,13 +18,15 @@ def pytest_sessionstart():
     subprocess.run("cp -r configs dags/cob_datapipeline", shell=True)
     subprocess.run("cp -r scripts dags/cob_datapipeline", shell=True)
     airflow.models.Variable.set("AIRFLOW_HOME", repo_dir)
-    airflow.models.Variable.set("AIRFLOW_DATA_DIR", repo_dir + '/data')
-    airflow.models.Variable.set("AIRFLOW_LOG_DIR", repo_dir + '/logs')
+    airflow.models.Variable.set("AIRFLOW_DATA_BUCKET", "test_bucket")
+    airflow.models.Variable.set("AIRFLOW_DATA_DIR", repo_dir + "/data")
+    airflow.models.Variable.set("AIRFLOW_LOG_DIR", repo_dir + "/logs")
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_FROM_DATE", "none")
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_DATE", "none")
     airflow.models.Variable.set("ALMASFTP_HARVEST_PATH", repo_dir + "/data/sftpdump/")
     airflow.models.Variable.set("ALMASFTP_HOST", "127.0.0.1")
     airflow.models.Variable.set("ALMASFTP_PORT", 9229 )
+    airflow.models.Variable.set("ALMASFTP_S3_PREFIX", "almasftp")
     airflow.models.Variable.set("ALMASFTP_USER", "almasftp")
     airflow.models.Variable.set("ALMASFTP_PASSWD", "password")
     airflow.models.Variable.set("ALMASFTP_HARVEST_RAW_DATE", "none")
@@ -72,10 +74,17 @@ def pytest_sessionstart():
                login="puppy",
                password="chow"
                )
+    aws = airflow.models.Connection(
+               conn_id="AIRFLOW_S3",
+               conn_type="aws",
+               login="puppy",
+               password="chow"
+               )
     airflow_session = airflow.settings.Session()
     airflow_session.add(solr)
     airflow_session.add(slack)
     airflow_session.add(solrcloud)
+    airflow_session.add(aws)
     airflow_session.commit()
 
 def pytest_sessionfinish():

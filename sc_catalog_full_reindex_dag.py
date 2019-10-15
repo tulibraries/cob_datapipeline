@@ -37,7 +37,7 @@ ALIAS = CONFIGSET
 # Get S3 data bucket variables
 AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
 AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
-AIRFLOW_DATA_PREFIX = Variable.get("ALMASFTP_S3_PREFIX")
+ALMASFTP_S3_PREFIX = Variable.get("ALMASFTP_S3_PREFIX")
 
 # CREATE DAG
 DEFAULT_ARGS = {
@@ -71,15 +71,15 @@ GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
 )
 
 SC_PREPARE_S3_DATA = BashOperator(
-    task_id="sc_prepare_almasftp_s3_data",
+    task_id="sc_prepare_s3_data",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_prepare_s3_data.sh ",
     env={
         "AIRFLOW_HOME": AIRFLOW_HOME,
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "DEST_FOLDER": AIRFLOW_DATA_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP,
-        "SOURCE_FOLDER": AIRFLOW_DATA_PREFIX
+        "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP,
+        "SOURCE_FOLDER": ALMASFTP_S3_PREFIX
     },
     dag=DAG
 )
@@ -99,7 +99,7 @@ SC_INDEX_SFTP_MARC = BashOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "FOLDER": AIRFLOW_DATA_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP,
+        "FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP,
         "GIT_BRANCH": GIT_BRANCH,
         "HOME": AIRFLOW_HOME,
         "LATEST_RELEASE": LATEST_RELEASE,
@@ -118,8 +118,8 @@ ARCHIVE_S3_DATA = BashOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "DEST_FOLDER": AIRFLOW_DATA_PREFIX + "/archived/" + TIMESTAMP,
-        "SOURCE_FOLDER": AIRFLOW_DATA_PREFIX
+        "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/archived/" + TIMESTAMP,
+        "SOURCE_FOLDER": ALMASFTP_S3_PREFIX
     },
     dag=DAG
 )

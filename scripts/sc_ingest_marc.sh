@@ -1,6 +1,8 @@
 #/bin/bash --login
 
 set -e
+set -o pipefail
+
 source $HOME/.bashrc
 export PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH"
 
@@ -17,9 +19,9 @@ cd tmp/cob_index
 gem install bundler
 bundle install
 
-data_in = `aws s3api list-objects --bucket $BUCKET --prefix $FOLDER | jq -r '.Contents[].Key'`
+data_in=$(aws s3api list-objects --bucket $BUCKET --prefix $FOLDER | jq -r '.Contents[].Key')
 
-for file in data_in
+for file in $data_in
 do
-  bundle exec cob_index ingest https://$BUCKET.s3.amazonaws.com/$FOLDER/$file
+  bundle exec cob_index ingest https://$BUCKET.s3.amazonaws.com/$file
 done

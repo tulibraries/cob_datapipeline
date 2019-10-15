@@ -11,13 +11,11 @@ bw_files_in=$(aws s3api list-objects --bucket $BUCKET --prefix almasftp --query 
 for file in $xml_files_in
 do
   file_out="${file/$SOURCE_FOLDER/$DEST_FOLDER}"
-  file_out_untarred="${file_out/.tar.gz/}"
-  aws s3 cp s3://$BUCKET/$file - | tar xzvfO - | sed -e "s~<collection><record>~<collection xmlns=\"http://www.loc.gov/MARC21/slim\"><record>~" | aws s3 cp - s3://$BUCKET/$file_out_untarred
+  aws s3 cp s3://$BUCKET/$file s3://$BUCKET/$file_out
 done
 
 for file in $bw_files_in
 do
   file_out="${file/$SOURCE_FOLDER/$DEST_FOLDER}"
-  file_out_untarred="${file_out/.tar.gz/}"
-  aws s3 cp s3://$BUCKET/$file - | tar xzvfO - | aws s3 cp - s3://$BUCKET/$file_out_untarred
+  aws s3 cp s3://$BUCKET/$file s3://$BUCKET/$file_out
 done

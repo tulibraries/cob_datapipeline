@@ -4,7 +4,6 @@ set -e
 set -o pipefail
 
 source $HOME/.bashrc
-export PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH"
 
 get_latest_release_number() {
   curl --silent "https://github.com/$1/releases/latest" | sed 's#.*tag/\(.*\)\".*#\1#'

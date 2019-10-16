@@ -4,6 +4,8 @@
 set -e
 set -o pipefail
 
+source $HOME/.bashrc
+
 xml_files_in=$(aws s3api list-objects --bucket $BUCKET --prefix $SOURCE_FOLDER --query "Contents[?starts_with(Key, '$SOURCE_FOLDER/alma_bibs__') && ends_with(Key, '.xml.tar.gz')]" | jq -r '.[].Key')
 bw_files_in=$(aws s3api list-objects --bucket $BUCKET --prefix almasftp --query "Contents[?Key == '$SOURCE_FOLDER/boundwith_merged.xml']" | jq -r '.[].Key')
 

@@ -19,6 +19,7 @@ initialized here if not found (i.e. if this is a new installation)
 """
 
 AIRFLOW_HOME = Variable.get("AIRFLOW_HOME")
+AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 GIT_BRANCH = Variable.get("GIT_PULL_TULCOB_BRANCH_NAME")
 LATEST_RELEASE = Variable.get("GIT_PULL_TULCOB_LATEST_RELEASE")
 ALMAOAI_LAST_HARVEST_FROM_DATE = Variable.get("ALMAOAI_LAST_HARVEST_FROM_DATE")
@@ -74,11 +75,11 @@ SC_PREPARE_S3_DATA = BashOperator(
     task_id="sc_prepare_s3_data",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_prepare_s3_data.sh ",
     env={
-        "AIRFLOW_HOME": AIRFLOW_HOME,
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP,
+        "HOME": AIRFLOW_USER_HOME,
         "SOURCE_FOLDER": ALMASFTP_S3_PREFIX
     },
     dag=DAG
@@ -101,7 +102,7 @@ SC_INDEX_SFTP_MARC = BashOperator(
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/" + TIMESTAMP,
         "GIT_BRANCH": GIT_BRANCH,
-        "HOME": AIRFLOW_HOME,
+        "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": LATEST_RELEASE,
         "SOLR_AUTH_USER": SOLR_CONN.login,
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password,
@@ -114,11 +115,11 @@ ARCHIVE_S3_DATA = BashOperator(
     task_id="archive_s3_data",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_archive_s3_data.sh ",
     env={
-        "AIRFLOW_HOME": AIRFLOW_HOME,
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/archived/" + TIMESTAMP,
+        "HOME": AIRFLOW_USER_HOME,
         "SOURCE_FOLDER": ALMASFTP_S3_PREFIX
     },
     dag=DAG

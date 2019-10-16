@@ -22,5 +22,5 @@ data_in=$(aws s3api list-objects --bucket $BUCKET --prefix $FOLDER | jq -r '.Con
 
 for file in $data_in
 do
-  bundle exec cob_index ingest https://$BUCKET.s3.amazonaws.com/$file
+  bundle exec cob_index ingest http://$BUCKET.s3.amazonaws.com/$file
 done

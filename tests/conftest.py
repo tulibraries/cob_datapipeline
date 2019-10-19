@@ -33,6 +33,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("ALMASFTP_HARVEST_RAW_DATE", "none")
     airflow.models.Variable.set("AZ_BRANCH", "AZ_BRANCH")
     airflow.models.Variable.set("AZ_CONFIGSET", "tul_cob-az-1")
+    airflow.models.Variable.set("AZ_ALIAS", "tul_cob-az")
     airflow.models.Variable.set("AZ_CORE", "az-database")
     airflow.models.Variable.set("AZ_CLIENT_ID", "AZ_CLIENT_ID")
     airflow.models.Variable.set("AZ_CLIENT_SECRET", "AZ_CLIENT_SECRET")

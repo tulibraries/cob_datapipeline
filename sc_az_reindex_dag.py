@@ -21,6 +21,7 @@ AZ_INDEX_SCHEDULE_INTERVAL = airflow.models.Variable.get("AZ_INDEX_SCHEDULE_INTE
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
+ALIAS = Variable.get("AZ_ALIAS")
 CONFIGSET = Variable.get("AZ_CONFIGSET")
 REPLICATION_FACTOR = Variable.get("AZ_REPLICATION_FACTOR")
 TIMESTAMP = "{{ execution_date.strftime('%Y-%m-%d_%H-%M-%S') }}"
@@ -51,7 +52,7 @@ Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """
 
-GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(AZ_DAG, CONFIGSET, 'get_num_solr_docs_pre', conn_id=SOLR_CONN.conn_id)
+GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(AZ_DAG, ALIAS, 'get_num_solr_docs_pre', conn_id=SOLR_CONN.conn_id)
 
 CREATE_COLLECTION = create_sc_collection(AZ_DAG, SOLR_CONN.conn_id, COLLECTION, REPLICATION_FACTOR, CONFIGSET)
 
@@ -59,7 +60,7 @@ INGEST_DATABASES = ingest_databases(dag=AZ_DAG, conn=SOLR_CONN, solr_url=SOLR_UR
 
 GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(AZ_DAG, COLLECTION, 'get_num_solr_docs_post', conn_id=SOLR_CONN.conn_id)
 
-SOLR_ALIAS_SWAP = swap_sc_alias(AZ_DAG, SOLR_CONN.conn_id, COLLECTION, CONFIGSET)
+SOLR_ALIAS_SWAP = swap_sc_alias(AZ_DAG, SOLR_CONN.conn_id, COLLECTION, ALIAS)
 
 POST_SLACK = PythonOperator(
     task_id='slack_post_succ',

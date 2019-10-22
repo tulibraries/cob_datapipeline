@@ -23,7 +23,9 @@ def prepare_boundwiths(**kwargs):
     lookup_csv = csv.DictWriter(csv_in_mem, fieldnames=["child_id", "parent_id", "parent_xml"])
     lookup_csv.writeheader()
 
+    logging.info("Starting to iterate over S3 Boundwith objects")
     for key in bw_keys:
+        logging.info("Loading s3 key %s", key)
         source_obj = process.get_s3_content(bucket, key, access_id, access_secret)
         source_data = process.expand_alma_sftp_tarball(key, source_obj)
         source_xml = process.add_marc21xml_root_ns(source_data)

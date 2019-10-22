@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "c37257c62c228e854ca74e0bfe9d2f4a155f1d660699e12f75820430a23565ec"
+            "sha256": "2578fb13778c2547bee18508ad3d24a42934c548a73b51dbe5efdbae7fa9f888"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -147,8 +147,11 @@
             "version": "==1.12.0"
         },
         "tulflow": {
-            "editable": true,
-            "path": "/Users/tul08567/Work/src/github.com/tulibraries/tulflow"
+            "hashes": [
+                "sha256:8a6a5152ef57e0893e6f40c864f4bbc33da57c550cd5284f04836e62cb95abaf"
+            ],
+            "index": "pypi",
+            "version": "==0.0.9"
         },
         "urllib3": {
             "hashes": [
@@ -1056,10 +1059,6 @@
                 "sha256:7d59ac4fdcb2c58037ebd4a9da5f9a49e3e034bf75b3f26d9fe48ba3d8806e6b"
             ],
             "version": "==0.11.0"
-        },
-        "tulflow": {
-            "editable": true,
-            "path": "/Users/tul08567/Work/src/github.com/tulibraries/tulflow"
         },
         "typed-ast": {
             "hashes": [

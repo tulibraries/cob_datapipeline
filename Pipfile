@@ -8,15 +8,14 @@ setuptools = "*"
 xmltodict = "*"
 sickle = "*"
 pexpect = "*"
-tulflow = {editable = true,path = "/Users/tul08567/Work/src/github.com/tulibraries/tulflow"}
 boto3 = "*"
+tulflow = ">==0.0.9"
 
 [dev-packages]
 pytest = "*"
 apache-airflow = "*"
 pylint = "*"
 moto = "*"
-tulflow = {editable = true,path = "/Users/tul08567/Work/src/github.com/tulibraries/tulflow"}
 
 [requires]
 python_version = "3.6"

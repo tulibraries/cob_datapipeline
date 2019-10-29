@@ -1,4 +1,3 @@
-import os
 import unittest
 import airflow
 from cob_datapipeline.task_ingest_databases import ingest_databases
@@ -7,11 +6,9 @@ from cob_datapipeline.task_ingest_databases import get_solr_url
 class TestIngestDatabasesTask(unittest.TestCase):
     """Unit Test for ingest databases task file."""
 
-
     def test_ingest_databases_task_az_url_override(self):
         "Test that we can override az_url"
         conn = airflow.models.Connection(host="example.com")
-        core = "foo"
         task = ingest_databases(None, conn, "test_ingest_databases_task", "https://example.com/foo")
         self.assertEqual(task.env["SOLR_AZ_URL"], "https://example.com/foo")
 
@@ -27,11 +24,10 @@ class TestIngestDatabasesTask(unittest.TestCase):
 
     def test_ingest_databases_task_adds_user_password(self):
         conn = airflow.models.Connection(
-                host="example.com",
-                login="foo",
-                password="bar"
-                )
-        core = "foo"
+            host="example.com",
+            login="foo",
+            password="bar"
+        )
         task = ingest_databases(None, conn, "test_ingest_databases_task", "https://example.com/foo")
         self.assertEqual(task.env["SOLR_AUTH_USER"], "foo")
         self.assertEqual(task.env["SOLR_AUTH_PASSWORD"], "bar")

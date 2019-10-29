@@ -8,12 +8,14 @@ setuptools = "*"
 xmltodict = "*"
 sickle = "*"
 pexpect = "*"
-tulflow = ">=0.0.8"
+boto3 = "*"
+tulflow = ">==0.0.9"
 
 [dev-packages]
 pytest = "*"
 apache-airflow = "*"
 pylint = "*"
+moto = "*"
 
 [requires]
 python_version = "3.6"

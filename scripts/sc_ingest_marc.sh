@@ -13,8 +13,6 @@ if [ $LATEST_RELEASE == "true" ]; then
   GIT_BRANCH=`get_latest_release_number tulibraries/cob_index`
 fi
 
-data_in=$(echo $DATA_IN | sed "s/\]//g" | sed "s/\[//g" | sed "s/\'//g" | sed "s/,//g"))
-
 git clone https://github.com/tulibraries/cob_index.git tmp/cob_index --branch=$GIT_BRANCH
 cd tmp/cob_index
 gem install bundler

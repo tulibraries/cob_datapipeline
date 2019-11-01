@@ -56,35 +56,44 @@ def pytest_sessionstart():
     airflow.models.Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "WEB_CONTENT_SCHEDULE_INTERVAL")
 
     solr = airflow.models.Connection(
-                conn_id="AIRFLOW_CONN_SOLR_LEADER",
-                conn_type="http",
-                host="127.0.0.1",
-                port="8983",
-                )
+        conn_id="AIRFLOW_CONN_SOLR_LEADER",
+        conn_type="http",
+        host="127.0.0.1",
+        port="8983",
+    )
     slack = airflow.models.Connection(
-                conn_id="AIRFLOW_CONN_SLACK_WEBHOOK",
-                conn_type="http",
-                host="127.0.0.1/services",
-                port="",
-                )
+        conn_id="AIRFLOW_CONN_SLACK_WEBHOOK",
+        conn_type="http",
+        host="127.0.0.1/services",
+        port=""
+    )
     solrcloud = airflow.models.Connection(
-               conn_id="SOLRCLOUD",
-               conn_type="http",
-               host="127.0.0.1",
-               port="8983",
-               login="puppy",
-               password="chow"
-               )
+        conn_id="SOLRCLOUD",
+        conn_type="http",
+        host="127.0.0.1",
+        port="8983",
+        login="puppy",
+        password="chow"
+    )
+    solrcloud_writer = airflow.models.Connection(
+        conn_id="SOLRCLOUD-WRITER",
+        conn_type="http",
+        host="127.0.0.1",
+        port="8983",
+        login="puppy",
+        password="chow"
+    )
     aws = airflow.models.Connection(
-               conn_id="AIRFLOW_S3",
-               conn_type="aws",
-               login="puppy",
-               password="chow"
-               )
+        conn_id="AIRFLOW_S3",
+        conn_type="aws",
+        login="puppy",
+        password="chow"
+    )
     airflow_session = airflow.settings.Session()
     airflow_session.add(solr)
     airflow_session.add(slack)
     airflow_session.add(solrcloud)
+    airflow_session.add(solrcloud_writer)
     airflow_session.add(aws)
     airflow_session.commit()
 

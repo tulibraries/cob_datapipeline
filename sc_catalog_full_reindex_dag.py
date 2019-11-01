@@ -26,7 +26,7 @@ GIT_BRANCH = Variable.get("GIT_PULL_TULCOB_BRANCH_NAME")
 LATEST_RELEASE = Variable.get("GIT_PULL_TULCOB_LATEST_RELEASE")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
-SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
+SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
 CONFIGSET = Variable.get("CATALOG_CONFIGSET")
 REPLICATION_FACTOR = Variable.get("CATALOG_REPLICATION_FACTOR")
 TIMESTAMP = "{{ execution_date.strftime('%Y-%m-%d_%H-%M-%S') }}"

@@ -6,7 +6,7 @@ set -o pipefail
 
 source $HOME/.bashrc
 
-data_in=$(echo $DATA_IN | sed "s/\]//g" | sed "s/\[//g" | sed "s/\'//g" | sed "s/,//g"))
+data_in=$(echo $DATA_IN | sed "s/\]//g" | sed "s/\[//g" | sed "s/'//g" | sed "s/,//g")
 
 for file in $data_in
 do

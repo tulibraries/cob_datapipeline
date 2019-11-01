@@ -12,7 +12,6 @@ from cob_datapipeline.task_slackpost import task_catalog_slackpostonsuccess, tas
 from tulflow.tasks import create_sc_collection, get_solr_url, swap_sc_alias
 
 
-
 """
 INIT SYSTEMWIDE VARIABLES
 Check for existence of systemwide variables shared across tasks that can be
@@ -145,7 +144,9 @@ ARCHIVE_S3_DATA = BashOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
+        "DATA_IN": "{{ ti.xcom_pull(task_ids='list_alma_s3_data') }}",
         "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/archived/" + TIMESTAMP,
+        "HOME": AIRFLOW_USER_HOME,
         "SOURCE_FOLDER": ALMASFTP_S3_PREFIX
     },
     dag=DAG

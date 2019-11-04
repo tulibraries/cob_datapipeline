@@ -17,5 +17,5 @@ source $HOME/.bashrc
 set -e
 git clone https://github.com/tulibraries/cob_az_index.git --branch=$AZ_BRANCH
 cd cob_az_index
-bundle install
+bundle install --without=debug
 bundle exec cob_az_index ingest $AZ_DELETE_SWITCH

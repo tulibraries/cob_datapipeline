@@ -10,6 +10,7 @@ sickle = "*"
 pexpect = "*"
 boto3 = "*"
 tulflow = ">==0.0.9"
+awscli = "*"
 
 [dev-packages]
 pytest = "*"

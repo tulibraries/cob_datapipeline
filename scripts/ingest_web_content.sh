@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source $HOME/.bashrc
+# source $HOME/.bashrc
 
 # This script is used by task_ingest_web_content to load a specific version of
 # the web_content indexing executable (cob_web_content_index) and installs and runs the ingest command
@@ -18,8 +18,9 @@ source $HOME/.bashrc
 # * AIRFLOW_DATA_DIR: not currently using.
 # * AIRFLOW_LOG_DIR: not currently using.
 
-set -e
-git clone https://github.com/tulibraries/cob_web_index.git --branch=$WEB_CONTENT_BRANCH
-cd cob_web_index
-bundle install --without=debug
-bundle exec cob_web_index ingest $DELETE_SWITCH
+# set -e
+ls
+# git clone https://github.com/tulibraries/cob_web_index.git --branch=$WEB_CONTENT_BRANCH
+# cd cob_web_index
+# bundle install --without=debug
+# bundle exec cob_web_index ingest $DELETE_SWITCH

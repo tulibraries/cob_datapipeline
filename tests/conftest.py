@@ -1,4 +1,4 @@
-""" PyTest Configuration file. """
+# PyTest Configuration file.
 import os
 import subprocess
 import airflow
@@ -18,39 +18,83 @@ def pytest_sessionstart():
     subprocess.run("cp -r configs dags/cob_datapipeline", shell=True)
     subprocess.run("cp -r scripts dags/cob_datapipeline", shell=True)
     airflow.models.Variable.set("AIRFLOW_HOME", repo_dir)
-    airflow.models.Variable.set("AIRFLOW_DATA_DIR", repo_dir + '/data')
-    airflow.models.Variable.set("AIRFLOW_LOG_DIR", repo_dir + '/logs')
+    airflow.models.Variable.set("AIRFLOW_DATA_BUCKET", "test_bucket")
+    airflow.models.Variable.set("AIRFLOW_DATA_DIR", repo_dir + "/data")
+    airflow.models.Variable.set("AIRFLOW_LOG_DIR", repo_dir + "/logs")
+    airflow.models.Variable.set("AIRFLOW_USER_HOME", repo_dir)
+    airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_FROM_DATE", "none")
+    airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_DATE", "none")
+    airflow.models.Variable.set("ALMASFTP_HARVEST_PATH", repo_dir + "/data/sftpdump/")
+    airflow.models.Variable.set("ALMASFTP_HOST", "127.0.0.1")
+    airflow.models.Variable.set("ALMASFTP_PORT", 9229 )
+    airflow.models.Variable.set("ALMASFTP_S3_PREFIX", "almasftp")
+    airflow.models.Variable.set("ALMASFTP_USER", "almasftp")
+    airflow.models.Variable.set("ALMASFTP_PASSWD", "password")
+    airflow.models.Variable.set("ALMASFTP_HARVEST_RAW_DATE", "none")
+    airflow.models.Variable.set("AZ_BRANCH", "AZ_BRANCH")
+    airflow.models.Variable.set("AZ_CONFIGSET", "tul_cob-az-1")
     airflow.models.Variable.set("AZ_CORE", "az-database")
     airflow.models.Variable.set("AZ_CLIENT_ID", "AZ_CLIENT_ID")
     airflow.models.Variable.set("AZ_CLIENT_SECRET", "AZ_CLIENT_SECRET")
-    airflow.models.Variable.set("GIT_PULL_TULCOB_LATEST_RELEASE", "false")
-    airflow.models.Variable.set("GIT_PULL_TULCOB_BRANCH_NAME", "qa")
+    airflow.models.Variable.set("AZ_DELETE_SWITCH", "--delete")
     airflow.models.Variable.set("AZ_INDEX_SCHEDULE_INTERVAL", "@weekly")
-    airflow.models.Variable.set("AZ_BRANCH", "AZ_BRANCH")
+    airflow.models.Variable.set("AZ_REPLICATION_FACTOR", 2)
+    airflow.models.Variable.set("BLACKLIGHT_CORE_NAME", "tul_cob-catalog")
+    airflow.models.Variable.set("CATALOG_CONFIGSET", "tul_cob-catalog-0")
+    airflow.models.Variable.set("CATALOG_REPLICATION_FACTOR", 2)
+    airflow.models.Variable.set("GIT_PULL_TULCOB_LATEST_RELEASE", False)
+    airflow.models.Variable.set("GIT_PULL_TULCOB_BRANCH_NAME", "qa")
     airflow.models.Variable.set("SOLR_AUTH_USER", "SOLR_AUTH_USER")
     airflow.models.Variable.set("SOLR_AUTH_PASSWORD", "SOLR_AUTH_PASSWORD")
-    airflow.models.Variable.set("WEB_CONTENT_CORE", "WEB_CONTENT_CORE")
-    airflow.models.Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "WEB_CONTENT_SCHEDULE_INTERVAL")
-    airflow.models.Variable.set("WEB_CONTENT_BRANCH", "WEB_CONTENT_BRANCH")
+    airflow.models.Variable.set("WEB_CONTENT_BASE_URL", "WEB_CONTENT_BASE_URL")
     airflow.models.Variable.set("WEB_CONTENT_BASIC_AUTH_USER", "WEB_CONTENT_BASIC_AUTH_USER")
     airflow.models.Variable.set("WEB_CONTENT_BASIC_AUTH_PASSWORD", "WEB_CONTENT_BASIC_AUTH_PASSWORD")
-    airflow.models.Variable.set("WEB_CONTENT_BASE_URL", "WEB_CONTENT_BASE_URL")
+    airflow.models.Variable.set("WEB_CONTENT_BRANCH", "WEB_CONTENT_BRANCH")
+    airflow.models.Variable.set("WEB_CONTENT_CONFIGSET", "tul_cob-web-1")
+    airflow.models.Variable.set("WEB_CONTENT_CORE", "WEB_CONTENT_CORE")
+    airflow.models.Variable.set("WEB_CONTENT_REPLICATION_FACTOR", 2)
+    airflow.models.Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "WEB_CONTENT_SCHEDULE_INTERVAL")
 
     solr = airflow.models.Connection(
-                conn_id="AIRFLOW_CONN_SOLR_LEADER",
-                conn_type="http",
-                host="127.0.0.1",
-                port="8983",
-                )
+        conn_id="AIRFLOW_CONN_SOLR_LEADER",
+        conn_type="http",
+        host="127.0.0.1",
+        port="8983",
+    )
     slack = airflow.models.Connection(
-                conn_id="AIRFLOW_CONN_SLACK_WEBHOOK",
-                conn_type="http",
-                host="127.0.0.1/services",
-                port="",
-                )
+        conn_id="AIRFLOW_CONN_SLACK_WEBHOOK",
+        conn_type="http",
+        host="127.0.0.1/services",
+        port=""
+    )
+    solrcloud = airflow.models.Connection(
+        conn_id="SOLRCLOUD",
+        conn_type="http",
+        host="127.0.0.1",
+        port="8983",
+        login="puppy",
+        password="chow"
+    )
+    solrcloud_writer = airflow.models.Connection(
+        conn_id="SOLRCLOUD-WRITER",
+        conn_type="http",
+        host="127.0.0.1",
+        port="8983",
+        login="puppy",
+        password="chow"
+    )
+    aws = airflow.models.Connection(
+        conn_id="AIRFLOW_S3",
+        conn_type="aws",
+        login="puppy",
+        password="chow"
+    )
     airflow_session = airflow.settings.Session()
     airflow_session.add(solr)
     airflow_session.add(slack)
+    airflow_session.add(solrcloud)
+    airflow_session.add(solrcloud_writer)
+    airflow_session.add(aws)
     airflow_session.commit()
 
 def pytest_sessionfinish():

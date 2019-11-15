@@ -22,9 +22,10 @@ class TestScWebContentReindexDag(unittest.TestCase):
     def test_dag_tasks_present(self):
         # Unit test that the DAG instance contains the expected tasks.
         self.assertEqual(self.tasks, [
+            "set_collection_name",
             "get_num_solr_docs_pre",
             "create_collection",
-            "ingest_web_content",
+            "index_web_content",
             "get_num_solr_docs_post",
             "solr_alias_swap",
             "slack_post_succ"
@@ -33,9 +34,10 @@ class TestScWebContentReindexDag(unittest.TestCase):
     def test_dag_task_order(self):
         # Unit test that the DAG instance contains the expected dependencies.
         expected_task_deps = {
-            "create_collection": "get_num_solr_docs_pre",
-            "ingest_web_content": "create_collection",
-            "get_num_solr_docs_post": "ingest_web_content",
+            "set_collection_name": "get_num_solr_docs_pre",
+            "create_collection": "set_collection_name",
+            "index_web_content": "create_collection",
+            "get_num_solr_docs_post": "index_web_content",
             "solr_alias_swap": "get_num_solr_docs_post",
             "slack_post_succ": "solr_alias_swap",
         }
@@ -44,15 +46,13 @@ class TestScWebContentReindexDag(unittest.TestCase):
             actual_ut = DAG.get_task(task).upstream_list[0].task_id
             self.assertEqual(upstream_task, actual_ut)
 
-    def test_ingest_web_content_task(self):
+    def test_index_web_content_task(self):
         # Unit test that the DAG instance can find required solr indexing bash script.
-        task = DAG.get_task("ingest_web_content")
+        task = DAG.get_task("index_web_content")
         airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
         expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/ingest_web_content.sh "
         self.assertEqual(task.bash_command, expected_bash_path)
         self.assertEqual(task.env["HOME"], os.getcwd())
-        self.assertEqual(task.env["AIRFLOW_DATA_DIR"], os.getcwd() + "/data")
-        self.assertEqual(task.env["AIRFLOW_LOG_DIR"], os.getcwd() + "/logs")
         self.assertIn("http://127.0.0.1:8983/solr/tul_cob-web-2", task.env["SOLR_WEB_URL"])
         self.assertEqual(task.env["WEB_CONTENT_BRANCH"], "WEB_CONTENT_BRANCH")
         self.assertEqual(task.env["WEB_CONTENT_BASIC_AUTH_USER"], "WEB_CONTENT_BASIC_AUTH_USER")

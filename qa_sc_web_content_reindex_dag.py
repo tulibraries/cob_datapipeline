@@ -90,7 +90,7 @@ INDEX_WEB_CONTENT = BashOperator(
         "HOME": AIRFLOW_USER_HOME,
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password,
         "SOLR_AUTH_USER": SOLR_CONN.login,
-        "SOLR_WEB_URL": SOLR_CONN.host + ":" + str(SOLR_CONN.port) + "/solr/" + CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
+        "SOLR_WEB_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"),
         "WEB_CONTENT_BASE_URL": WEB_CONTENT_BASE_URL,
         "WEB_CONTENT_BASIC_AUTH_PASSWORD": WEB_CONTENT_BASIC_AUTH_PASSWORD,
         "WEB_CONTENT_BASIC_AUTH_USER": WEB_CONTENT_BASIC_AUTH_USER,
@@ -121,8 +121,8 @@ POST_SLACK = PythonOperator(
 )
 
 # SET UP TASK DEPENDENCIES
+SET_COLLECTION_NAME.set_upstream(GET_NUM_SOLR_DOCS_PRE)
 CREATE_COLLECTION.set_upstream(SET_COLLECTION_NAME)
-CREATE_COLLECTION.set_upstream(GET_NUM_SOLR_DOCS_PRE)
 INDEX_WEB_CONTENT.set_upstream(CREATE_COLLECTION)
 GET_NUM_SOLR_DOCS_POST.set_upstream(INDEX_WEB_CONTENT)
 SOLR_ALIAS_SWAP.set_upstream(GET_NUM_SOLR_DOCS_POST)

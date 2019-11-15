@@ -1,6 +1,6 @@
 # Airflow DAG to index Web Content into SolrCloud.
 from datetime import datetime, timedelta
-from airflow import DAG
+import airflow
 from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
 from airflow.operators.bash_operator import BashOperator
@@ -46,7 +46,7 @@ DEFAULT_ARGS = {
     'retry_delay': timedelta(minutes=5),
 }
 
-DAG = DAG(
+DAG = airflow.DAG(
     'sc_web_content_reindex',
     default_args=DEFAULT_ARGS,
     catchup=False,

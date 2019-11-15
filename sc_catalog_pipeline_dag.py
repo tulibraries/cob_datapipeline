@@ -1,6 +1,6 @@
 """Airflow DAG to perform a partial re-index of tul_cob catalog from OAI into Solr."""
 from datetime import datetime, timedelta
-from airflow import DAG
+import airflow
 from airflow.contrib.operators.s3_list_operator import S3ListOperator
 from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
@@ -62,7 +62,7 @@ DEFAULT_ARGS = {
     "retry_delay": timedelta(minutes=10)
 }
 
-DAG = DAG(
+DAG = airflow.DAG(
     "sc_catalog_pipeline",
     default_args=DEFAULT_ARGS,
     max_active_runs=1,

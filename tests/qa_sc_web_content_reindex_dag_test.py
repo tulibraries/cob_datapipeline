@@ -2,7 +2,7 @@
 import os
 import unittest
 import airflow
-from cob_datapipeline.sc_web_content_reindex_dag import DAG
+from cob_datapipeline.qa_sc_web_content_reindex_dag import DAG
 
 class TestScWebContentReindexDag(unittest.TestCase):
     # Primary Class for Testing the TUL Cob Web Content DAG.
@@ -50,10 +50,10 @@ class TestScWebContentReindexDag(unittest.TestCase):
         airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
         expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/ingest_web_content.sh "
         self.assertEqual(task.bash_command, expected_bash_path)
-        self.assertEqual(task.env["AIRFLOW_HOME"], os.getcwd())
+        self.assertEqual(task.env["HOME"], os.getcwd())
         self.assertEqual(task.env["AIRFLOW_DATA_DIR"], os.getcwd() + "/data")
         self.assertEqual(task.env["AIRFLOW_LOG_DIR"], os.getcwd() + "/logs")
-        self.assertEqual(task.env["SOLR_WEB_URL"], "http://127.0.0.1:8983/solr/tul_cob-web-1-{{ execution_date.strftime('%Y-%m-%d_%H-%M-%S') }}")
+        self.assertIn("http://127.0.0.1:8983/solr/tul_cob-web-2", task.env["SOLR_WEB_URL"])
         self.assertEqual(task.env["WEB_CONTENT_BRANCH"], "WEB_CONTENT_BRANCH")
         self.assertEqual(task.env["WEB_CONTENT_BASIC_AUTH_USER"], "WEB_CONTENT_BASIC_AUTH_USER")
         self.assertEqual(task.env["WEB_CONTENT_BASIC_AUTH_PASSWORD"], "WEB_CONTENT_BASIC_AUTH_PASSWORD")

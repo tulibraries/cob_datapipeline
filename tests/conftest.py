@@ -53,6 +53,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("WEB_CONTENT_CONFIGSET", "tul_cob-web-1")
     airflow.models.Variable.set("WEB_CONTENT_CORE", "WEB_CONTENT_CORE")
     airflow.models.Variable.set("WEB_CONTENT_REPLICATION_FACTOR", 2)
+    airflow.models.Variable.set("WEB_CONTENT_SOLR_CONFIG", {"configset": "tul_cob-web-2", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "WEB_CONTENT_SCHEDULE_INTERVAL")
 
     solr = airflow.models.Connection(

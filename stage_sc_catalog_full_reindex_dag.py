@@ -58,6 +58,7 @@ DAG = airflow.DAG(
 
 """
 CREATE TASKS
+
 Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """

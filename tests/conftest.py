@@ -26,6 +26,8 @@ def pytest_sessionstart():
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_FROM_DATE", "none")
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_DATE", "none")
     airflow.models.Variable.set("ALMA_OAI_ENDPOINT", "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST")
+    airflow.models.Variable.set("ALMA_OAI_CONFIG", {"endpoint": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request", "included_sets": ["blacklight"], "md_prefix": "marc21"}, serialize_json=True)
+    airflow.models.Variable.set("ALMA_OAI_BW_CONFIG", {"endpoint": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request", "included_sets": ["blacklight-bw"], "md_prefix": "marc21"}, serialize_json=True)
     airflow.models.Variable.set("ALMA_HARVEST_FROM_DATE", "2019-08-10T01:02:03Z")
     airflow.models.Variable.set("ALMA_OAI_PUBLISH_INTERVAL", "6")
     airflow.models.Variable.set("ALMASFTP_HARVEST_PATH", repo_dir + "/data/sftpdump/")

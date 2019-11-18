@@ -1,4 +1,4 @@
-"""Airflow DAG to index AZ Databases into SolrCloud."""
+"""Generic Airflow DAG to index Web Content into SolrCloud."""
 from datetime import datetime, timedelta
 import airflow
 from airflow.hooks.base_hook import BaseHook
@@ -6,7 +6,7 @@ from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
-from cob_datapipeline.task_slackpost import task_az_slackpostonsuccess
+from cob_datapipeline.task_slackpost import task_web_content_slackpostonsuccess
 from tulflow import tasks
 
 """
@@ -29,19 +29,20 @@ initialized here if not found (i.e. if this is a new installation) & defaults ex
 
 AIRFLOW_HOME = Variable.get("AIRFLOW_HOME")
 AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
-SCHEDULE_INTERVAL = Variable.get("AZ_INDEX_SCHEDULE_INTERVAL")
+SCHEDULE_INTERVAL = Variable.get("WEB_CONTENT_SCHEDULE_INTERVAL")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
-AZ_SOLR_CONFIG = Variable.get("AZ_SOLR_CONFIG", deserialize_json=True)
-# {"configset": "tul_cob-az-2", "replication_factor": 2}
-CONFIGSET = AZ_SOLR_CONFIG.get("configset")
-REPLICATION_FACTOR = AZ_SOLR_CONFIG.get("replication_factor")
-AZ_BRANCH = Variable.get("AZ_BRANCH")
+WEB_CONTENT_SOLR_CONFIG = Variable.get("WEB_CONTENT_SOLR_CONFIG", deserialize_json=True)
+# {"configset": "tul_cob-web-2", "replication_factor": 2}
+CONFIGSET = WEB_CONTENT_SOLR_CONFIG.get("configset")
+REPLICATION_FACTOR = WEB_CONTENT_SOLR_CONFIG.get("replication_factor")
+WEB_CONTENT_BRANCH = Variable.get("WEB_CONTENT_BRANCH")
 
-# Databases Connection Info
-AZ_CLIENT_ID = Variable.get("AZ_CLIENT_ID")
-AZ_CLIENT_SECRET = Variable.get("AZ_CLIENT_SECRET")
+# Manifold website creds
+WEB_CONTENT_BASIC_AUTH_USER = Variable.get("WEB_CONTENT_BASIC_AUTH_USER")
+WEB_CONTENT_BASIC_AUTH_PASSWORD = Variable.get("WEB_CONTENT_BASIC_AUTH_PASSWORD")
+WEB_CONTENT_BASE_URL = Variable.get("WEB_CONTENT_BASE_URL")
 
 # CREATE DAG
 DEFAULT_ARGS = {
@@ -54,7 +55,7 @@ DEFAULT_ARGS = {
 }
 
 DAG = airflow.DAG(
-    "sc_az_reindex",
+    "sc_web_content_reindex",
     catchup=False,
     default_args=DEFAULT_ARGS,
     max_active_runs=1,
@@ -63,6 +64,7 @@ DAG = airflow.DAG(
 
 """
 CREATE TASKS
+
 Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """
@@ -90,7 +92,7 @@ SET_COLLECTION_NAME = PythonOperator(
 
 GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
-    CONFIGSET,
+    CONFIGSET + "-{{ dag_run.conf.get('env') }}",
     "get_num_solr_docs_pre",
     conn_id=SOLR_CONN.conn_id
 )
@@ -103,17 +105,18 @@ CREATE_COLLECTION = tasks.create_sc_collection(
     CONFIGSET
 )
 
-INDEX_DATABASES = BashOperator(
-    task_id="index_databases",
-    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_databases.sh ",
+INDEX_WEB_CONTENT = BashOperator(
+    task_id="index_web_content",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_web_content.sh ",
     env={
-        "AZ_BRANCH": AZ_BRANCH,
-        "AZ_CLIENT_ID": AZ_CLIENT_ID,
-        "AZ_CLIENT_SECRET": AZ_CLIENT_SECRET,
         "HOME": AIRFLOW_USER_HOME,
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password,
         "SOLR_AUTH_USER": SOLR_CONN.login,
-        "SOLR_AZ_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"),
+        "SOLR_WEB_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"),
+        "WEB_CONTENT_BASE_URL": WEB_CONTENT_BASE_URL,
+        "WEB_CONTENT_BASIC_AUTH_PASSWORD": WEB_CONTENT_BASIC_AUTH_PASSWORD,
+        "WEB_CONTENT_BASIC_AUTH_USER": WEB_CONTENT_BASIC_AUTH_USER,
+        "WEB_CONTENT_BRANCH": WEB_CONTENT_BRANCH
     },
     dag=DAG
 )
@@ -134,7 +137,7 @@ GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
 
 POST_SLACK = PythonOperator(
     task_id="slack_post_succ",
-    python_callable=task_az_slackpostonsuccess,
+    python_callable=task_web_content_slackpostonsuccess,
     provide_context=True,
     dag=DAG
 )
@@ -143,8 +146,8 @@ POST_SLACK = PythonOperator(
 REQUIRE_DAG_RUN.set_upstream(REMOTE_TRIGGER_MESSAGE)
 GET_NUM_SOLR_DOCS_PRE.set_upstream(REQUIRE_DAG_RUN)
 SET_COLLECTION_NAME.set_upstream(GET_NUM_SOLR_DOCS_PRE)
-CREATE_COLLECTION.set_upstream(GET_NUM_SOLR_DOCS_PRE)
-INDEX_DATABASES.set_upstream(CREATE_COLLECTION)
-SOLR_ALIAS_SWAP.set_upstream(INDEX_DATABASES)
+CREATE_COLLECTION.set_upstream(SET_COLLECTION_NAME)
+INDEX_WEB_CONTENT.set_upstream(CREATE_COLLECTION)
+SOLR_ALIAS_SWAP.set_upstream(INDEX_WEB_CONTENT)
 GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_ALIAS_SWAP)
 POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_POST)

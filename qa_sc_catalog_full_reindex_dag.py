@@ -1,4 +1,4 @@
-"""Controller DAG to trigger sc_web_content_reindex for QA environment:"""
+"""Controller DAG to trigger sc_catalog_full_reindex for QA environment:"""
 from datetime import datetime
 import airflow
 from airflow.operators.dagrun_operator import TriggerDagRunOperator
@@ -12,7 +12,7 @@ initialized here if not found (i.e. if this is a new installation)
 
 # Define the DAG
 CONTROLLER_DAG = airflow.DAG(
-    dag_id="trigger_qa_sc_web_content_reindex_dag",
+    dag_id="trigger_qa_sc_catalog_full_reindex_dag",
     default_args={
         "owner": "cob",
         "start_date": datetime.utcnow(),
@@ -23,10 +23,10 @@ CONTROLLER_DAG = airflow.DAG(
 # Define the single task in this controller DAG
 QA_TRIGGER = TriggerDagRunOperator(
     task_id="qa_trigger",
-    trigger_dag_id="sc_web_content_reindex",
+    trigger_dag_id="sc_catalog_full_reindex",
     python_callable=conditionally_trigger,
     params={"condition_param": True,
-            "message": "Triggering QA Web Content Index DAG",
+            "message": "Triggering QA Catalog (TUL COB) Full Reindex DAG",
             "env": "qa"
            },
     dag=CONTROLLER_DAG

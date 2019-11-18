@@ -1,4 +1,4 @@
-"""Controller DAG to trigger sc_web_content_reindex for QA environment:"""
+"""Controller DAG to trigger sc_az_reindex for Stage environment:"""
 from datetime import datetime
 import airflow
 from airflow.operators.dagrun_operator import TriggerDagRunOperator
@@ -12,7 +12,7 @@ initialized here if not found (i.e. if this is a new installation)
 
 # Define the DAG
 CONTROLLER_DAG = airflow.DAG(
-    dag_id="trigger_qa_sc_web_content_reindex_dag",
+    dag_id="trigger_stage_sc_az_reindex_dag",
     default_args={
         "owner": "cob",
         "start_date": datetime.utcnow(),
@@ -21,13 +21,13 @@ CONTROLLER_DAG = airflow.DAG(
 )
 
 # Define the single task in this controller DAG
-QA_TRIGGER = TriggerDagRunOperator(
-    task_id="qa_trigger",
-    trigger_dag_id="sc_web_content_reindex",
+STAGE_TRIGGER = TriggerDagRunOperator(
+    task_id="stage_trigger",
+    trigger_dag_id="sc_az_reindex",
     python_callable=conditionally_trigger,
     params={"condition_param": True,
-            "message": "Triggering QA Web Content Index DAG",
-            "env": "qa"
+            "message": "Triggering Stage Database (AZ) Index DAG",
+            "env": "stage"
            },
     dag=CONTROLLER_DAG
 )

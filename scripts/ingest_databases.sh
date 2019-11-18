@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 source $HOME/.bashrc
+export PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH"
 
 # This script is used by task_ingest_databases to load a specific version of
 # the az indexing executable (cob_az_index) and installs and runs the ingest command
@@ -18,4 +19,4 @@ set -e
 git clone https://github.com/tulibraries/cob_az_index.git --branch=$AZ_BRANCH
 cd cob_az_index
 bundle install --without=debug
-bundle exec cob_az_index ingest $AZ_DELETE_SWITCH
+bundle exec cob_az_index ingest

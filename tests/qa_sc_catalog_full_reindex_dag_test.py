@@ -47,7 +47,7 @@ class TestCatalogFullReindexScDag(unittest.TestCase):
         }
         for task, upstream_tasks in expected_task_deps.items():
             upstream_list = [up_task.task_id for up_task in DAG.get_task(task).upstream_list]
-            self.assertCountEqual(upstream_tasks, upstream_list)
+            self.assertEqual(upstream_tasks, upstream_list)
 
     def test_index_sftp_marc(self):
         """Test that we index sftp files"""
@@ -62,7 +62,7 @@ class TestCatalogFullReindexScDag(unittest.TestCase):
         airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
         task = DAG.get_task("archive_s3_data")
         expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/sc_archive_s3_data.sh "
-        self.assertEqual(task.env["AIRFLOW_HOME"], os.getcwd())
+        self.assertEqual(task.env["HOME"], os.getcwd())
         self.assertEqual(task.env["AWS_ACCESS_KEY_ID"], "puppy")
         self.assertEqual(task.env["AWS_SECRET_ACCESS_KEY"], "chow")
         self.assertEqual(task.env["BUCKET"], "test_bucket")

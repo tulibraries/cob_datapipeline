@@ -1,13 +1,8 @@
-# Airflow DAG to index Web Content into SolrCloud.
-from datetime import datetime, timedelta
+"""Controller DAG to trigger sc_web_content_reindex for Production environment:"""
+from datetime import datetime
 import airflow
-from airflow.models import Variable
-from airflow.hooks.base_hook import BaseHook
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
-from cob_datapipeline.task_slackpost import task_web_content_slackpostonsuccess
-from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
-from tulflow import tasks
+from airflow.operators.dagrun_operator import TriggerDagRunOperator
+from tulflow.tasks import conditionally_trigger
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -96,34 +91,17 @@ INDEX_WEB_CONTENT = BashOperator(
         "WEB_CONTENT_BASIC_AUTH_USER": WEB_CONTENT_BASIC_AUTH_USER,
         "WEB_CONTENT_BRANCH": WEB_CONTENT_BRANCH
     },
-    dag=DAG
+    schedule_interval="@once",
 )
 
-GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
-    DAG,
-    CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
-    'get_num_solr_docs_post',
-    conn_id=SOLR_CONN.conn_id
+# Define the single task in this controller DAG
+PROD_TRIGGER = TriggerDagRunOperator(
+    task_id="prod_trigger",
+    trigger_dag_id="sc_web_content_reindex",
+    python_callable=conditionally_trigger,
+    params={"condition_param": True,
+            "message": "Triggering Production Web Content Index DAG",
+            "env": "prod"
+           },
+    dag=CONTROLLER_DAG
 )
-
-SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
-    DAG,
-    SOLR_CONN.conn_id,
-    CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
-    ALIAS
-)
-
-POST_SLACK = PythonOperator(
-    task_id='slack_post_succ',
-    python_callable=task_web_content_slackpostonsuccess,
-    provide_context=True,
-    dag=DAG
-)
-
-# SET UP TASK DEPENDENCIES
-SET_COLLECTION_NAME.set_upstream(GET_NUM_SOLR_DOCS_PRE)
-CREATE_COLLECTION.set_upstream(SET_COLLECTION_NAME)
-INDEX_WEB_CONTENT.set_upstream(CREATE_COLLECTION)
-GET_NUM_SOLR_DOCS_POST.set_upstream(INDEX_WEB_CONTENT)
-SOLR_ALIAS_SWAP.set_upstream(GET_NUM_SOLR_DOCS_POST)
-POST_SLACK.set_upstream(SOLR_ALIAS_SWAP)

@@ -2,7 +2,7 @@
 import os
 import unittest
 import airflow
-from cob_datapipeline.prod_sc_web_content_reindex_dag import DAG
+from cob_datapipeline.sc_web_content_reindex_dag import DAG
 
 class TestScWebContentReindexDag(unittest.TestCase):
     """Primary Class for Testing the TUL Cob Web Content DAG."""
@@ -22,24 +22,28 @@ class TestScWebContentReindexDag(unittest.TestCase):
     def test_dag_tasks_present(self):
         """Unit test that the DAG instance contains the expected tasks."""
         self.assertEqual(self.tasks, [
+            "remote_trigger_message",
+            "require_dag_run",
             "set_collection_name",
             "get_num_solr_docs_pre",
             "create_collection",
             "index_web_content",
-            "get_num_solr_docs_post",
             "solr_alias_swap",
+            "get_num_solr_docs_post",
             "slack_post_succ"
             ])
 
     def test_dag_task_order(self):
         """Unit test that the DAG instance contains the expected dependencies."""
         expected_task_deps = {
+            "require_dag_run": "remote_trigger_message",
+            "get_num_solr_docs_pre": "require_dag_run",
             "set_collection_name": "get_num_solr_docs_pre",
             "create_collection": "set_collection_name",
             "index_web_content": "create_collection",
-            "get_num_solr_docs_post": "index_web_content",
-            "solr_alias_swap": "get_num_solr_docs_post",
-            "slack_post_succ": "solr_alias_swap",
+            "solr_alias_swap": "index_web_content",
+            "get_num_solr_docs_post": "solr_alias_swap",
+            "slack_post_succ": "get_num_solr_docs_post",
         }
 
         for task, upstream_task in expected_task_deps.items():

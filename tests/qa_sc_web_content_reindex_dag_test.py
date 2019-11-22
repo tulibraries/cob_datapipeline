@@ -1,26 +1,26 @@
-# Unit Tests for the TUL Cob Web Content Index DAG.
+"""Unit Tests for the TUL Cob Web Content Index DAG."""
 import os
 import unittest
 import airflow
 from cob_datapipeline.qa_sc_web_content_reindex_dag import DAG
 
 class TestScWebContentReindexDag(unittest.TestCase):
-    # Primary Class for Testing the TUL Cob Web Content DAG.
+    """Primary Class for Testing the TUL Cob Web Content DAG."""
 
     def setUp(self):
-        # Method to set up the DAG Class instance for testing.
+        """Method to set up the DAG Class instance for testing."""
         self.tasks = list(map(lambda t: t.task_id, DAG.tasks))
 
     def test_dag_loads(self):
-        # Unit test that the DAG identifier is set correctly.
-        self.assertEqual(DAG.dag_id, "sc_web_content_reindex")
+        """Unit test that the DAG identifier is set correctly."""
+        self.assertEqual(DAG.dag_id, "qa_sc_web_content_reindex")
 
     def test_dag_interval_is_variable(self):
-        # Unit test that the DAG schedule is set by configuration
+        """Unit test that the DAG schedule is set by configuration"""
         self.assertEqual(DAG.schedule_interval, "WEB_CONTENT_SCHEDULE_INTERVAL")
 
     def test_dag_tasks_present(self):
-        # Unit test that the DAG instance contains the expected tasks.
+        """Unit test that the DAG instance contains the expected tasks."""
         self.assertEqual(self.tasks, [
             "set_collection_name",
             "get_num_solr_docs_pre",
@@ -32,7 +32,7 @@ class TestScWebContentReindexDag(unittest.TestCase):
             ])
 
     def test_dag_task_order(self):
-        # Unit test that the DAG instance contains the expected dependencies.
+        """Unit test that the DAG instance contains the expected dependencies."""
         expected_task_deps = {
             "set_collection_name": "get_num_solr_docs_pre",
             "create_collection": "set_collection_name",
@@ -47,7 +47,7 @@ class TestScWebContentReindexDag(unittest.TestCase):
             self.assertEqual(upstream_task, actual_ut)
 
     def test_index_web_content_task(self):
-        # Unit test that the DAG instance can find required solr indexing bash script.
+        """Unit test that the DAG instance can find required solr indexing bash script."""
         task = DAG.get_task("index_web_content")
         airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
         expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/ingest_web_content.sh "

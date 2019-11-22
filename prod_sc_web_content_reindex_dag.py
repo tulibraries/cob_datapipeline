@@ -47,7 +47,7 @@ DEFAULT_ARGS = {
 }
 
 DAG = airflow.DAG(
-    'sc_web_content_reindex',
+    'prod_sc_web_content_reindex',
     default_args=DEFAULT_ARGS,
     catchup=False,
     max_active_runs=1,
@@ -88,8 +88,8 @@ INDEX_WEB_CONTENT = BashOperator(
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_web_content.sh ",
     env={
         "HOME": AIRFLOW_USER_HOME,
-        "SOLR_AUTH_PASSWORD": SOLR_CONN.password,
-        "SOLR_AUTH_USER": SOLR_CONN.login,
+        "SOLR_AUTH_PASSWORD": SOLR_CONN.password if SOLR_CONN.password else "",
+        "SOLR_AUTH_USER": SOLR_CONN.login if SOLR_CONN.login else "",
         "SOLR_WEB_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"),
         "WEB_CONTENT_BASE_URL": WEB_CONTENT_BASE_URL,
         "WEB_CONTENT_BASIC_AUTH_PASSWORD": WEB_CONTENT_BASIC_AUTH_PASSWORD,

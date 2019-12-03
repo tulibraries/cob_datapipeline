@@ -1,0 +1,26 @@
+{
+  "AIRFLOW_DATA_BUCKET": "tulib-airflow-prod",
+  "AZ_PROD_BRANCH": "master",
+  "AZ_QA_BRANCH": "qa",
+  "AZ_STAGE_BRANCH": "master",
+  "AZ_CLIENT_ID": "123",
+  "AZ_CLIENT_SECRET": "test",
+  "AZ_INDEX_SCHEDULE_INTERVAL": "@weekly",
+  "AZ_SOLR_CONFIG": {
+    "configset": "tul_cob-az-0",
+    "replication_factor": 2
+  },
+  "WEB_CONTENT_BASIC_AUTH_USER": "test",
+  "WEB_CONTENT_BASIC_AUTH_PASSWORD": "test",
+  "WEB_CONTENT_PROD_BASE_URL": "https://library.temple.edu",
+  "WEB_CONTENT_PROD_BRANCH": "master",
+  "WEB_CONTENT_QA_BASE_URL": "https://web.tul-infra.page",
+  "WEB_CONTENT_QA_BRANCH": "qa",
+  "WEB_CONTENT_STAGE_BASE_URL": "https://web.stage.tul-infra.page",
+  "WEB_CONTENT_STAGE_BRANCH": "master",
+  "WEB_CONTENT_SCHEDULE_INTERVAL": "@daily",
+  "WEB_CONTENT_SOLR_CONFIG": {
+    "configset": "tul_cob-web-0",
+    "replication_factor": 2
+  }
+}

@@ -13,7 +13,7 @@ class TestScWebContentReindexDag(unittest.TestCase):
 
     def test_dag_loads(self):
         """Unit test that the DAG identifier is set correctly."""
-        self.assertEqual(DAG.dag_id, "sc_web_content_reindex")
+        self.assertEqual(DAG.dag_id, "prod_sc_web_content_reindex")
 
     def test_dag_interval_is_variable(self):
         """Unit test that the DAG schedule is set by configuration"""

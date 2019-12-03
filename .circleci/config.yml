@@ -85,7 +85,7 @@ jobs:
 
 workflows:
   version: 2
-  funcake_dags_ci_cd:
+  dags_ci_cd:
     jobs:
       - lint_and_test
       - qa_deploy:

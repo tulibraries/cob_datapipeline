@@ -70,7 +70,7 @@ SET_COLLECTION_NAME = PythonOperator(
 
 GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
-    CONFIGSET,
+    ALIAS,
     'get_num_solr_docs_pre',
     conn_id=SOLR_CONN.conn_id
 )

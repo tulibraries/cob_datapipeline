@@ -15,7 +15,7 @@
   "WEB_CONTENT_PROD_BASE_URL": "https://library.temple.edu",
   "WEB_CONTENT_PROD_BRANCH": "master",
   "WEB_CONTENT_QA_BASE_URL": "https://web.tul-infra.page",
-  "WEB_CONTENT_QA_BRANCH": "qa",
+  "WEB_CONTENT_QA_BRANCH": "master",
   "WEB_CONTENT_STAGE_BASE_URL": "https://web.stage.tul-infra.page",
   "WEB_CONTENT_STAGE_BRANCH": "master",
   "WEB_CONTENT_SCHEDULE_INTERVAL": "@daily",

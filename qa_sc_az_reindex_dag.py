@@ -33,7 +33,7 @@ REPLICATION_FACTOR = SOLR_CONFIG.get("replication_factor")
 #Databases AZ Springshare creds
 AZ_CLIENT_ID = Variable.get("AZ_CLIENT_ID")
 AZ_CLIENT_SECRET = Variable.get("AZ_CLIENT_SECRET")
-AZ_BRANCH = Variable.get("AZ_BRANCH")
+AZ_BRANCH = Variable.get("AZ_QA_BRANCH")
 
 # CREATE DAG
 DEFAULT_ARGS = {

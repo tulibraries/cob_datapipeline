@@ -1,0 +1,119 @@
+version: 2
+
+jobs:
+  lint_and_test:
+    working_directory: ~/cob_datapipeline
+    docker:
+      - image: circleci/python:3.7.2
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+    steps:
+      - checkout
+      - run:
+          name: 'Run Pylint & Pytest'
+          command: |
+            sudo pip install pipenv
+            SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
+            pipenv run pylint cob_datapipeline -E
+            pipenv run pytest
+  qa_deploy:
+    docker:
+      - image: circleci/python:3.7.2
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "2f:37:66:17:11:ae:f9:0f:9e:52:98:41:fe:d0:0c:78"
+      - run:
+          name: 'Run Ansible Airflow Playbook for QA'
+          command: |
+            cd ..
+            git clone --single-branch --branch qa https://github.com/tulibraries/ansible-playbook-airflow.git
+            cd ansible-playbook-airflow
+            sudo pip install pipenv
+            pipenv install
+            pipenv run ansible-galaxy install -r requirements.yml
+            cp .circleci/.vault ~/.vault;
+            chmod +x ~/.vault
+            pipenv run ansible-playbook -i inventory/qa playbook.yml --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
+  stage_deploy:
+    docker:
+      - image: circleci/python:3.7.2
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "2f:37:66:17:11:ae:f9:0f:9e:52:98:41:fe:d0:0c:78"
+      - run:
+          name: 'Run Ansible Airflow Playbook for Stage'
+          command: |
+            cd ..
+            git clone --single-branch --branch master https://github.com/tulibraries/ansible-playbook-airflow.git
+            cd ansible-playbook-airflow
+            sudo pip install pipenv
+            pipenv install
+            pipenv run ansible-galaxy install -r requirements.yml
+            cp .circleci/.vault ~/.vault;
+            chmod +x ~/.vault
+            pipenv run ansible-playbook -i inventory/stage playbook.yml --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
+  prod_deploy:
+    docker:
+      - image: circleci/python:3.7.2
+        environment:
+          PIPENV_VENV_IN_PROJECT: true
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "2f:37:66:17:11:ae:f9:0f:9e:52:98:41:fe:d0:0c:78"
+      - run:
+          name: 'Run Ansible Airflow Playbook for Prod'
+          command: |
+            cd ..
+            git clone --single-branch --branch master https://github.com/tulibraries/ansible-playbook-airflow.git
+            cd ansible-playbook-airflow
+            sudo pip install pipenv
+            pipenv install
+            pipenv run ansible-galaxy install -r requirements.yml
+            cp .circleci/.vault ~/.vault;
+            chmod +x ~/.vault
+            pipenv run ansible-playbook -i inventory/prod playbook.yml --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
+
+workflows:
+  version: 2
+  funcake_dags_ci_cd:
+    jobs:
+      - lint_and_test
+      - qa_deploy:
+          requires:
+            - lint_and_test
+          filters:
+            branches:
+              only:
+                - qa
+      - stage_deploy:
+          requires:
+            - lint_and_test
+          filters:
+            branches:
+              only:
+                - master
+      - request-prod-deploy:
+          type: approval
+          requires:
+            - lint_and_test
+          filters:
+            branches:
+              only:
+                - master
+      - prod_deploy:
+          requires:
+            - request-prod-deploy
+          filters:
+            branches:
+              only:
+                - master

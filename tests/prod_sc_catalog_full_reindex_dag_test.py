@@ -1,22 +1,24 @@
+"""Unit Tests for the TUL Cob Catalog Full Reindex DAG."""
 import os
 import unittest
 import airflow
-from cob_datapipeline.sc_catalog_full_reindex_dag import DAG
+from cob_datapipeline.prod_sc_catalog_full_reindex_dag import DAG
 
 class TestCatalogFullReindexScDag(unittest.TestCase):
-    # Unit Tests for solrcloud catalog full reindex dag file.
+    """Unit Tests for solrcloud catalog full reindex dag file."""
 
     def setUp(self):
-        # Method to set up the DAG Class instance for testing.
+        """Method to set up the DAG Class instance for testing."""
         self.tasks = list(map(lambda t: t.task_id, DAG.tasks))
 
     def test_dag_loads(self):
-        # Unit test that the DAG identifier is set correctly.
-        self.assertEqual(DAG.dag_id, "sc_catalog_full_reindex")
+        """Unit test that the DAG identifier is set correctly."""
+        self.assertEqual(DAG.dag_id, "prod_sc_catalog_full_reindex")
 
     def test_dag_tasks_present(self):
-        # Unit test that the DAG instance contains the expected tasks.
+        """Unit test that the DAG instance contains the expected tasks."""
         self.assertEqual(self.tasks, [
+            "set_collection_name",
             "get_num_solr_docs_pre",
             "list_alma_s3_data",
             "prepare_boundwiths",
@@ -30,8 +32,9 @@ class TestCatalogFullReindexScDag(unittest.TestCase):
             ])
 
     def test_dag_task_order(self):
-        # Unit test that the DAG instance contains the expected dependencies.
+        """Unit test that the DAG instance contains the expected dependencies."""
         expected_task_deps = {
+            "get_num_solr_docs_pre": ["set_collection_name"],
             "list_alma_s3_data": ["get_num_solr_docs_pre"],
             "prepare_boundwiths": ["list_alma_s3_data"],
             "prepare_alma_data": ["prepare_boundwiths"],
@@ -47,7 +50,7 @@ class TestCatalogFullReindexScDag(unittest.TestCase):
             self.assertCountEqual(upstream_tasks, upstream_list)
 
     def test_index_sftp_marc(self):
-        # Test that we index sftp files
+        """Test that we index sftp files"""
         airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
         task = DAG.get_task("index_sftp_marc")
         expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh "
@@ -55,7 +58,7 @@ class TestCatalogFullReindexScDag(unittest.TestCase):
         self.assertEqual(task.bash_command, expected_bash_path)
 
     def test_archive_s3_data(self):
-        # Test that we move indexed s3 files to archived foler
+        """Test that we move indexed s3 files to archived foler"""
         airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
         task = DAG.get_task("archive_s3_data")
         expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/sc_archive_s3_data.sh "

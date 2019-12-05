@@ -10,6 +10,16 @@
     "configset": "tul_cob-az-0",
     "replication_factor": 2
   },
+  "CATALOG_PROD_BRANCH": "master",
+  "CATALOG_PROD_LATEST_RELEASE": "False",
+  "CATALOG_QA_BRANCH": "qa",
+  "CATALOG_QA_LATEST_RELEASE": "False",
+  "CATALOG_STAGE_BRANCH": "master",
+  "CATALOG_STAGE_LATEST_RELEASE": "False",
+  "CATALOG_SOLR_CONFIG": {
+    "configset": "tul_cob-catalog-0",
+    "replication_factor": 2
+  },
   "WEB_CONTENT_BASIC_AUTH_USER": "test",
   "WEB_CONTENT_BASIC_AUTH_PASSWORD": "test",
   "WEB_CONTENT_PROD_BASE_URL": "https://library.temple.edu",

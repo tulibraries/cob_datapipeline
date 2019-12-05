@@ -1,4 +1,4 @@
-# Airflow DAG to index AZ Databases into Solr.
+"""Airflow DAG to index AZ Databases into Solr."""
 from datetime import datetime, timedelta
 import airflow
 import os

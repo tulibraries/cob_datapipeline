@@ -10,11 +10,25 @@
     "configset": "tul_cob-az-0",
     "replication_factor": 2
   },
+  "CATALOG_OAI_CONFIG": {
+    "endpoint": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request",
+    "included_sets": ["blacklight-bw"],
+    "md_prefix": "marc21"
+  },
+  "CATALOG_OAI_BW_CONFIG": {
+    "endpoint": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request",
+    "included_sets": ["blacklight"],
+    "md_prefix": "marc21"
+  },
+  "CATALOG_OAI_PUBLISH_INTERVAL": 6,
   "CATALOG_PROD_BRANCH": "master",
+  "CATALOG_PROD_HARVEST_FROM_DATE": "2019-10-15T12:29:58Z",
   "CATALOG_PROD_LATEST_RELEASE": "False",
   "CATALOG_QA_BRANCH": "qa",
+  "CATALOG_QA_HARVEST_FROM_DATE": "2019-10-15T12:29:58Z",
   "CATALOG_QA_LATEST_RELEASE": "False",
   "CATALOG_STAGE_BRANCH": "master",
+  "CATALOG_STAGE_HARVEST_FROM_DATE": "2019-10-15T12:29:58Z",
   "CATALOG_STAGE_LATEST_RELEASE": "False",
   "CATALOG_SOLR_CONFIG": {
     "configset": "tul_cob-catalog-0",

@@ -8,7 +8,7 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.sc_xml_parse import prepare_oai_boundwiths, delete_oai_solr, update_variables
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
-from cob_datapipeline.task_slackpost import task_catalog_slackpostonsuccess
+from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
 from tulflow import harvest, tasks
 
 """
@@ -222,7 +222,7 @@ UPDATE_DATE_VARIABLES = PythonOperator(
 
 POST_SLACK = PythonOperator(
     task_id="slack_post_succ",
-    python_callable=task_catalog_slackpostonsuccess,
+    python_callable=catalog_slackpostonsuccess,
     provide_context=True,
     dag=DAG
 )

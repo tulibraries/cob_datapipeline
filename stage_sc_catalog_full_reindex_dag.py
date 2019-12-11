@@ -8,7 +8,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.contrib.operators.s3_list_operator import S3ListOperator
 from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
-from cob_datapipeline.task_slackpost import task_catalog_slackpostonsuccess
+from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
 from tulflow import tasks
 
 """
@@ -174,7 +174,7 @@ GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
 
 POST_SLACK = PythonOperator(
     task_id="slack_post_succ",
-    python_callable=task_catalog_slackpostonsuccess,
+    python_callable=catalog_slackpostonsuccess,
     provide_context=True,
     dag=DAG
 )

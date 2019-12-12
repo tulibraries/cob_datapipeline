@@ -41,7 +41,6 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AZ_CLIENT_SECRET", "AZ_CLIENT_SECRET")
     airflow.models.Variable.set("AZ_DELETE_SWITCH", "--delete")
     airflow.models.Variable.set("AZ_INDEX_SCHEDULE_INTERVAL", "@weekly")
-    airflow.models.Variable.set("AZ_REPLICATION_FACTOR", 2)
     airflow.models.Variable.set("AZ_SOLR_CONFIG", {"configset": "tul_cob-az-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("BLACKLIGHT_CORE_NAME", "tul_cob-catalog")
     airflow.models.Variable.set("CATALOG_PROD_BRANCH", "CATALOG_BRANCH")

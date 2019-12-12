@@ -177,9 +177,9 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/new-updated",
         "GIT_BRANCH": GIT_BRANCH,
         "HOME": AIRFLOW_USER_HOME,
-        "LATEST_RELEASE": LATEST_RELEASE,
-        "SOLR_AUTH_USER": SOLR_CONN.login,
-        "SOLR_AUTH_PASSWORD": SOLR_CONN.password,
+        "LATEST_RELEASE": str(LATEST_RELEASE),
+        "SOLR_AUTH_USER": SOLR_CONN.login or "",
+        "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
         "SOLR_URL": tasks.get_solr_url(SOLR_CONN, ALIAS),
     },
     dag=DAG

@@ -1,15 +1,14 @@
-# Airflow DAG to index AZ Databases into Solr.
+"""Airflow DAG to index AZ Databases into Solr."""
 from datetime import datetime, timedelta
-import airflow
 import os
+import airflow
 from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from cob_datapipeline.task_ingest_databases import get_solr_url
-from cob_datapipeline.task_slack_posts import az_slackpostonsuccess
-from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from tulflow import tasks
+from cob_datapipeline.task_slack_posts import az_slackpostonsuccess, slackpostonfail
+from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -43,7 +42,7 @@ DEFAULT_ARGS = {
     'start_date': datetime(2019, 5, 28),
     'email_on_failure': False,
     'email_on_retry': False,
-    'on_failure_callback': tasks.execute_slackpostonfail,
+    'on_failure_callback': slackpostonfail,
     'retries': 2,
     'retry_delay': timedelta(minutes=5),
 }

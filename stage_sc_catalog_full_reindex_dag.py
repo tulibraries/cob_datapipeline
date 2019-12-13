@@ -6,10 +6,10 @@ from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.contrib.operators.s3_list_operator import S3ListOperator
+from tulflow import tasks
 from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
-from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
-from tulflow import tasks
+from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess, slackpostonfail
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -43,7 +43,7 @@ DEFAULT_ARGS = {
     "owner": "cob",
     "depends_on_past": False,
     "start_date": datetime(2018, 12, 13),
-    "on_failure_callback": tasks.execute_slackpostonfail,
+    "on_failure_callback": slackpostonfail,
     "retries": 0,
     "retry_delay": timedelta(minutes=10),
 }

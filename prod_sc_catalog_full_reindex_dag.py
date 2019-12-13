@@ -8,7 +8,7 @@ from airflow.operators.python_operator import PythonOperator
 from airflow.contrib.operators.s3_list_operator import S3ListOperator
 from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
-from cob_datapipeline.task_slackpost import task_catalog_slackpostonsuccess
+from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
 from tulflow import tasks
 
 """
@@ -134,9 +134,9 @@ INDEX_SFTP_MARC = BashOperator(
         "FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/alma_bibs__",
         "GIT_BRANCH": GIT_BRANCH,
         "HOME": AIRFLOW_USER_HOME,
-        "LATEST_RELEASE": LATEST_RELEASE,
-        "SOLR_AUTH_USER": SOLR_CONN.login,
-        "SOLR_AUTH_PASSWORD": SOLR_CONN.password,
+        "LATEST_RELEASE": str(LATEST_RELEASE),
+        "SOLR_AUTH_USER": SOLR_CONN.login or "",
+        "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
         "SOLR_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"),
     },
     dag=DAG
@@ -174,7 +174,7 @@ GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
 
 POST_SLACK = PythonOperator(
     task_id="slack_post_succ",
-    python_callable=task_catalog_slackpostonsuccess,
+    python_callable=catalog_slackpostonsuccess,
     provide_context=True,
     dag=DAG
 )

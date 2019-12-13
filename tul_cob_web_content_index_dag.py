@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import airflow
 from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.task_ingest_web_content import ingest_web_content
-from cob_datapipeline.task_slackpost import task_web_content_slackpostonsuccess, task_slackpostonfail
+from cob_datapipeline.task_slack_posts import web_content_slackpostonsuccess, slackpostonfail
 from cob_datapipeline.task_solrgetnumdocs import task_solrgetnumdocs
 
 WEB_CONTENT_CORE = airflow.models.Variable.get("WEB_CONTENT_CORE")
@@ -19,7 +19,7 @@ DEFAULT_ARGS = {
     'email': ['david.kinzer@temple.edu'],
     'email_on_failure': False,
     'email_on_retry': False,
-    'on_failure_callback': task_slackpostonfail,
+    'on_failure_callback': slackpostonfail,
     'retries': 2,
     'retry_delay': timedelta(minutes=5),
 }
@@ -40,7 +40,7 @@ ingest_web_content_task = ingest_web_content(dag=WEB_CONTENT_DAG, conn=SOLR_CONN
 get_num_solr_docs_post = task_solrgetnumdocs(WEB_CONTENT_DAG, WEB_CONTENT_CORE, 'get_num_solr_docs_post')
 post_slack = PythonOperator(
     task_id='slack_post_succ',
-    python_callable=task_web_content_slackpostonsuccess,
+    python_callable=web_content_slackpostonsuccess,
     provide_context=True,
     dag=WEB_CONTENT_DAG
 )

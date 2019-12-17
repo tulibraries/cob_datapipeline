@@ -24,7 +24,7 @@ SCHEDULE_INTERVAL = Variable.get("AZ_INDEX_SCHEDULE_INTERVAL")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
-SOLR_CONFIG = Variable.get("AZ_SOLR_CONFIG", deserialize_json=True)
+SOLR_CONFIG = Variable.get("AZ_SOLR_CONFIG_QA", deserialize_json=True)
 # {"configset": "tul_cob-az-2", "replication_factor": 2}
 CONFIGSET = SOLR_CONFIG.get("configset")
 ALIAS = CONFIGSET + "-qa"
@@ -37,7 +37,7 @@ AZ_BRANCH = Variable.get("AZ_QA_BRANCH")
 
 # CREATE DAG
 DEFAULT_ARGS = {
-    "owner": "cob",
+    "owner": "cob-qa",
     "depends_on_past": False,
     "start_date": datetime(2019, 5, 28),
     "email_on_failure": False,

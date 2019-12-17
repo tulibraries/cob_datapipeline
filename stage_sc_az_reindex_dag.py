@@ -7,7 +7,7 @@ from airflow.hooks.base_hook import BaseHook
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.task_ingest_databases import get_solr_url
-from cob_datapipeline.task_slackpost import task_az_slackpostonsuccess
+from cob_datapipeline.task_slack_posts import az_slackpostonsuccess
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from tulflow import tasks
 
@@ -25,7 +25,7 @@ SCHEDULE_INTERVAL = Variable.get("AZ_INDEX_SCHEDULE_INTERVAL")
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
-SOLR_CONFIG = Variable.get("AZ_SOLR_CONFIG", deserialize_json=True)
+SOLR_CONFIG = Variable.get("AZ_SOLR_CONFIG_STAGE", deserialize_json=True)
 # {"configset": "tul_cob-az-2", "replication_factor": 2}
 CONFIGSET = SOLR_CONFIG.get("configset")
 ALIAS = CONFIGSET + "-stage"
@@ -38,7 +38,7 @@ AZ_BRANCH = Variable.get("AZ_STAGE_BRANCH")
 
 # CREATE DAG
 DEFAULT_ARGS = {
-    'owner': 'airflow',
+    'owner': 'cob-stage',
     'depends_on_past': False,
     'start_date': datetime(2019, 5, 28),
     'email_on_failure': False,
@@ -114,7 +114,7 @@ SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
 
 POST_SLACK = PythonOperator(
     task_id='slack_post_succ',
-    python_callable=task_az_slackpostonsuccess,
+    python_callable=az_slackpostonsuccess,
     provide_context=True,
     dag=DAG
 )

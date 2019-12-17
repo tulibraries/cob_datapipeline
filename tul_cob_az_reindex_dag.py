@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import airflow
 from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.task_ingest_databases import ingest_databases
-from cob_datapipeline.task_slackpost import task_az_slackpostonsuccess, task_slackpostonfail
+from cob_datapipeline.task_slack_posts import az_slackpostonsuccess, slackpostonfail
 from cob_datapipeline.task_solrgetnumdocs import task_solrgetnumdocs
 
 AZ_CORE = airflow.models.Variable.get("AZ_CORE")
@@ -19,7 +19,7 @@ DEFAULT_ARGS = {
     'email': ['david.kinzer@temple.edu'],
     'email_on_failure': False,
     'email_on_retry': False,
-    'on_failure_callback': task_slackpostonfail,
+    'on_failure_callback': slackpostonfail,
     'retries': 2,
     'retry_delay': timedelta(minutes=5),
 }
@@ -40,7 +40,7 @@ ingest_databases_task = ingest_databases(dag=AZ_DAG, conn=SOLR_CONN, delete=True
 get_num_solr_docs_post = task_solrgetnumdocs(AZ_DAG, AZ_CORE, 'get_num_solr_docs_post')
 post_slack = PythonOperator(
     task_id='slack_post_succ',
-    python_callable=task_az_slackpostonsuccess,
+    python_callable=az_slackpostonsuccess,
     provide_context=True,
     dag=AZ_DAG
 )

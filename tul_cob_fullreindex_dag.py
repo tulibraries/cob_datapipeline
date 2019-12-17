@@ -10,7 +10,7 @@ from cob_datapipeline.parsesftpdump import parse_sftpdump_dates, renamesftpfiles
 from cob_datapipeline.task_gitpulltulcob import task_git_pull_tulcob
 from cob_datapipeline.task_addxmlns import task_addxmlns
 from cob_datapipeline.task_solrcommit import task_solrcommit
-from cob_datapipeline.task_slackpost import task_slackpostonsuccess, task_slackpostonfail
+from cob_datapipeline.task_slack_posts import slackpostonsuccess, slackpostonfail
 from cob_datapipeline.task_solrgetnumdocs import task_solrgetnumdocs
 
 # INIT SYSTEMWIDE VARIABLES
@@ -40,7 +40,7 @@ default_args = {
     'email': ['tug76662@temple.edu'],
     'email_on_failure': True,
     'email_on_retry': True,
-    'on_failure_callback': task_slackpostonfail,
+    'on_failure_callback': slackpostonfail,
     'retries': 0,
     'retry_delay': timedelta(minutes=10),
 }
@@ -90,7 +90,7 @@ clear_index = SimpleHttpOperator(
 
 post_slack = PythonOperator(
     task_id='slack_post_succ',
-    python_callable=task_slackpostonsuccess,
+    python_callable=slackpostonsuccess,
     provide_context=True,
     dag=dag
 )

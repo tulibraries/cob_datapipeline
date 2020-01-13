@@ -10,6 +10,8 @@ export PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH"
 # * WEB_CONTENT_BRANCH: used here to checkout the corrent cob_web_content_index version.
 # * WEB_CONTENT_BASE_URL: Base url to retreive api data
 # * SOLR_AUTH_USER, SOLR_AUTH_PASSWORD: For basic auth requests.
+# * DELETE_SWITCH: Used to enable/disable delete of collection prior to ingesting.
+
 
 # * WEB_CONTENT_BASIC_AUTH_USER, WEB_CONTENT_BASIC_AUTH_PASSWORD: used by cob_web_content_index to authenticate.
 # * This is Temporary until the website is in production.
@@ -18,4 +20,4 @@ set -e
 git clone https://github.com/tulibraries/cob_web_index.git --branch=$WEB_CONTENT_BRANCH
 cd cob_web_index
 bundle install --without=debug
-bundle exec cob_web_index ingest
+bundle exec cob_web_index ingest $DELETE_SWITCH

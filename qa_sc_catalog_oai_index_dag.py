@@ -126,7 +126,7 @@ LIST_CATALOG_BW_S3_DATA = S3ListOperator(
     task_id="list_catalog_bw_s3_data",
     bucket=AIRFLOW_DATA_BUCKET,
     prefix=DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/bw/",
-    delimiter="/",
+    delimiter="",
     aws_conn_id=AIRFLOW_S3.conn_id,
     dag=DAG
 )

@@ -220,7 +220,9 @@ def delete_oai_solr(**kwargs):
             record_id = oai_record_id.replace(oai_prefix, "")
             oai_record_date = oai_record_dates[0].text
 
-            delete_route = "/solr/{}/update?stream.body=<delete><query>record_update_date:[0 TO {}] AND id:{}</query></delete>".format(alias, oai_record_date, record_id)
-
-            delete_http_conn = HttpHook("GET", solr_conn_id)
-            delete_http_conn.run(delete_route, {"command": 'delete_{}'.format(record_id)})
+            hook = HttpHook("POST", solr_conn_id)
+            hook.run(
+                    endpoint=f"/solr/{alias}/update",
+                    data=f"<delete><query>record_update_date:[0 TO {oai_record_date}] AND id:{record_id}</query></delete>",
+                    headers={"Content-Type": "text/xml"}
+                    )

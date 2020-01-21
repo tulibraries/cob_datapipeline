@@ -159,7 +159,7 @@ OAI_HARVEST = PythonOperator(
         "lookup_key": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/lookup.tsv",
         "metadata_prefix": CATALOG_OAI_MD_PREFIX,
         "oai_endpoint": CATALOG_OAI_ENDPOINT,
-        "parser": harvest.perform_xml_lookup,
+        "parser": harvest.perform_xml_lookup_with_cache(),
         "records_per_file": 1000,
         "included_sets": CATALOG_OAI_INCLUDED_SETS,
         "timestamp": "{{ ti.xcom_pull(task_ids='set_collection_name') }}"

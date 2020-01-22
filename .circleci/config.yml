@@ -4,7 +4,7 @@ jobs:
   lint_and_test:
     working_directory: ~/cob_datapipeline
     docker:
-      - image: circleci/python:3.7.2
+      - image: circleci/python:3.6
         environment:
           PIPENV_VENV_IN_PROJECT: true
     steps:
@@ -18,7 +18,7 @@ jobs:
             pipenv run pytest
   qa_deploy:
     docker:
-      - image: circleci/python:3.7.2
+      - image: circleci/python:3.6
         environment:
           PIPENV_VENV_IN_PROJECT: true
     steps:
@@ -40,7 +40,7 @@ jobs:
             pipenv run ansible-playbook -i inventory/qa playbook.yml --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
   stage_deploy:
     docker:
-      - image: circleci/python:3.7.2
+      - image: circleci/python:3.6
         environment:
           PIPENV_VENV_IN_PROJECT: true
     steps:
@@ -62,7 +62,7 @@ jobs:
             pipenv run ansible-playbook -i inventory/stage playbook.yml --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
   prod_deploy:
     docker:
-      - image: circleci/python:3.7.2
+      - image: circleci/python:3.6
         environment:
           PIPENV_VENV_IN_PROJECT: true
     steps:

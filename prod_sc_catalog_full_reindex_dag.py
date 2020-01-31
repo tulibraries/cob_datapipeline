@@ -138,6 +138,7 @@ INDEX_SFTP_MARC = BashOperator(
         "SOLR_AUTH_USER": SOLR_CONN.login or "",
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
         "SOLR_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"),
+        "TRAJECT_FULL_REINDEX": "yes",
     },
     dag=DAG
 )

@@ -163,7 +163,7 @@ SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
     DAG,
     SOLR_CONN.conn_id,
     CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
-    CONFIGSET + "-{{ dag_run.conf.get('env') }}"
+    CONFIGSET + "-qa"
 )
 
 GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(

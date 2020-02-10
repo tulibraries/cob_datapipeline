@@ -1,4 +1,4 @@
-up: down build  pip-install load-vars
+up: down build  load-vars
 	@echo "Building airflow with mounted DAGs, loaded variables, connections."
 
 build:

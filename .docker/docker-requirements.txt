@@ -2,8 +2,8 @@ pexpect
 xmltodict
 psycopg2-binary
 sickle
-Flask===1.0.4
-tulflow==0.5.1
-werkzeug>=0.15.0
+Flask===1.1.0
+tulflow==0.5.2
+werkzeug==0.15.4
 boto3
 awscli

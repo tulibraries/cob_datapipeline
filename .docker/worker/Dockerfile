@@ -1,6 +1,6 @@
 ARG AIRFLOW_DEPS=""
 ARG PYTHON_DEPS=""
-FROM puckel/docker-airflow:1.10.3
+FROM puckel/docker-airflow:1.10.4
 
 # Install git
 USER root

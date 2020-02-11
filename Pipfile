@@ -11,6 +11,7 @@ pexpect = "*"
 boto3 = "*"
 tulflow = "*"
 awscli = "*"
+lxml = "==4.4.3"
 
 [dev-packages]
 pytest = "*"

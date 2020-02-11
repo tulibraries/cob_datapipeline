@@ -2,8 +2,6 @@ version: '3.4'
 services:
   redis:
     image: redis:3.2.7
-    volumes:
-        - ./.docker/docker-requirements.txt:/requirements.txt
 
   postgres:
     image: postgres:11
@@ -17,16 +15,15 @@ services:
     restart: always
     depends_on:
         - postgres
-        - redis
     environment:
         - LOAD_EX=n
         - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
         - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
         - AIRFLOW__CORE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres:5432/airflow
     volumes:
-        - ./:/usr/local/airflow/dags/cob_datapipeline
+        - ../${DAG_FOLDER_NAME}:/usr/local/airflow/dags/${DAG_FOLDER_NAME}
         - ./data:/usr/local/airflow/data
-        - ./.docker/docker-requirements.txt:/requirements.txt
+        - ./docker-requirements.txt:/requirements.txt
     ports:
         - "8010:8080"
     command: webserver
@@ -41,6 +38,7 @@ services:
     restart: always
     depends_on:
         - redis
+        - webserver
     environment:
         - LOAD_EX=n
         - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
@@ -50,7 +48,7 @@ services:
         - "5555:5555"
     command: flower
     volumes:
-        - ./.docker/docker-requirements.txt:/requirements.txt
+        - ./docker-requirements.txt:/requirements.txt
 
   scheduler:
     image: puckel/docker-airflow:1.10.4
@@ -58,9 +56,9 @@ services:
     depends_on:
         - webserver
     volumes:
-        - ./:/usr/local/airflow/dags/cob_datapipeline
+        - ../${DAG_FOLDER_NAME}:/usr/local/airflow/dags/${DAG_FOLDER_NAME}
         - ./data:/usr/local/airflow/data
-        - ./.docker/docker-requirements.txt:/requirements.txt
+        - ./docker-requirements.txt:/requirements.txt
     environment:
         - LOAD_EX=n
         - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
@@ -71,18 +69,14 @@ services:
   worker:
     build:
       context: .
-      dockerfile: .docker/worker/Dockerfile
-      args:
-        AIRFLOW_DEPS: ${AIRFLOW_DEPS}
-        PYTHON_DEPS: ${PYTHON_DEPS}
+      dockerfile: ./worker/Dockerfile
     restart: always
     depends_on:
         - scheduler
     volumes:
-        - ./:/usr/local/airflow/dags/cob_datapipeline
+        - ../${DAG_FOLDER_NAME}:/usr/local/airflow/dags/${DAG_FOLDER_NAME}
         - ./data:/usr/local/airflow/data
-        - ./.docker/docker-requirements.txt:/requirements.txt
-        - ./ssh:/ssh
+        - ./docker-requirements.txt:/requirements.txt
     environment:
         - FERNET_KEY=46BKJoQYlPPOexq0OhDZnIlNepKFf87WFwLbfzqDDho=
         - AIRFLOW__CORE__EXECUTOR=CeleryExecutor

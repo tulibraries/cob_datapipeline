@@ -5,7 +5,7 @@ build:
 	@echo "Building airflow containers, networks, volumes"
 	docker-compose pull
 	docker-compose -p 'infra' up --build -d
-	sleep 20
+	sleep 40
 	@echo "airflow running on http://127.0.0.1:8010"
 
 reload:
@@ -28,9 +28,9 @@ clone-dags:
 
 load-vars:
 	@echo "Loading Variables & Connections DAGs into Airflow"
-	if [ ! -f "data/variables.json" ]; then cp data/example-variables.json data/variables.json; fi
+	if [ ! -f "data/variables.json" ]; then cp example-variables.json data/variables.json; fi
 	docker exec infra_webserver_1 airflow variables -i /usr/local/airflow/data/variables.json
-	if [ ! -f "data/local-variables.json" ]; then cp ./variables.json data/local-variables.json; fi
+	if [ ! -f "data/local-variables.json" ]; then cp ../variables.json data/local-variables.json; fi
 	docker exec infra_webserver_1 airflow variables -i /usr/local/airflow/data/local-variables.json
 	docker exec infra_webserver_1 airflow connections -a --conn_id AIRFLOW_CONN_SLACK_WEBHOOK --conn_type HTTP --conn_host https://hooks.slack.com/services --conn_password blah
 	docker exec infra_webserver_1 airflow connections -a --conn_id AIRFLOW_CONN_SOLR_LEADER --conn_uri http://solr1:8983

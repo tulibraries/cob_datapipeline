@@ -8,6 +8,9 @@ up:
 stop:
 	$(INTO-SUBMODULE) && $(MAKE) stop
 
+reload:
+	$(INTO-SUBMODULE) && $(MAKE) reload
+
 down:
 	$(INTO-SUBMODULE) && $(MAKE) down
 

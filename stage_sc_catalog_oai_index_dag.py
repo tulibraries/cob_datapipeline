@@ -214,7 +214,7 @@ UPDATE_DATE_VARIABLES = PythonOperator(
     python_callable=update_variables,
     op_kwargs={
         "UPDATE": {
-            "CATALOG_HARVEST_FROM_DATE": CATALOG_HARVEST_FROM_DATE_NEW
+            "CATALOG_STAGE_HARVEST_FROM_DATE": CATALOG_HARVEST_FROM_DATE_NEW
         }
     },
     dag=DAG

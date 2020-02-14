@@ -9,7 +9,7 @@ xmltodict = "*"
 sickle = "*"
 pexpect = "*"
 boto3 = "*"
-tulflow = "*"
+tulflow = "==0.5.2"
 awscli = "*"
 lxml = "==4.4.3"
 

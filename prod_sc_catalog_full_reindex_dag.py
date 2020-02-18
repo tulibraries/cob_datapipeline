@@ -171,10 +171,7 @@ SOLR_COMMIT = SimpleHttpOperator(
     task_id='solr_commit',
     method='GET',
     http_conn_id=SOLR_CONN.conn_id,
-    endpoint= '/solr/' + ALIAS + '/update',
-    data={"stream.body": "<commit/>"},
-    xcom_push=True,
-    headers={},
+    endpoint= '/solr/' + ALIAS + '/update?commit=true',
     dag=DAG
 )
 

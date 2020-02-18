@@ -10,6 +10,7 @@ from cob_datapipeline.sc_xml_parse import prepare_oai_boundwiths, delete_oai_sol
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
 from tulflow import harvest, tasks
+from airflow.operators.http_operator import SimpleHttpOperator
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -76,7 +77,7 @@ DEFAULT_ARGS = {
 }
 
 DAG = airflow.DAG(
-    "stage_sc_catalog_pipeline",
+    "stage_sc_catalog_oai_harvest",
     catchup=False,
     default_args=DEFAULT_ARGS,
     max_active_runs=1,
@@ -201,6 +202,17 @@ INDEX_DELETES_OAI_MARC = PythonOperator(
     dag=DAG
 )
 
+SOLR_COMMIT = SimpleHttpOperator(
+    task_id='solr_commit',
+    method='GET',
+    http_conn_id=SOLR_CONN.conn_id,
+    endpoint= '/solr/' +  ALIAS + '/update',
+    data={"stream.body": "<commit/>"},
+    xcom_push=True,
+    headers={},
+    dag=DAG
+)
+
 GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     DAG,
     ALIAS,
@@ -235,7 +247,8 @@ PREPARE_BOUNDWITHS.set_upstream(LIST_CATALOG_BW_S3_DATA)
 OAI_HARVEST.set_upstream(PREPARE_BOUNDWITHS)
 INDEX_UPDATES_OAI_MARC.set_upstream(OAI_HARVEST)
 INDEX_DELETES_OAI_MARC.set_upstream(OAI_HARVEST)
-GET_NUM_SOLR_DOCS_POST.set_upstream(INDEX_UPDATES_OAI_MARC)
-GET_NUM_SOLR_DOCS_POST.set_upstream(INDEX_DELETES_OAI_MARC)
+SOLR_COMMIT.set_upstream(INDEX_UPDATES_OAI_MARC)
+SOLR_COMMIT.set_upstream(INDEX_DELETES_OAI_MARC)
+GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_COMMIT)
 UPDATE_DATE_VARIABLES.set_upstream(GET_NUM_SOLR_DOCS_POST)
 POST_SLACK.set_upstream(UPDATE_DATE_VARIABLES)

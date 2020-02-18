@@ -5,6 +5,7 @@ from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
+from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.contrib.operators.s3_list_operator import S3ListOperator
 from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
@@ -166,6 +167,17 @@ SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
     CONFIGSET + "-stage"
 )
 
+SOLR_COMMIT = SimpleHttpOperator(
+    task_id='solr_commit',
+    method='GET',
+    http_conn_id=SOLR_CONN.conn_id,
+    endpoint= '/solr/' + ALIAS + '/update',
+    data={"stream.body": "<commit/>"},
+    xcom_push=True,
+    headers={},
+    dag=DAG
+)
+
 GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     DAG,
     CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
@@ -189,5 +201,6 @@ CREATE_COLLECTION.set_upstream(PREPARE_ALMA_DATA)
 INDEX_SFTP_MARC.set_upstream(CREATE_COLLECTION)
 ARCHIVE_S3_DATA.set_upstream(INDEX_SFTP_MARC)
 SOLR_ALIAS_SWAP.set_upstream(ARCHIVE_S3_DATA)
-GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_ALIAS_SWAP)
+SOLR_COMMIT.set_upstream(SOLR_ALIAS_SWAP)
+GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_COMMIT)
 POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_POST)

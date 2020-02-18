@@ -166,6 +166,17 @@ SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
     CONFIGSET + "-prod"
 )
 
+SOLR_COMMIT = SimpleHttpOperator(
+    task_id='solr_commit',
+    method='GET',
+    http_conn_id=SOLR_CONN.conn_id,
+    endpoint= '/solr/' + ALIAS + '/update',
+    data={"stream.body": "<commit/>"},
+    xcom_push=True,
+    headers={},
+    dag=DAG
+)
+
 GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     DAG,
     CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
@@ -189,5 +200,6 @@ CREATE_COLLECTION.set_upstream(PREPARE_ALMA_DATA)
 INDEX_SFTP_MARC.set_upstream(CREATE_COLLECTION)
 ARCHIVE_S3_DATA.set_upstream(INDEX_SFTP_MARC)
 SOLR_ALIAS_SWAP.set_upstream(ARCHIVE_S3_DATA)
-GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_ALIAS_SWAP)
+SOLR_COMMIT.set_upstream(SOLR_ALIAS_SWAP)
+GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_COMMIT)
 POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_POST)

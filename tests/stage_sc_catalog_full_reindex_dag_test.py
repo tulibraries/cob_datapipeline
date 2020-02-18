@@ -44,7 +44,7 @@ class TestCatalogFullReindexScDag(unittest.TestCase):
             "archive_s3_data": ["index_sftp_marc"],
             "solr_alias_swap": ["archive_s3_data"],
             "solr_commit": ["solr_alias_swap"],
-            "get_num_solr_docs_post": ["solr_alias_swap"],
+            "get_num_solr_docs_post": ["solr_commit"],
             "slack_post_succ": ["get_num_solr_docs_post"],
         }
         for task, upstream_tasks in expected_task_deps.items():

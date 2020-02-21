@@ -9,8 +9,9 @@ xmltodict = "*"
 sickle = "*"
 pexpect = "*"
 boto3 = "*"
-tulflow = "*"
+tulflow = "==0.5.2"
 awscli = "*"
+lxml = "==4.4.3"
 
 [dev-packages]
 pytest = "*"
@@ -19,4 +20,4 @@ pylint = "*"
 moto = "*"
 
 [requires]
-python_version = "3.7"
+python_version = "3.6"

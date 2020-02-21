@@ -5,6 +5,7 @@ from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
+from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.contrib.operators.s3_list_operator import S3ListOperator
 from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
@@ -138,6 +139,7 @@ INDEX_SFTP_MARC = BashOperator(
         "SOLR_AUTH_USER": SOLR_CONN.login or "",
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
         "SOLR_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"),
+        "TRAJECT_FULL_REINDEX": "yes",
     },
     dag=DAG
 )
@@ -162,7 +164,15 @@ SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
     DAG,
     SOLR_CONN.conn_id,
     CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
-    CONFIGSET + "-{{ dag_run.conf.get('env') }}"
+    CONFIGSET + "-prod"
+)
+
+SOLR_COMMIT = SimpleHttpOperator(
+    task_id='solr_commit',
+    method='GET',
+    http_conn_id=SOLR_CONN.conn_id,
+    endpoint= '/solr/' + ALIAS + '/update?commit=true',
+    dag=DAG
 )
 
 GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
@@ -188,5 +198,6 @@ CREATE_COLLECTION.set_upstream(PREPARE_ALMA_DATA)
 INDEX_SFTP_MARC.set_upstream(CREATE_COLLECTION)
 ARCHIVE_S3_DATA.set_upstream(INDEX_SFTP_MARC)
 SOLR_ALIAS_SWAP.set_upstream(ARCHIVE_S3_DATA)
-GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_ALIAS_SWAP)
+SOLR_COMMIT.set_upstream(SOLR_ALIAS_SWAP)
+GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_COMMIT)
 POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_POST)

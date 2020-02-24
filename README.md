@@ -111,6 +111,14 @@ Currently, there are no tests for this code; they are 'tested' in local Airflow 
 
 WIP.
 
+* `make up`: Sets up local airflow with these dags.
+* `make down`: Close the local setup.
+* `make reload`: Reload configurations for local setup.
+* `make tty-webserver`: Enter airflow webserver container instance.
+* `make tty-worker`: Enter airflow worker container instance.
+* `make tty-schedular`: Enter airflow schedular contain instance.
+
+
 ### Development: Ansible-Vagrant Install & Run Airflow & COB DAGs
 
 WIP.

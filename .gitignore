@@ -9,6 +9,7 @@ __pycache__/
 .pytest_cache/
 .conan_the_deployer
 .gritty_travis
+.docker
 deploy.zip
 dags
 data

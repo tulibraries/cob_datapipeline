@@ -141,7 +141,7 @@ PREPARE_BOUNDWITHS = PythonOperator(
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "DEST_FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/lookup.tsv",
-        "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_CATALOG_bw_s3_data') }}",
+        "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_catalog_bw_s3_data') }}",
         "SOURCE_FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/bw"
     },
     dag=DAG

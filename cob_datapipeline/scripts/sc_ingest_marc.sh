@@ -23,5 +23,5 @@ data_in=$(aws s3api list-objects --bucket $BUCKET --prefix $FOLDER | jq -r '.Con
 for file in $data_in
 do
   echo "Indexing file: "$file
-  bundle exec cob_index ingest $(aws s3 presign s3://$BUCKET/$file)
+  bundle exec cob_index $COMMAND $(aws s3 presign s3://$BUCKET/$file)
 done

@@ -79,6 +79,24 @@ def pytest_sessionstart():
     airflow.models.Variable.set("WEB_CONTENT_SOLR_CONFIG", {"configset": "tul_cob-web-2", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "WEB_CONTENT_SCHEDULE_INTERVAL")
 
+    airflow.models.Variable.set("CATALOG_OAI_PUBLISH_INTERVAL", 0)
+    airflow.models.Variable.set("CATALOG_PROD_HARVEST_FROM_DATE", "CATALOG_PROD_HARVEST_FROM_DATE")
+    airflow.models.Variable.set("CATALOG_QA_HARVEST_FROM_DATE", "CATALOG_QA_HARVEST_FROM_DATE")
+    airflow.models.Variable.set("CATALOG_STAGE_HARVEST_FROM_DATE", "CATALOG_STAGE_HARVEST_FROM_DATE")
+    airflow.models.Variable.set("AIRFLOW_USER_HOME", "AIRFLOW_USER_HOME")
+    airflow.models.Variable.set("CATALOG_HARVEST_UNTIL_DATE", "2020-01-01T00:00:00Z")
+    airflow.models.Variable.set("CATALOG_OAI_CONFIG", {"endpoint": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request", "included_sets": ["blacklight"], "md_prefix": ""}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_OAI_BW_CONFIG", {"endpoint": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request", "included_sets": ["blacklight-bw"], "md_prefix": "marc21"}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_PROD_BRANCH", "CATALOG_PROD_BRANCH")
+    airflow.models.Variable.set("CATALOG_QA_BRANCH", "CATALOG_QA_BRANCH")
+    airflow.models.Variable.set("CATALOG_STAGE_BRANCH", "CATALOG_STAGE_BRANCH")
+    airflow.models.Variable.set("CATALOG_PROD_LATEST_RELEASE", "CATALOG_PROD_LATEST_RELEASE")
+    airflow.models.Variable.set("CATALOG_STAGE_LATEST_RELEASE", "CATALOG_STAGE_LATEST_RELEASE")
+    airflow.models.Variable.set("CATALOG_QA_LATEST_RELEASE", "CATALOG_QA_LATEST_RELEASE")
+
+    airflow.models.Variable.set("CATALOG_SOLR_CONFIG", {"configset": "tul_cob-catalog-2", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("AIRFLOW_DATA_BUCKET", "AIRFLOW_DATA_BUCKET")
+
     solr = airflow.models.Connection(
         conn_id="AIRFLOW_CONN_SOLR_LEADER",
         conn_type="http",

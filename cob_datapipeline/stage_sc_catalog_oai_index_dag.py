@@ -52,8 +52,8 @@ CATALOG_OAI_BW_INCLUDED_SETS = CATALOG_OAI_BW_CONFIG.get("included_sets")
 CATALOG_OAI_BW_ENDPOINT = CATALOG_OAI_BW_CONFIG.get("endpoint")
 
 # cob_index Indexer Library Variables
-GIT_BRANCH = Variable.get("CATALOG_PROD_BRANCH")
-LATEST_RELEASE = Variable.get("CATALOG_PROD_LATEST_RELEASE")
+GIT_BRANCH = Variable.get("CATALOG_STAGE_BRANCH")
+LATEST_RELEASE = Variable.get("CATALOG_STAGE_LATEST_RELEASE")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")

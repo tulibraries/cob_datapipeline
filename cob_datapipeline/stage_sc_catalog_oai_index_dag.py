@@ -57,7 +57,7 @@ LATEST_RELEASE = Variable.get("CATALOG_STAGE_LATEST_RELEASE")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
-CATALOG_SOLR_CONFIG = Variable.get("CATALOG_SOLR_CONFIG", deserialize_json=True)
+CATALOG_SOLR_CONFIG = Variable.get("CATALOG_SOLR_CONFIG_STAGE", deserialize_json=True)
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
 ALIAS = CONFIGSET + "-stage"

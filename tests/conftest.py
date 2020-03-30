@@ -22,6 +22,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AIRFLOW_DATA_DIR", repo_dir + "/data")
     airflow.models.Variable.set("AIRFLOW_LOG_DIR", repo_dir + "/logs")
     airflow.models.Variable.set("AIRFLOW_USER_HOME", repo_dir)
+    airflow.models.Variable.set("ALMA_API_KEY", "key")
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_FROM_DATE", "none")
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_DATE", "none")
     airflow.models.Variable.set("ALMASFTP_HARVEST_PATH", repo_dir + "/data/sftpdump/")

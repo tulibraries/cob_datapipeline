@@ -19,6 +19,8 @@ pytest = "*"
 apache-airflow = "*"
 pylint = "*"
 moto = "*"
+paramiko = "*"
+sshtunnel = "*"
 
 [requires]
 python_version = "3.6"

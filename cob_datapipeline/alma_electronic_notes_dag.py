@@ -33,6 +33,7 @@ DEFAULT_ARGS = {
     "depends_on_past": False,
     "email_on_failure": False,
     "email_on_retry": False,
+    'start_date': datetime(2019, 5, 28),
     "on_failure_callback": tasks.execute_slackpostonfail,
     "retries": 2,
     "retry_delay": timedelta(minutes=5),
@@ -60,7 +61,7 @@ SET_DATETIME = PythonOperator(
     dag=DAG
 )
 
-HARVEST_NOTES = bashOperator(
+HARVEST_NOTES = BashOperator(
     task_id='harvest_notes',
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/harvest_notes.sh ",
     env={

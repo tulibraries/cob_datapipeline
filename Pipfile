@@ -12,6 +12,7 @@ boto3 = "*"
 tulflow = "==0.5.3"
 awscli = "*"
 lxml = "==4.4.3"
+importlib-resources = {version = "*", markers = "python_version < '3.7'"}
 
 [dev-packages]
 pytest = "*"

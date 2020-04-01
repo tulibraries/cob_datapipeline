@@ -76,15 +76,22 @@ HARVEST_NOTES = BashOperator(
     dag=DAG
 )
 
-S3_TO_SERVER = S3ToSFTPOperator(
-    task_id='s3_to_server',
+# TODO: Replace with S3ListOperator
+NOTE_TYPES = [ "collection", "service" ]
+S3_TO_SERVER_TASKS = {}
+
+for note_type in NOTE_TYPES:
+    S3_TO_SERVER_TASKS[note_type] = S3ToSFTPOperator(
+    task_id='s3_to_server_' + note_type,
     sftp_conn_id="tul_cob",
-    sftp_path="/var/www/tul_cob/tmp",
+    sftp_path="/tmp/" + note_type + "_notes.json",
     s3_conn_id="AIRFLOW_S3",
     s3_bucket=AIRFLOW_DATA_BUCKET,
-    s3_key="{{ ti.xcom_pull(task_ids='set_datetime') }}",
+    s3_key="electronic-notes/{{ ti.xcom_pull(task_ids='set_datetime') }}/" + note_type + "_notes.json",
     dag=DAG
 )
+
+S3_TO_SERVER_TASKS = list(S3_TO_SERVER_TASKS.values())
 
 RELOAD_ELECTRONIC_COLLECTIONS_COMMAND = """
  sudo su - tul_cob bash -c \
@@ -99,6 +106,6 @@ RELOAD_ELECTRONIC_NOTES = SSHOperator(
 )
 
 # SET UP TASK DEPENDENCIES
-HARVEST_NOTES.set_upstream(SET_DATETIME)
-S3_TO_SERVER.set_upstream(HARVEST_NOTES)
-RELOAD_ELECTRONIC_NOTES.set_upstream(S3_TO_SERVER)
+SET_DATETIME >> HARVEST_NOTES
+HARVEST_NOTES >> S3_TO_SERVER_TASKS
+S3_TO_SERVER_TASKS >> RELOAD_ELECTRONIC_NOTES

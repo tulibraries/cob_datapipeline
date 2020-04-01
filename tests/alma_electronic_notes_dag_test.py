@@ -20,7 +20,8 @@ class TestAlmaElectronicNotesDag(unittest.TestCase):
         self.assertEqual(self.tasks, [
             "set_datetime",
             "harvest_notes",
-            "s3_to_server",
+            "s3_to_server_collection",
+            "s3_to_server_service",
             "reload_electronic_notes",
             ])
 

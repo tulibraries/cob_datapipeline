@@ -29,7 +29,7 @@ AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
 
 # CREATE DAG
 DEFAULT_ARGS = {
-    "owner": "airflow",
+    "owner": "cob",
     "depends_on_past": False,
     "email_on_failure": False,
     "email_on_retry": False,
@@ -64,7 +64,7 @@ SET_DATETIME = PythonOperator(
 HARVEST_NOTES = BashOperator(
     task_id='harvest_notes',
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/harvest_notes.sh ",
-    env={
+    env={**os.environ, **{
         "ALMA_API_KEY": Variable.get("ALMA_API_KEY"),
         "GIT_BRANCH": GIT_BRANCH,
         "LATEST_RELEASE": str(LATEST_RELEASE),
@@ -72,7 +72,7 @@ HARVEST_NOTES = BashOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "DATETIME": "{{ ti.xcom_pull(task_ids='set_datetime') }}"
-    },
+    }},
     dag=DAG
 )
 

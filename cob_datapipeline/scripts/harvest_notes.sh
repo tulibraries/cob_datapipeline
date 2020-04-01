@@ -1,4 +1,4 @@
-#/bin/bash --login
+#!/bin/bash --login
 
 set -eo pipefail
 
@@ -17,5 +17,5 @@ cd tmp/cob_index
 gem install bundler
 bundle install --without=debug
 mkdir output; cd output
-bundle exec cob_index harvest --type=alma-electronic
+bundle exec cob_index harvest
 aws s3 sync . s3://tulib-airflow-prod/electronic-notes/$DATETIME --exclude '*' --include '*.json'

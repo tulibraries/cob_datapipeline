@@ -27,6 +27,9 @@ LATEST_RELEASE = Variable.get("CATALOG_QA_LATEST_RELEASE")
 AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
 AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
 
+SUCCESS_MESSAGE = "Successfully updated the alma electronic notes."
+SUCCESS_CALLBACK = lambda c: tasks.execute_slackpostonsuccess(c, "ALMA_ELECTRONIC_NOTES", SUCCESS_MESSAGE)
+
 # CREATE DAG
 DEFAULT_ARGS = {
     "owner": "cob",
@@ -34,6 +37,7 @@ DEFAULT_ARGS = {
     "email_on_failure": False,
     "email_on_retry": False,
     'start_date': datetime(2019, 5, 28),
+    "on_success_callback": SUCCESS_CALLBACK,
     "on_failure_callback": tasks.execute_slackpostonfail,
     "retries": 2,
     "retry_delay": timedelta(minutes=5),

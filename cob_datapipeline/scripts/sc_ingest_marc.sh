@@ -20,6 +20,10 @@ bundle install --without=debug
 echo "Grabbing files from S3"
 data_in=$(aws s3api list-objects --bucket $BUCKET --prefix $FOLDER | jq -r '.Contents[].Key')
 
+if [ -z "$COMMAND" ]; then
+  COMMAND=ingest
+fi
+
 for file in $data_in
 do
   echo "Indexing file: "$file

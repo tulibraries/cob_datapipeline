@@ -1,14 +1,16 @@
 """Airflow DAG to harvest alma electronic notes"""
 from datetime import datetime, timedelta
+import os
 from tulflow import tasks
 import airflow
-import os
 from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.contrib.operators.s3_to_sftp_operator import S3ToSFTPOperator
 from airflow.contrib.operators.ssh_operator import SSHOperator
+from cob_datapipeline.task_slack_posts import notes_slackpostonsuccess
+
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -27,9 +29,6 @@ LATEST_RELEASE = Variable.get("CATALOG_QA_LATEST_RELEASE")
 AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
 AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
 
-SUCCESS_MESSAGE = "Successfully updated the alma electronic notes."
-SUCCESS_CALLBACK = lambda c: tasks.execute_slackpostonsuccess(c, "ALMA_ELECTRONIC_NOTES", SUCCESS_MESSAGE)
-
 # CREATE DAG
 DEFAULT_ARGS = {
     "owner": "cob",
@@ -37,7 +36,6 @@ DEFAULT_ARGS = {
     "email_on_failure": False,
     "email_on_retry": False,
     'start_date': datetime(2019, 5, 28),
-    "on_success_callback": SUCCESS_CALLBACK,
     "on_failure_callback": tasks.execute_slackpostonfail,
     "retries": 2,
     "retry_delay": timedelta(minutes=5),
@@ -109,7 +107,15 @@ RELOAD_ELECTRONIC_NOTES = SSHOperator(
     dag=DAG
 )
 
+SLACK_POST_SUCCESS = PythonOperator(
+    task_id="slack_post_success",
+    python_callable=notes_slackpostonsuccess,
+    provide_context=True,
+    dag=DAG
+)
+
 # SET UP TASK DEPENDENCIES
 SET_DATETIME >> HARVEST_NOTES
 HARVEST_NOTES >> S3_TO_SERVER_TASKS
 S3_TO_SERVER_TASKS >> RELOAD_ELECTRONIC_NOTES
+RELOAD_ELECTRONIC_NOTES >> SLACK_POST_SUCCESS

@@ -6,7 +6,7 @@ from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from cob_datapipeline.sc_xml_parse import prepare_oai_boundwiths, delete_oai_solr, update_variables
+from cob_datapipeline.sc_xml_parse import prepare_oai_boundwiths, update_variables
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
 from tulflow import harvest, tasks
@@ -57,7 +57,7 @@ LATEST_RELEASE = Variable.get("CATALOG_STAGE_LATEST_RELEASE")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
-CATALOG_SOLR_CONFIG = Variable.get("CATALOG_SOLR_CONFIG", deserialize_json=True)
+CATALOG_SOLR_CONFIG = Variable.get("CATALOG_SOLR_CONFIG_STAGE", deserialize_json=True)
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
 ALIAS = CONFIGSET + "-stage"
@@ -182,22 +182,26 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "SOLR_AUTH_USER": SOLR_CONN.login or "",
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
         "SOLR_URL": tasks.get_solr_url(SOLR_CONN, ALIAS),
+        "COMMAND": "ingest",
     },
     dag=DAG
 )
 
-INDEX_DELETES_OAI_MARC = PythonOperator(
+INDEX_DELETES_OAI_MARC = BashOperator(
     task_id="index_deletes_oai_marc",
-    provide_context=True,
-    python_callable=delete_oai_solr,
-    op_kwargs={
-        "ALIAS": ALIAS,
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh ",
+    env={
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "OAI_PREFIX": "oai:alma.01TULI_INST:",
-        "SOLR_CONN": SOLR_CONN.conn_id,
-        "SOURCE_PREFIX": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/deleted"
+        "FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/deleted",
+        "GIT_BRANCH": GIT_BRANCH,
+        "HOME": AIRFLOW_USER_HOME,
+        "LATEST_RELEASE": str(LATEST_RELEASE),
+        "SOLR_AUTH_USER": SOLR_CONN.login or "",
+        "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
+        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, ALIAS),
+        "COMMAND": "delete",
     },
     dag=DAG
 )

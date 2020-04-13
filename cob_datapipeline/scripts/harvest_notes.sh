@@ -1,4 +1,4 @@
-#/bin/bash --login
+#!/bin/bash --login
 
 set -eo pipefail
 
@@ -16,16 +16,6 @@ git clone https://github.com/tulibraries/cob_index.git tmp/cob_index --branch=$G
 cd tmp/cob_index
 gem install bundler
 bundle install --without=debug
-
-echo "Grabbing files from S3"
-data_in=$(aws s3api list-objects --bucket $BUCKET --prefix $FOLDER | jq -r '.Contents[].Key')
-
-if [ -z "$COMMAND" ]; then
-  COMMAND=ingest
-fi
-
-for file in $data_in
-do
-  echo "Indexing file: "$file
-  bundle exec cob_index $COMMAND $(aws s3 presign s3://$BUCKET/$file)
-done
+mkdir output; cd output
+bundle exec cob_index harvest
+aws s3 sync . s3://tulib-airflow-prod/electronic-notes/$DATETIME --exclude '*' --include '*.json'

@@ -22,6 +22,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AIRFLOW_DATA_DIR", repo_dir + "/data")
     airflow.models.Variable.set("AIRFLOW_LOG_DIR", repo_dir + "/logs")
     airflow.models.Variable.set("AIRFLOW_USER_HOME", repo_dir)
+    airflow.models.Variable.set("ALMA_API_KEY", "key")
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_FROM_DATE", "none")
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_DATE", "none")
     airflow.models.Variable.set("ALMASFTP_HARVEST_PATH", repo_dir + "/data/sftpdump/")
@@ -55,6 +56,9 @@ def pytest_sessionstart():
     airflow.models.Variable.set("CATALOG_CORE", "CATALOG_CORE")
     airflow.models.Variable.set("CATALOG_REPLICATION_FACTOR", 2)
     airflow.models.Variable.set("CATALOG_SOLR_CONFIG", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_SOLR_CONFIG_QA", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_SOLR_CONFIG_STAGE", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_SOLR_CONFIG_PROD", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("GIT_PULL_TULCOB_LATEST_RELEASE", False)
     airflow.models.Variable.set("GIT_PULL_TULCOB_BRANCH_NAME", "qa")
     airflow.models.Variable.set("SOLR_AUTH_USER", "SOLR_AUTH_USER")
@@ -74,6 +78,22 @@ def pytest_sessionstart():
     airflow.models.Variable.set("WEB_CONTENT_REPLICATION_FACTOR", 2)
     airflow.models.Variable.set("WEB_CONTENT_SOLR_CONFIG", {"configset": "tul_cob-web-2", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "WEB_CONTENT_SCHEDULE_INTERVAL")
+
+    airflow.models.Variable.set("CATALOG_OAI_PUBLISH_INTERVAL", 0)
+    airflow.models.Variable.set("CATALOG_PROD_HARVEST_FROM_DATE", "CATALOG_PROD_HARVEST_FROM_DATE")
+    airflow.models.Variable.set("CATALOG_QA_HARVEST_FROM_DATE", "CATALOG_QA_HARVEST_FROM_DATE")
+    airflow.models.Variable.set("CATALOG_STAGE_HARVEST_FROM_DATE", "CATALOG_STAGE_HARVEST_FROM_DATE")
+    airflow.models.Variable.set("CATALOG_HARVEST_UNTIL_DATE", "2020-01-01T00:00:00Z")
+    airflow.models.Variable.set("CATALOG_OAI_CONFIG", {"endpoint": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request", "included_sets": ["blacklight"], "md_prefix": ""}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_OAI_BW_CONFIG", {"endpoint": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request", "included_sets": ["blacklight-bw"], "md_prefix": "marc21"}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_PROD_BRANCH", "CATALOG_PROD_BRANCH")
+    airflow.models.Variable.set("CATALOG_QA_BRANCH", "CATALOG_QA_BRANCH")
+    airflow.models.Variable.set("CATALOG_STAGE_BRANCH", "CATALOG_STAGE_BRANCH")
+    airflow.models.Variable.set("CATALOG_PROD_LATEST_RELEASE", "CATALOG_PROD_LATEST_RELEASE")
+    airflow.models.Variable.set("CATALOG_STAGE_LATEST_RELEASE", "CATALOG_STAGE_LATEST_RELEASE")
+    airflow.models.Variable.set("CATALOG_QA_LATEST_RELEASE", "CATALOG_QA_LATEST_RELEASE")
+
+    airflow.models.Variable.set("CATALOG_SOLR_CONFIG", {"configset": "tul_cob-catalog-2", "replication_factor": 2}, serialize_json=True)
 
     solr = airflow.models.Connection(
         conn_id="AIRFLOW_CONN_SOLR_LEADER",

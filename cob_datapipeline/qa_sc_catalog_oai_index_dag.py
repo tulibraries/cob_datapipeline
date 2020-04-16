@@ -1,6 +1,7 @@
 """Airflow DAG to perform a partial index of tul_cob catalog from OAI into QA SolrCloud."""
 from datetime import datetime, timedelta
 import airflow
+import os
 from airflow.contrib.operators.s3_list_operator import S3ListOperator
 from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
@@ -171,7 +172,7 @@ OAI_HARVEST = PythonOperator(
 INDEX_UPDATES_OAI_MARC = BashOperator(
     task_id="index_updates_oai_marc",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh ",
-    env={
+    env={**os.environ, **{
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
@@ -183,14 +184,14 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
         "SOLR_URL": tasks.get_solr_url(SOLR_CONN, ALIAS),
         "COMMAND": "ingest",
-    },
+    }},
     dag=DAG
 )
 
 INDEX_DELETES_OAI_MARC = BashOperator(
     task_id="index_deletes_oai_marc",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh ",
-    env={
+    env={**os.environ, **{
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
@@ -202,7 +203,7 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
         "SOLR_URL": tasks.get_solr_url(SOLR_CONN, ALIAS),
         "COMMAND": "delete",
-    },
+    }},
     dag=DAG
 )
 
@@ -247,8 +248,7 @@ LIST_CATALOG_BW_S3_DATA.set_upstream(BW_OAI_HARVEST)
 PREPARE_BOUNDWITHS.set_upstream(LIST_CATALOG_BW_S3_DATA)
 OAI_HARVEST.set_upstream(PREPARE_BOUNDWITHS)
 INDEX_UPDATES_OAI_MARC.set_upstream(OAI_HARVEST)
-INDEX_DELETES_OAI_MARC.set_upstream(OAI_HARVEST)
-SOLR_COMMIT.set_upstream(INDEX_UPDATES_OAI_MARC)
+INDEX_DELETES_OAI_MARC.set_upstream(INDEX_UPDATES_OAI_MARC)
 SOLR_COMMIT.set_upstream(INDEX_DELETES_OAI_MARC)
 GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_COMMIT)
 UPDATE_DATE_VARIABLES.set_upstream(GET_NUM_SOLR_DOCS_POST)

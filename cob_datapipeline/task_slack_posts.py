@@ -64,12 +64,8 @@ def az_slackpostonsuccess(dag, **context):
 web_content_slackpostonsuccess = az_slackpostonsuccess
 catalog_slackpostonsuccess = az_slackpostonsuccess
 
-def notes_slackpostonsuccess(**context):
-    """Task Method to Post successful Alma Notes dag completion on Slack."""
-    return tasks.execute_slackpostonsuccess(context, conn_id="COB_SLACK_WEBHOOK")
-
 
 def slackpostonfail(context):
     """Task Method to Post Failed Task on Aggregator Slack."""
     msg = None
-    return tasks.execute_slackpostonfail(context)
+    return tasks.execute_slackpostonfail(context, conn_id="COB_SLACK_WEBHOOK", message=msg)

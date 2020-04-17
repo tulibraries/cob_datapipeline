@@ -46,18 +46,6 @@
     "configset": "tul_cob-catalog-0",
     "replication_factor": 2
   },
-  "CATALOG_SOLR_CONFIG_QA": {
-    "configset": "tul_cob-catalog-2.0.4.0",
-    "replication_factor": 2
-  },
-  "CATALOG_SOLR_CONFIG_STAGE": {
-    "configset": "tul_cob-catalog-2.0.4.0",
-    "replication_factor": 2
-  },
-  "CATALOG_SOLR_CONFIG_PROD": {
-    "configset": "tul_cob-catalog-2.0.4.0",
-    "replication_factor": 2
-  },
   "WEB_CONTENT_BASIC_AUTH_USER": "test",
   "WEB_CONTENT_BASIC_AUTH_PASSWORD": "test",
   "WEB_CONTENT_PROD_BASE_URL": "https://library.temple.edu",

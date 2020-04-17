@@ -9,18 +9,15 @@ xmltodict = "*"
 sickle = "*"
 pexpect = "*"
 boto3 = "*"
-tulflow = "==0.5.3"
+tulflow = "==0.5.2"
 awscli = "*"
 lxml = "==4.4.3"
-importlib-resources = {version = "*", markers = "python_version < '3.7'"}
 
 [dev-packages]
 pytest = "*"
 apache-airflow = "*"
 pylint = "*"
 moto = "*"
-paramiko = "*"
-sshtunnel = "*"
 
 [requires]
 python_version = "3.6"

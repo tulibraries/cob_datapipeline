@@ -1,5 +1,6 @@
 """Airflow DAG to perform a full re-index tul_cob catalog into QA SolrCloud Collection."""
 from datetime import datetime, timedelta
+from tulflow import tasks
 import airflow
 from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
@@ -10,7 +11,6 @@ from airflow.contrib.operators.s3_list_operator import S3ListOperator
 from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
-from tulflow import tasks
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -24,7 +24,7 @@ AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
-CATALOG_SOLR_CONFIG = Variable.get("CATALOG_SOLR_CONFIG_QA", deserialize_json=True)
+CATALOG_SOLR_CONFIG = Variable.get("CATALOG_FULL_REINDEX_SOLR_CONFIG_QA", deserialize_json=True)
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
 ALIAS = CONFIGSET + "-qa"

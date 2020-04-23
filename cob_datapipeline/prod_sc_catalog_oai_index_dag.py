@@ -1,7 +1,8 @@
 """Airflow DAG to perform a partial index of tul_cob catalog from OAI into Production SolrCloud."""
 from datetime import datetime, timedelta
-import airflow
 import os
+from tulflow import harvest, tasks
+import airflow
 from airflow.contrib.operators.s3_list_operator import S3ListOperator
 from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
@@ -10,7 +11,6 @@ from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.sc_xml_parse import prepare_oai_boundwiths, update_variables
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
-from tulflow import harvest, tasks
 from airflow.operators.http_operator import SimpleHttpOperator
 
 """
@@ -58,7 +58,7 @@ LATEST_RELEASE = Variable.get("CATALOG_PROD_LATEST_RELEASE")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
-CATALOG_SOLR_CONFIG = Variable.get("CATALOG_SOLR_CONFIG_PROD", deserialize_json=True)
+CATALOG_SOLR_CONFIG = Variable.get("CATALOG_OAI_HARVEST_SOLR_CONFIG_PROD", deserialize_json=True)
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
 ALIAS = CONFIGSET + "-prod"

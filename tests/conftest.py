@@ -57,7 +57,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("CATALOG_REPLICATION_FACTOR", 2)
     airflow.models.Variable.set("CATALOG_SOLR_CONFIG", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("CATALOG_FULL_REINDEX_SOLR_CONFIG_QA", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
-    airflow.models.Variable.set("CATALOG_OAI_HAREVEST_SOLR_CONFIG_QA", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_OAI_HARVEST_SOLR_CONFIG_QA", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("CATALOG_SOLR_CONFIG_STAGE", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("CATALOG_FULL_REINDEX_SOLR_CONFIG_PROD", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("CATALOG_OAI_HARVEST_SOLR_CONFIG_PROD", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)

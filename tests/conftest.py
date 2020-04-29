@@ -61,6 +61,8 @@ def pytest_sessionstart():
     airflow.models.Variable.set("CATALOG_SOLR_CONFIG_STAGE", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("CATALOG_FULL_REINDEX_SOLR_CONFIG_PROD", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("CATALOG_OAI_HARVEST_SOLR_CONFIG_PROD", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_FULL_REINDEX_SOLR_CONFIG_STAGE", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_OAI_HARVEST_SOLR_CONFIG_STAGE", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("GIT_PULL_TULCOB_LATEST_RELEASE", False)
     airflow.models.Variable.set("GIT_PULL_TULCOB_BRANCH_NAME", "qa")
     airflow.models.Variable.set("SOLR_AUTH_USER", "SOLR_AUTH_USER")

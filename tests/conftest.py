@@ -45,7 +45,6 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AZ_SOLR_CONFIG", {"configset": "tul_cob-az-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("AZ_SOLR_CONFIG_QA", {"configset": "tul_cob-az-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("AZ_SOLR_CONFIG_STAGE", {"configset": "tul_cob-az-0", "replication_factor": 2}, serialize_json=True)
-    airflow.models.Variable.set("BLACKLIGHT_CORE_NAME", "tul_cob-catalog")
     airflow.models.Variable.set("CATALOG_PROD_BRANCH", "CATALOG_BRANCH")
     airflow.models.Variable.set("CATALOG_PROD_LATEST_RELEASE", "False")
     airflow.models.Variable.set("CATALOG_QA_BRANCH", "CATALOG_BRANCH")
@@ -61,8 +60,6 @@ def pytest_sessionstart():
     airflow.models.Variable.set("CATALOG_SOLR_CONFIG_STAGE", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("CATALOG_FULL_REINDEX_SOLR_CONFIG_PROD", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("CATALOG_OAI_HARVEST_SOLR_CONFIG_PROD", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
-    airflow.models.Variable.set("GIT_PULL_TULCOB_LATEST_RELEASE", False)
-    airflow.models.Variable.set("GIT_PULL_TULCOB_BRANCH_NAME", "qa")
     airflow.models.Variable.set("SOLR_AUTH_USER", "SOLR_AUTH_USER")
     airflow.models.Variable.set("SOLR_AUTH_PASSWORD", "SOLR_AUTH_PASSWORD")
     airflow.models.Variable.set("WEB_CONTENT_BASE_URL", "WEB_CONTENT_BASE_URL")
@@ -97,12 +94,6 @@ def pytest_sessionstart():
 
     airflow.models.Variable.set("CATALOG_SOLR_CONFIG", {"configset": "tul_cob-catalog-2", "replication_factor": 2}, serialize_json=True)
 
-    solr = airflow.models.Connection(
-        conn_id="AIRFLOW_CONN_SOLR_LEADER",
-        conn_type="http",
-        host="127.0.0.1",
-        port="8983",
-    )
     slack = airflow.models.Connection(
         conn_id="AIRFLOW_CONN_SLACK_WEBHOOK",
         conn_type="http",
@@ -132,7 +123,6 @@ def pytest_sessionstart():
         password="chow"
     )
     airflow_session = airflow.settings.Session()
-    airflow_session.add(solr)
     airflow_session.add(slack)
     airflow_session.add(solrcloud)
     airflow_session.add(solrcloud_writer)

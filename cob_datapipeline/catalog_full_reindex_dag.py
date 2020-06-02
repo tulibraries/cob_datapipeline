@@ -50,7 +50,7 @@ DEFAULT_ARGS = {
 }
 
 DAG = airflow.DAG(
-    "prod_sc_catalog_full_reindex",
+    "catalog_full_reindex",
     catchup=False,
     default_args=DEFAULT_ARGS,
     max_active_runs=1,

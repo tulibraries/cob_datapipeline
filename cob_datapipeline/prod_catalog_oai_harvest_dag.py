@@ -1,4 +1,4 @@
-"""Airflow DAG to perform a partial index of tul_cob catalog from OAI into QA SolrCloud."""
+"""Airflow DAG to perform a partial index of tul_cob catalog from OAI into Production SolrCloud."""
 from datetime import datetime, timedelta
 import os
 from tulflow import harvest, tasks
@@ -25,7 +25,7 @@ AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 # Alma OAI Harvest Dates
 CATALOG_OAI_PUBLISH_INTERVAL = Variable.get("CATALOG_OAI_PUBLISH_INTERVAL")
 CATALOG_OAI_DELTA = timedelta(hours=int(CATALOG_OAI_PUBLISH_INTERVAL))
-CATALOG_HARVEST_FROM_DATE = Variable.get("CATALOG_QA_HARVEST_FROM_DATE")
+CATALOG_HARVEST_FROM_DATE = Variable.get("CATALOG_PROD_HARVEST_FROM_DATE")
 NOW = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
 CATALOG_HARVEST_UNTIL_DATE = Variable.get("CATALOG_HARVEST_UNTIL_DATE", default_var=NOW)
 CATALOG_UNTIL_DATE_RAW = datetime.strptime(CATALOG_HARVEST_UNTIL_DATE, "%Y-%m-%dT%H:%M:%SZ")
@@ -53,15 +53,15 @@ CATALOG_OAI_BW_INCLUDED_SETS = CATALOG_OAI_BW_CONFIG.get("included_sets")
 CATALOG_OAI_BW_ENDPOINT = CATALOG_OAI_BW_CONFIG.get("endpoint")
 
 # cob_index Indexer Library Variables
-GIT_BRANCH = Variable.get("CATALOG_QA_BRANCH")
-LATEST_RELEASE = Variable.get("CATALOG_QA_LATEST_RELEASE")
+GIT_BRANCH = Variable.get("CATALOG_PROD_BRANCH")
+LATEST_RELEASE = Variable.get("CATALOG_PROD_LATEST_RELEASE")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
-CATALOG_SOLR_CONFIG = Variable.get("CATALOG_OAI_HARVEST_SOLR_CONFIG_QA", deserialize_json=True)
+CATALOG_SOLR_CONFIG = Variable.get("CATALOG_OAI_HARVEST_SOLR_CONFIG_PROD", deserialize_json=True)
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
-ALIAS = CONFIGSET + "-qa"
+ALIAS = CONFIGSET + "-prod"
 
 # Get S3 data bucket variables
 AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
@@ -78,7 +78,7 @@ DEFAULT_ARGS = {
 }
 
 DAG = airflow.DAG(
-    "qa_sc_catalog_oai_harvest",
+    "prod_catalog_oai_harvest",
     catchup=False,
     default_args=DEFAULT_ARGS,
     max_active_runs=1,
@@ -228,7 +228,7 @@ UPDATE_DATE_VARIABLES = PythonOperator(
     python_callable=update_variables,
     op_kwargs={
         "UPDATE": {
-            "CATALOG_QA_HARVEST_FROM_DATE": CATALOG_HARVEST_FROM_DATE_NEW
+            "CATALOG_PROD_HARVEST_FROM_DATE": CATALOG_HARVEST_FROM_DATE_NEW
         }
     },
     dag=DAG

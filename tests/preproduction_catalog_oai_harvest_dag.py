@@ -2,9 +2,9 @@
 import os
 import unittest
 import airflow
-from cob_datapipeline.prod_sc_catalog_oai_index_dag import DAG
+from cob_datapipeline.preproduction_catalog_oai_harvest_dag import DAG
 
-class TestCatalogOaiIndex(unittest.TestCase):
+class TestPreproductionCatalogOaiHarvest(unittest.TestCase):
     """Unit Tests for solrcloud catalog full reindex dag file."""
 
     def setUp(self):

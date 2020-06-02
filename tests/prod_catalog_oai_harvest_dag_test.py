@@ -1,11 +1,11 @@
-"""Unit Tests for the TUL Cob Catalog Full Reindex DAG."""
+"""Unit Tests for the TUL Cob Catalog OAI Harvest DAG."""
 import os
 import unittest
 import airflow
-from cob_datapipeline.prod_sc_catalog_oai_index_dag import DAG
+from cob_datapipeline.prod_catalog_oai_harvest_dag import DAG
 
 class TestCatalogOaiIndex(unittest.TestCase):
-    """Unit Tests for solrcloud catalog full reindex dag file."""
+    """Unit Tests for solrcloud catalog oai harvest dag file."""
 
     def setUp(self):
         self.airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")

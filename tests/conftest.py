@@ -60,6 +60,8 @@ def pytest_sessionstart():
     airflow.models.Variable.set("CATALOG_SOLR_CONFIG_STAGE", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("CATALOG_FULL_REINDEX_SOLR_CONFIG_PROD", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("CATALOG_OAI_HARVEST_SOLR_CONFIG_PROD", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_OAI_HARVEST_SOLR_CONFIG_QA", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION", "FOO")
     airflow.models.Variable.set("SOLR_AUTH_USER", "SOLR_AUTH_USER")
     airflow.models.Variable.set("SOLR_AUTH_PASSWORD", "SOLR_AUTH_PASSWORD")
     airflow.models.Variable.set("WEB_CONTENT_BASE_URL", "WEB_CONTENT_BASE_URL")

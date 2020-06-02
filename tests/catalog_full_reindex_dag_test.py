@@ -2,9 +2,9 @@
 import os
 import unittest
 import airflow
-from cob_datapipeline.prod_sc_catalog_full_reindex_dag import DAG
+from cob_datapipeline.catalog_full_reindex_dag import DAG
 
-class TestCatalogFullReindexScDag(unittest.TestCase):
+class TestCatalogFullReindexDag(unittest.TestCase):
     """Unit Tests for solrcloud catalog full reindex dag file."""
 
     def setUp(self):
@@ -13,7 +13,7 @@ class TestCatalogFullReindexScDag(unittest.TestCase):
 
     def test_dag_loads(self):
         """Unit test that the DAG identifier is set correctly."""
-        self.assertEqual(DAG.dag_id, "prod_sc_catalog_full_reindex")
+        self.assertEqual(DAG.dag_id, "catalog_full_reindex")
 
     def test_dag_tasks_present(self):
         """Unit test that the DAG instance contains the expected tasks."""

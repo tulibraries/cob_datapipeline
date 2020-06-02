@@ -11,10 +11,8 @@
   "ALMASFTP_USER": "almasftp",
   "ALMA_API_KEY": "kittens",
   "ALMA_OAI_ENDPOINT": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST",
-  "ALMA_OAI_PUBLISH_INTERVAL": 6,
   "AZ_PROD_BRANCH": "master",
   "AZ_QA_BRANCH": "qa",
-  "AZ_STAGE_BRANCH": "master",
   "AZ_CLIENT_ID": "123",
   "AZ_CLIENT_SECRET": "test",
   "AZ_INDEX_SCHEDULE_INTERVAL": "@daily",
@@ -39,18 +37,11 @@
   "CATALOG_QA_BRANCH": "qa",
   "CATALOG_QA_HARVEST_FROM_DATE": "2019-10-15T12:29:58Z",
   "CATALOG_QA_LATEST_RELEASE": "False",
-  "CATALOG_STAGE_BRANCH": "master",
-  "CATALOG_STAGE_HARVEST_FROM_DATE": "2019-10-15T12:29:58Z",
-  "CATALOG_STAGE_LATEST_RELEASE": "False",
   "CATALOG_SOLR_CONFIG": {
     "configset": "tul_cob-catalog-0",
     "replication_factor": 2
   },
   "CATALOG_SOLR_CONFIG_QA": {
-    "configset": "tul_cob-catalog-2.0.4.0",
-    "replication_factor": 2
-  },
-  "CATALOG_SOLR_CONFIG_STAGE": {
     "configset": "tul_cob-catalog-2.0.4.0",
     "replication_factor": 2
   },
@@ -64,16 +55,11 @@
   "WEB_CONTENT_PROD_BRANCH": "master",
   "WEB_CONTENT_QA_BASE_URL": "https://web.tul-infra.page",
   "WEB_CONTENT_QA_BRANCH": "master",
-  "WEB_CONTENT_STAGE_BASE_URL": "https://web.stage.tul-infra.page",
-  "WEB_CONTENT_STAGE_BRANCH": "master",
   "WEB_CONTENT_SCHEDULE_INTERVAL": "@daily",
   "WEB_CONTENT_SOLR_CONFIG": {
     "configset": "tul_cob-web-0",
     "replication_factor": 2
   },
-  "almaoai_last_harvest_date": "2019-08-06T22:48:57Z",
-  "almaoai_last_harvest_from_date": "2019-08-06T14:16:10Z",
   "almaoai_last_num_oai_delete_recs": 1349,
   "almaoai_last_num_oai_update_recs": 34655,
-  "traject_num_rejected": 337
 }

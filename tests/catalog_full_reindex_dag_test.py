@@ -18,7 +18,8 @@ class TestCatalogFullReindexDag(unittest.TestCase):
     def test_dag_tasks_present(self):
         """Unit test that the DAG instance contains the expected tasks."""
         self.assertEqual(self.tasks, [
-            "set_collection_name",
+            "safety_check",
+            "set_s3_namespace",
             "get_num_solr_docs_pre",
             "list_alma_s3_data",
             "prepare_boundwiths",
@@ -35,7 +36,8 @@ class TestCatalogFullReindexDag(unittest.TestCase):
     def test_dag_task_order(self):
         """Unit test that the DAG instance contains the expected dependencies."""
         expected_task_deps = {
-            "get_num_solr_docs_pre": ["set_collection_name"],
+            "set_s3_namespace": ["safety_check"],
+            "get_num_solr_docs_pre": ["set_s3_namespace"],
             "list_alma_s3_data": ["get_num_solr_docs_pre"],
             "prepare_boundwiths": ["list_alma_s3_data"],
             "prepare_alma_data": ["prepare_boundwiths"],

@@ -12,6 +12,7 @@ from cob_datapipeline.sc_xml_parse import prepare_oai_boundwiths, update_variabl
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
 from airflow.operators.http_operator import SimpleHttpOperator
+from cob_datapipeline.catalog_safety_check import safety_check
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -61,8 +62,7 @@ SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
 CATALOG_SOLR_CONFIG = Variable.get("CATALOG_OAI_HARVEST_SOLR_CONFIG_QA", deserialize_json=True)
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
-ALIAS = CONFIGSET + "-qa"
-
+COLLECTION = Variable.get("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION")
 # Get S3 data bucket variables
 AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
 AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
@@ -91,8 +91,15 @@ Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """
 
-SET_COLLECTION_NAME = PythonOperator(
-    task_id="set_collection_name",
+
+SAFETY_CHECK = PythonOperator(
+    task_id="safety_check",
+    python_callable=safety_check,
+    dag=DAG
+)
+
+SET_S3_NAMESPACE = PythonOperator(
+    task_id="set_s3_namespace",
     python_callable=datetime.now().strftime,
     op_args=["%Y-%m-%d_%H-%M-%S"],
     dag=DAG
@@ -100,7 +107,7 @@ SET_COLLECTION_NAME = PythonOperator(
 
 GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
-    ALIAS,
+    COLLECTION,
     "get_num_solr_docs_pre",
     conn_id=SOLR_CONN.conn_id
 )
@@ -119,7 +126,7 @@ BW_OAI_HARVEST = PythonOperator(
         "oai_endpoint": CATALOG_OAI_BW_ENDPOINT,
         "records_per_file": 10000,
         "included_sets": CATALOG_OAI_BW_INCLUDED_SETS,
-        "timestamp": "{{ ti.xcom_pull(task_ids='set_collection_name') }}/bw"
+        "timestamp": "{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/bw"
     },
     dag=DAG
 )
@@ -127,7 +134,7 @@ BW_OAI_HARVEST = PythonOperator(
 LIST_CATALOG_BW_S3_DATA = S3ListOperator(
     task_id="list_catalog_bw_s3_data",
     bucket=AIRFLOW_DATA_BUCKET,
-    prefix=DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/bw/",
+    prefix=DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/bw/",
     delimiter="",
     aws_conn_id=AIRFLOW_S3.conn_id,
     dag=DAG
@@ -141,9 +148,9 @@ PREPARE_BOUNDWITHS = PythonOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "DEST_FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/lookup.tsv",
+        "DEST_FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/lookup.tsv",
         "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_catalog_bw_s3_data') }}",
-        "SOURCE_FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/bw"
+        "SOURCE_FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/bw"
     },
     dag=DAG
 )
@@ -158,13 +165,13 @@ OAI_HARVEST = PythonOperator(
         "bucket_name": AIRFLOW_DATA_BUCKET,
         "harvest_from_date": CATALOG_HARVEST_FROM_DATE,
         "harvest_until_date": CATALOG_HARVEST_UNTIL_DATE,
-        "lookup_key": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/lookup.tsv",
+        "lookup_key": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/lookup.tsv",
         "metadata_prefix": CATALOG_OAI_MD_PREFIX,
         "oai_endpoint": CATALOG_OAI_ENDPOINT,
         "parser": harvest.perform_xml_lookup_with_cache(),
         "records_per_file": 1000,
         "included_sets": CATALOG_OAI_INCLUDED_SETS,
-        "timestamp": "{{ ti.xcom_pull(task_ids='set_collection_name') }}"
+        "timestamp": "{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"
     },
     dag=DAG
 )
@@ -176,13 +183,13 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/new-updated",
+        "FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/new-updated",
         "GIT_BRANCH": GIT_BRANCH,
         "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": str(LATEST_RELEASE),
         "SOLR_AUTH_USER": SOLR_CONN.login or "",
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
-        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, ALIAS),
+        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, COLLECTION),
         "COMMAND": "ingest",
     }},
     dag=DAG
@@ -195,13 +202,13 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/deleted",
+        "FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/deleted",
         "GIT_BRANCH": GIT_BRANCH,
         "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": str(LATEST_RELEASE),
         "SOLR_AUTH_USER": SOLR_CONN.login or "",
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
-        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, ALIAS),
+        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, COLLECTION),
         "COMMAND": "delete",
     }},
     dag=DAG
@@ -211,13 +218,13 @@ SOLR_COMMIT = SimpleHttpOperator(
     task_id='solr_commit',
     method='GET',
     http_conn_id=SOLR_CONN.conn_id,
-    endpoint= '/solr/' + ALIAS + '/update?commit=true',
+    endpoint= '/solr/' + COLLECTION + '/update?commit=true',
     dag=DAG
 )
 
 GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     DAG,
-    ALIAS,
+    COLLECTION,
     "get_num_solr_docs_post",
     conn_id=SOLR_CONN.conn_id
 )
@@ -242,7 +249,8 @@ POST_SLACK = PythonOperator(
 )
 
 # SET UP TASK DEPENDENCIES
-GET_NUM_SOLR_DOCS_PRE.set_upstream(SET_COLLECTION_NAME)
+SET_S3_NAMESPACE.set_upstream(SAFETY_CHECK)
+GET_NUM_SOLR_DOCS_PRE.set_upstream(SET_S3_NAMESPACE)
 BW_OAI_HARVEST.set_upstream(GET_NUM_SOLR_DOCS_PRE)
 LIST_CATALOG_BW_S3_DATA.set_upstream(BW_OAI_HARVEST)
 PREPARE_BOUNDWITHS.set_upstream(LIST_CATALOG_BW_S3_DATA)

@@ -11,6 +11,7 @@ from airflow.contrib.operators.s3_list_operator import S3ListOperator
 from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
+from cob_datapipeline.catalog_safety_check import safety_check
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -63,8 +64,14 @@ Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """
 
-SET_COLLECTION_NAME = PythonOperator(
-    task_id="set_collection_name",
+SAFETY_CHECK = PythonOperator(
+    task_id="safety_check",
+    python_callable=safety_check,
+    dag=DAG
+)
+
+SET_S3_NAMESPACE = PythonOperator(
+    task_id="set_s3_namespace",
     python_callable=datetime.now().strftime,
     op_args=["%Y-%m-%d_%H-%M-%S"],
     dag=DAG
@@ -94,7 +101,7 @@ PREPARE_BOUNDWITHS = PythonOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/lookup.tsv",
+        "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/lookup.tsv",
         "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_alma_s3_data') }}",
         "SOURCE_FOLDER": ALMASFTP_S3_PREFIX + "/alma_bibs__boundwith"
     },
@@ -108,8 +115,8 @@ PREPARE_ALMA_DATA = PythonOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "DEST_PREFIX": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}",
-        "LOOKUP_KEY": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/lookup.tsv",
+        "DEST_PREFIX": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
+        "LOOKUP_KEY": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/lookup.tsv",
         "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_alma_s3_data') }}",
         "SOURCE_PREFIX": ALMASFTP_S3_PREFIX + "/alma_bibs__",
         "SOURCE_SUFFIX": ".tar.gz"
@@ -120,7 +127,7 @@ PREPARE_ALMA_DATA = PythonOperator(
 CREATE_COLLECTION = tasks.create_sc_collection(
     DAG,
     SOLR_CONN.conn_id,
-    CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
+    CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
     REPLICATION_FACTOR,
     CONFIGSET
 )
@@ -132,13 +139,13 @@ INDEX_SFTP_MARC = BashOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_collection_name') }}/alma_bibs__",
+        "FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/alma_bibs__",
         "GIT_BRANCH": GIT_BRANCH,
         "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": str(LATEST_RELEASE),
         "SOLR_AUTH_USER": SOLR_CONN.login or "",
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
-        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"),
+        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"),
         "TRAJECT_FULL_REINDEX": "yes",
     },
     dag=DAG
@@ -153,7 +160,7 @@ ARCHIVE_S3_DATA = BashOperator(
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "DATA_IN": "{{ ti.xcom_pull(task_ids='list_alma_s3_data') }}",
-        "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/archived/{{ ti.xcom_pull(task_ids='set_collection_name') }}",
+        "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/archived/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
         "HOME": AIRFLOW_USER_HOME,
         "SOURCE_FOLDER": ALMASFTP_S3_PREFIX
     },
@@ -163,7 +170,7 @@ ARCHIVE_S3_DATA = BashOperator(
 SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
     DAG,
     SOLR_CONN.conn_id,
-    CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
+    CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
     CONFIGSET + "-prod"
 )
 
@@ -177,7 +184,7 @@ SOLR_COMMIT = SimpleHttpOperator(
 
 GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     DAG,
-    CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
+    CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
     "get_num_solr_docs_post",
     conn_id=SOLR_CONN.conn_id
 )
@@ -190,7 +197,8 @@ POST_SLACK = PythonOperator(
 )
 
 # SET UP TASK DEPENDENCIES
-GET_NUM_SOLR_DOCS_PRE.set_upstream(SET_COLLECTION_NAME)
+SET_S3_NAMESPACE.set_upstream(SAFETY_CHECK)
+GET_NUM_SOLR_DOCS_PRE.set_upstream(SET_S3_NAMESPACE)
 LIST_ALMA_S3_DATA.set_upstream(GET_NUM_SOLR_DOCS_PRE)
 PREPARE_BOUNDWITHS.set_upstream(LIST_ALMA_S3_DATA)
 PREPARE_ALMA_DATA.set_upstream(PREPARE_BOUNDWITHS)

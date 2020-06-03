@@ -93,10 +93,10 @@ Tasks with custom logic are relegated to individual Python files.
 
 
 SAFETY_CHECK = PythonOperator(
-        task_id="safety_check",
-        python_callable=safety_check,
-        dag=DAG
-        )
+    task_id="safety_check",
+    python_callable=safety_check,
+    dag=DAG
+)
 
 SET_S3_NAMESPACE = PythonOperator(
     task_id="set_s3_namespace",

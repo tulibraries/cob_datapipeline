@@ -17,6 +17,7 @@ importlib-resources = {version = "*", markers = "python_version < '3.7'"}
 [dev-packages]
 pytest = "*"
 apache-airflow = "*"
+pysftp = "*"
 pylint = "*"
 moto = "*"
 paramiko = "*"

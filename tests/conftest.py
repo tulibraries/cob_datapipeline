@@ -105,7 +105,7 @@ def pytest_sessionstart():
     solrcloud = airflow.models.Connection(
         conn_id="SOLRCLOUD",
         conn_type="http",
-        host="127.0.0.1",
+        host="http://127.0.0.1",
         port="8983",
         login="puppy",
         password="chow"

@@ -12,6 +12,7 @@ from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
 from cob_datapipeline.catalog_safety_check import safety_check
+from cob_datapipeline.catalog_create_collection import create_missing_collection, collection_name
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -28,7 +29,11 @@ SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
 CATALOG_SOLR_CONFIG = Variable.get("CATALOG_FULL_REINDEX_SOLR_CONFIG_PROD", deserialize_json=True)
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
-ALIAS = CONFIGSET + "-prod"
+COB_INDEX_VERSION = Variable.get("CATALOG_PROD_BRANCH")
+COLLECTION_NAME = collection_name(
+        configset=CONFIGSET,
+        cob_index_version=COB_INDEX_VERSION)
+ALIAS = "catalog-pre-prod"
 REPLICATION_FACTOR = CATALOG_SOLR_CONFIG.get("replication_factor")
 
 # cob_index Indexer Library Variables
@@ -79,7 +84,7 @@ SET_S3_NAMESPACE = PythonOperator(
 
 GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
-    ALIAS,
+    "catalog-prod",
     "get_num_solr_docs_pre",
     conn_id=SOLR_CONN.conn_id
 )
@@ -124,13 +129,19 @@ PREPARE_ALMA_DATA = PythonOperator(
     dag=DAG
 )
 
-CREATE_COLLECTION = tasks.create_sc_collection(
-    DAG,
-    SOLR_CONN.conn_id,
-    CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
-    REPLICATION_FACTOR,
-    CONFIGSET
+CREATE_COLLECTION = PythonOperator(
+    task_id="create_collection",
+    python_callable=create_missing_collection,
+    provide_context=True,
+    dag=DAG,
+    op_kwargs={
+        "conn": SOLR_CONN,
+        "collection": COLLECTION_NAME,
+        "replication_factor": REPLICATION_FACTOR,
+        "configset": CONFIGSET,
+        }
 )
+
 
 INDEX_SFTP_MARC = BashOperator(
     task_id="index_sftp_marc",
@@ -145,7 +156,7 @@ INDEX_SFTP_MARC = BashOperator(
         "LATEST_RELEASE": str(LATEST_RELEASE),
         "SOLR_AUTH_USER": SOLR_CONN.login or "",
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
-        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"),
+        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, COLLECTION_NAME),
         "TRAJECT_FULL_REINDEX": "yes",
     },
     dag=DAG
@@ -170,8 +181,8 @@ ARCHIVE_S3_DATA = BashOperator(
 SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
     DAG,
     SOLR_CONN.conn_id,
-    CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
-    CONFIGSET + "-prod"
+    COLLECTION_NAME,
+    ALIAS
 )
 
 SOLR_COMMIT = SimpleHttpOperator(

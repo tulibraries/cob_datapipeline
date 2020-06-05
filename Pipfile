@@ -20,6 +20,7 @@ apache-airflow = "*"
 pysftp = "*"
 pylint = "*"
 moto = "*"
+requests-mock = "*"
 paramiko = "*"
 sshtunnel = "*"
 

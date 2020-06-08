@@ -12,6 +12,7 @@ from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
 from cob_datapipeline.catalog_safety_check import safety_check
+from cob_datapipeline.catalog_create_collection import create_missing_collection, collection_name
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -28,7 +29,11 @@ SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
 CATALOG_SOLR_CONFIG = Variable.get("CATALOG_FULL_REINDEX_SOLR_CONFIG_PROD", deserialize_json=True)
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
-ALIAS = CONFIGSET + "-prod"
+COB_INDEX_VERSION = Variable.get("CATALOG_PROD_BRANCH")
+COLLECTION_NAME = collection_name(
+        configset=CONFIGSET,
+        cob_index_version=COB_INDEX_VERSION)
+PROD_COLLECTION_NAME = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION")
 REPLICATION_FACTOR = CATALOG_SOLR_CONFIG.get("replication_factor")
 
 # cob_index Indexer Library Variables
@@ -39,6 +44,8 @@ LATEST_RELEASE = bool(Variable.get("CATALOG_PROD_LATEST_RELEASE"))
 AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
 AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
 ALMASFTP_S3_PREFIX = Variable.get("ALMASFTP_S3_PREFIX")
+# Namespace of the data transferred by the almasftp dag
+ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE = Variable.get("ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE")
 
 # CREATE DAG
 DEFAULT_ARGS = {
@@ -79,7 +86,7 @@ SET_S3_NAMESPACE = PythonOperator(
 
 GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
-    ALIAS,
+    PROD_COLLECTION_NAME,
     "get_num_solr_docs_pre",
     conn_id=SOLR_CONN.conn_id
 )
@@ -87,7 +94,16 @@ GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
 LIST_ALMA_S3_DATA = S3ListOperator(
     task_id="list_alma_s3_data",
     bucket=AIRFLOW_DATA_BUCKET,
-    prefix=ALMASFTP_S3_PREFIX + "/alma_bibs__",
+    prefix=ALMASFTP_S3_PREFIX + "/" + ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE + "/alma_bibs__",
+    delimiter="/",
+    aws_conn_id=AIRFLOW_S3.conn_id,
+    dag=DAG
+)
+
+LIST_BOUNDWITH_S3_DATA = S3ListOperator(
+    task_id="list_boundwith_s3_data",
+    bucket=AIRFLOW_DATA_BUCKET,
+    prefix=ALMASFTP_S3_PREFIX + "/alma_bibs__boundwith",
     delimiter="/",
     aws_conn_id=AIRFLOW_S3.conn_id,
     dag=DAG
@@ -102,7 +118,7 @@ PREPARE_BOUNDWITHS = PythonOperator(
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/lookup.tsv",
-        "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_alma_s3_data') }}",
+        "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_boundwith_s3_data') }}",
         "SOURCE_FOLDER": ALMASFTP_S3_PREFIX + "/alma_bibs__boundwith"
     },
     dag=DAG
@@ -124,13 +140,19 @@ PREPARE_ALMA_DATA = PythonOperator(
     dag=DAG
 )
 
-CREATE_COLLECTION = tasks.create_sc_collection(
-    DAG,
-    SOLR_CONN.conn_id,
-    CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
-    REPLICATION_FACTOR,
-    CONFIGSET
+CREATE_COLLECTION = PythonOperator(
+    task_id="create_collection",
+    python_callable=create_missing_collection,
+    provide_context=True,
+    dag=DAG,
+    op_kwargs={
+        "conn": SOLR_CONN,
+        "collection": COLLECTION_NAME,
+        "replication_factor": REPLICATION_FACTOR,
+        "configset": CONFIGSET,
+        }
 )
+
 
 INDEX_SFTP_MARC = BashOperator(
     task_id="index_sftp_marc",
@@ -145,40 +167,17 @@ INDEX_SFTP_MARC = BashOperator(
         "LATEST_RELEASE": str(LATEST_RELEASE),
         "SOLR_AUTH_USER": SOLR_CONN.login or "",
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
-        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"),
+        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, COLLECTION_NAME),
         "TRAJECT_FULL_REINDEX": "yes",
     },
     dag=DAG
 )
 
-ARCHIVE_S3_DATA = BashOperator(
-    task_id="archive_s3_data",
-    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_archive_s3_data.sh ",
-    env={
-        "AIRFLOW_HOME": AIRFLOW_HOME,
-        "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
-        "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
-        "BUCKET": AIRFLOW_DATA_BUCKET,
-        "DATA_IN": "{{ ti.xcom_pull(task_ids='list_alma_s3_data') }}",
-        "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/archived/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
-        "HOME": AIRFLOW_USER_HOME,
-        "SOURCE_FOLDER": ALMASFTP_S3_PREFIX
-    },
-    dag=DAG
-)
-
-SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
-    DAG,
-    SOLR_CONN.conn_id,
-    CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
-    CONFIGSET + "-prod"
-)
-
 SOLR_COMMIT = SimpleHttpOperator(
-    task_id='solr_commit',
-    method='GET',
+    task_id="solr_commit",
+    method="GET",
     http_conn_id=SOLR_CONN.conn_id,
-    endpoint= '/solr/' + ALIAS + '/update?commit=true',
+    endpoint= "/solr/" + COLLECTION_NAME + "/update?commit=true",
     dag=DAG
 )
 
@@ -200,12 +199,11 @@ POST_SLACK = PythonOperator(
 SET_S3_NAMESPACE.set_upstream(SAFETY_CHECK)
 GET_NUM_SOLR_DOCS_PRE.set_upstream(SET_S3_NAMESPACE)
 LIST_ALMA_S3_DATA.set_upstream(GET_NUM_SOLR_DOCS_PRE)
-PREPARE_BOUNDWITHS.set_upstream(LIST_ALMA_S3_DATA)
+LIST_BOUNDWITH_S3_DATA.set_upstream(GET_NUM_SOLR_DOCS_PRE)
+PREPARE_BOUNDWITHS.set_upstream(LIST_BOUNDWITH_S3_DATA)
 PREPARE_ALMA_DATA.set_upstream(PREPARE_BOUNDWITHS)
 CREATE_COLLECTION.set_upstream(PREPARE_ALMA_DATA)
 INDEX_SFTP_MARC.set_upstream(CREATE_COLLECTION)
-ARCHIVE_S3_DATA.set_upstream(INDEX_SFTP_MARC)
-SOLR_ALIAS_SWAP.set_upstream(ARCHIVE_S3_DATA)
-SOLR_COMMIT.set_upstream(SOLR_ALIAS_SWAP)
+SOLR_COMMIT.set_upstream(INDEX_SFTP_MARC)
 GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_COMMIT)
 POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_POST)

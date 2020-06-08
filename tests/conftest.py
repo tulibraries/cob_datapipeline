@@ -27,7 +27,8 @@ def pytest_sessionstart():
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_DATE", "none")
     airflow.models.Variable.set("ALMASFTP_HARVEST_PATH", repo_dir + "/data/sftpdump/")
     airflow.models.Variable.set("ALMASFTP_HOST", "127.0.0.1")
-    airflow.models.Variable.set("ALMASFTP_PORT", 9229 )
+    airflow.models.Variable.set("ALMASFTP_PORT", 9229)
+    airflow.models.Variable.set("ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE", "2020-06-08")
     airflow.models.Variable.set("ALMASFTP_S3_PREFIX", "almasftp")
     airflow.models.Variable.set("ALMASFTP_USER", "almasftp")
     airflow.models.Variable.set("ALMASFTP_PASSWD", "password")
@@ -47,6 +48,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AZ_SOLR_CONFIG_STAGE", {"configset": "tul_cob-az-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("CATALOG_PROD_BRANCH", "CATALOG_BRANCH")
     airflow.models.Variable.set("CATALOG_PROD_LATEST_RELEASE", "False")
+    airflow.models.Variable.set("CATALOG_PRODUCTION_SOLR_COLLECTION", "foo")
     airflow.models.Variable.set("CATALOG_QA_BRANCH", "CATALOG_BRANCH")
     airflow.models.Variable.set("CATALOG_QA_LATEST_RELEASE", "False")
     airflow.models.Variable.set("CATALOG_STAGE_BRANCH", "CATALOG_BRANCH")
@@ -105,7 +107,7 @@ def pytest_sessionstart():
     solrcloud = airflow.models.Connection(
         conn_id="SOLRCLOUD",
         conn_type="http",
-        host="127.0.0.1",
+        host="http://127.0.0.1",
         port="8983",
         login="puppy",
         password="chow"

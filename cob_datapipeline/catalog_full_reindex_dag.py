@@ -33,6 +33,7 @@ COB_INDEX_VERSION = Variable.get("CATALOG_PROD_BRANCH")
 COLLECTION_NAME = collection_name(
         configset=CONFIGSET,
         cob_index_version=COB_INDEX_VERSION)
+PROD_COLLECTION_NAME = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION")
 ALIAS = "catalog-pre-prod"
 REPLICATION_FACTOR = CATALOG_SOLR_CONFIG.get("replication_factor")
 
@@ -84,7 +85,7 @@ SET_S3_NAMESPACE = PythonOperator(
 
 GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
-    "catalog-prod",
+    PROD_COLLECTION_NAME,
     "get_num_solr_docs_pre",
     conn_id=SOLR_CONN.conn_id
 )

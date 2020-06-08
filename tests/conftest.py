@@ -47,6 +47,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AZ_SOLR_CONFIG_STAGE", {"configset": "tul_cob-az-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("CATALOG_PROD_BRANCH", "CATALOG_BRANCH")
     airflow.models.Variable.set("CATALOG_PROD_LATEST_RELEASE", "False")
+    airflow.models.Variable.set("CATALOG_PRODUCTION_SOLR_COLLECTION", "foo")
     airflow.models.Variable.set("CATALOG_QA_BRANCH", "CATALOG_BRANCH")
     airflow.models.Variable.set("CATALOG_QA_LATEST_RELEASE", "False")
     airflow.models.Variable.set("CATALOG_STAGE_BRANCH", "CATALOG_BRANCH")

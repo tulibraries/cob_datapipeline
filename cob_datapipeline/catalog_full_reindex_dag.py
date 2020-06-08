@@ -40,6 +40,10 @@ AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
 AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
 ALMASFTP_S3_PREFIX = Variable.get("ALMASFTP_S3_PREFIX")
 
+# Data transferred by the SFTP to S3 dag is namespaced by 
+# date in the file names 
+ALMASFTP_ORIGINAL_DATA_NAMESPACE = Variable.get("ALMASFTP_ORIGINAL_DATA_NAMESPACE")
+
 # CREATE DAG
 DEFAULT_ARGS = {
     "owner": "cob",
@@ -63,13 +67,18 @@ CREATE TASKS
 Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """
-
+# Will this fail if Pre Prod Solr Collection is not set?
 SAFETY_CHECK = PythonOperator(
     task_id="safety_check",
     python_callable=safety_check,
     dag=DAG
 )
 
+# So we need to make a distinction between the Original Data 
+# s3 namespace - that files copied over from sftp, vs the
+# s3 namespace that will be used for the data produced at 
+# intermediate steps of this run of the dag. Because we might 
+# run a full reindex several times based on one set of exported data
 SET_S3_NAMESPACE = PythonOperator(
     task_id="set_s3_namespace",
     python_callable=datetime.now().strftime,
@@ -77,6 +86,7 @@ SET_S3_NAMESPACE = PythonOperator(
     dag=DAG
 )
 
+# Isn't this always zero? Should it fail if it is not?
 GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
     ALIAS,
@@ -84,6 +94,11 @@ GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     conn_id=SOLR_CONN.conn_id
 )
 
+# This need to look at the prefix defined in the s3 namespace variable 
+# This, and later tasks, assume that all the required data is 
+# in the root of the ALMASFTP_S3_PREFIX directory
+# The sftp to s3 DAG to moves the the alma_bibs__ files to 
+# a pre namespaced directory
 LIST_ALMA_S3_DATA = S3ListOperator(
     task_id="list_alma_s3_data",
     bucket=AIRFLOW_DATA_BUCKET,
@@ -93,6 +108,10 @@ LIST_ALMA_S3_DATA = S3ListOperator(
     dag=DAG
 )
 
+# The name of the boundwith file will not be in the list in xcom
+# because it now lists the files in the namespaced directory, not 
+# the root of ALMASFTP_S3_PREFIX. Perhaps this can just take a single file
+# name defined by a variable? The underlying function will need to change
 PREPARE_BOUNDWITHS = PythonOperator(
     task_id="prepare_boundwiths",
     provide_context=True,
@@ -108,6 +127,8 @@ PREPARE_BOUNDWITHS = PythonOperator(
     dag=DAG
 )
 
+# If LIST_ALMA_S3_DATA task is changed to look at the namespaced data
+# then this should be able to remain untouched.
 PREPARE_ALMA_DATA = PythonOperator(
     task_id="prepare_alma_data",
     python_callable=prepare_alma_data,
@@ -124,6 +145,7 @@ PREPARE_ALMA_DATA = PythonOperator(
     dag=DAG
 )
 
+# David has work in place for how this needs to change
 CREATE_COLLECTION = tasks.create_sc_collection(
     DAG,
     SOLR_CONN.conn_id,
@@ -151,6 +173,7 @@ INDEX_SFTP_MARC = BashOperator(
     dag=DAG
 )
 
+# Can we remove the completely?
 ARCHIVE_S3_DATA = BashOperator(
     task_id="archive_s3_data",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_archive_s3_data.sh ",
@@ -167,6 +190,7 @@ ARCHIVE_S3_DATA = BashOperator(
     dag=DAG
 )
 
+# Can we remove this completely?
 SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
     DAG,
     SOLR_CONN.conn_id,

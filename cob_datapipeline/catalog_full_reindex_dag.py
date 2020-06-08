@@ -34,7 +34,6 @@ COLLECTION_NAME = collection_name(
         configset=CONFIGSET,
         cob_index_version=COB_INDEX_VERSION)
 PROD_COLLECTION_NAME = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION")
-ALIAS = "catalog-pre-prod"
 REPLICATION_FACTOR = CATALOG_SOLR_CONFIG.get("replication_factor")
 
 # cob_index Indexer Library Variables
@@ -178,7 +177,7 @@ SOLR_COMMIT = SimpleHttpOperator(
     task_id="solr_commit",
     method="GET",
     http_conn_id=SOLR_CONN.conn_id,
-    endpoint= "/solr/" + ALIAS + "/update?commit=true",
+    endpoint= "/solr/" + COLLECTION_NAME + "/update?commit=true",
     dag=DAG
 )
 

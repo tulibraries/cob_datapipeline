@@ -29,15 +29,15 @@ SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
 CATALOG_SOLR_CONFIG = Variable.get("CATALOG_FULL_REINDEX_SOLR_CONFIG_PROD", deserialize_json=True)
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
-COB_INDEX_VERSION = Variable.get("CATALOG_PROD_BRANCH")
+PREPRODUCTION_COB_INDEX_VERSION = Variable.get("PREPRODUCTION_COB_INDEX_VERSION")
 COLLECTION_NAME = collection_name(
         configset=CONFIGSET,
-        cob_index_version=COB_INDEX_VERSION)
+        cob_index_version=PREPRODUCTION_COB_INDEX_VERSION)
 PROD_COLLECTION_NAME = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION")
 REPLICATION_FACTOR = CATALOG_SOLR_CONFIG.get("replication_factor")
 
 # cob_index Indexer Library Variables
-GIT_BRANCH = Variable.get("CATALOG_PROD_BRANCH")
+GIT_BRANCH = Variable.get("PREPRODUCTION_COB_INDEX_VERSION")
 LATEST_RELEASE = bool(Variable.get("CATALOG_PROD_LATEST_RELEASE"))
 
 # Get S3 data bucket variables
@@ -162,7 +162,7 @@ INDEX_SFTP_MARC = BashOperator(
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/alma_bibs__",
-        "GIT_BRANCH": GIT_BRANCH,
+        "GIT_BRANCH": PREPRODUCTION_COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": str(LATEST_RELEASE),
         "SOLR_AUTH_USER": SOLR_CONN.login or "",

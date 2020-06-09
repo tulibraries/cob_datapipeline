@@ -53,7 +53,7 @@ CATALOG_OAI_BW_INCLUDED_SETS = CATALOG_OAI_BW_CONFIG.get("included_sets")
 CATALOG_OAI_BW_ENDPOINT = CATALOG_OAI_BW_CONFIG.get("endpoint")
 
 # cob_index Indexer Library Variables
-GIT_BRANCH = Variable.get("CATALOG_PROD_BRANCH")
+PROD_COB_INDEX_VERSION = Variable.get("PROD_COB_INDEX_VERSION")
 LATEST_RELEASE = Variable.get("CATALOG_PROD_LATEST_RELEASE")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
@@ -177,7 +177,7 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/new-updated",
-        "GIT_BRANCH": GIT_BRANCH,
+        "GIT_BRANCH": PROD_COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": str(LATEST_RELEASE),
         "SOLR_AUTH_USER": SOLR_CONN.login or "",
@@ -196,7 +196,7 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/deleted",
-        "GIT_BRANCH": GIT_BRANCH,
+        "GIT_BRANCH": PROD_COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": str(LATEST_RELEASE),
         "SOLR_AUTH_USER": SOLR_CONN.login or "",

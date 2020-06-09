@@ -6,7 +6,6 @@ import logging
 import airflow
 from airflow.models import Variable
 from airflow.contrib.hooks.sftp_hook import SFTPHook
-from airflow.hooks.base_hook import BaseHook
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.bash_operator import BashOperator
 

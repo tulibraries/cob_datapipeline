@@ -1,4 +1,3 @@
-from airflow.models.baseoperator import BaseOperator, BaseOperatorLink
 from airflow.contrib.operators.sftp_to_s3_operator import SFTPToS3Operator
 from airflow.utils.decorators import apply_defaults
 

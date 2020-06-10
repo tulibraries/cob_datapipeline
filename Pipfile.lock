@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "d124a1a66a221d688411a6a523f8de4d164688f3a325a226a25e271b73b01d84"
+            "sha256": "725d4f8f55f0e1e720fedc498022aa3ed5768df26ef034037754a0db6f88ac78"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -217,10 +217,10 @@
         },
         "tulflow": {
             "hashes": [
-                "sha256:42a3e54b68f26097d52f7772f3faffd87bde26b54d46d897a918da5c28deece4"
+                "sha256:111cf6a4f895a8ec5892f71d727c6533222f152afe9955909fa395c667fe9305"
             ],
             "index": "pypi",
-            "version": "==0.5.3"
+            "version": "==0.6.1"
         },
         "urllib3": {
             "hashes": [
@@ -303,10 +303,10 @@
         },
         "aws-xray-sdk": {
             "hashes": [
-                "sha256:8dfa785305fc8dc720d8d4c2ec6a58e85e467ddc3a53b1506a2ed8b5801c8fc7",
-                "sha256:ae57baeb175993bdbf31f83843e2c0958dd5aa8cb691ab5628aafb6ccc78a0fc"
+                "sha256:076f7c610cd3564bbba3507d43e328fb6ff4a2e841d3590f39b2c3ce99d41e1d",
+                "sha256:abf5b90f740e1f402e23414c9670e59cb9772e235e271fef2bce62b9100cbc77"
             ],
-            "version": "==2.5.0"
+            "version": "==2.6.0"
         },
         "babel": {
             "hashes": [

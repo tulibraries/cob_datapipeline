@@ -96,7 +96,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("CATALOG_STAGE_LATEST_RELEASE", "CATALOG_STAGE_LATEST_RELEASE")
     airflow.models.Variable.set("CATALOG_QA_LATEST_RELEASE", "CATALOG_QA_LATEST_RELEASE")
 
-    airflow.models.Variable.set("CATALOG_SOLR_CONFIG", {"configset": "tul_cob-catalog-2", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_FULL_REINDEX_SOLR_CONFIG", {"configset": "tul_cob-catalog-2", "replication_factor": 2}, serialize_json=True)
 
     slack = airflow.models.Connection(
         conn_id="AIRFLOW_CONN_SLACK_WEBHOOK",

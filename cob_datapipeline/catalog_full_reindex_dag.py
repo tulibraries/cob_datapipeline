@@ -24,20 +24,22 @@ initialized here if not found (i.e. if this is a new installation)
 AIRFLOW_HOME = Variable.get("AIRFLOW_HOME")
 AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 
+
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
-CATALOG_SOLR_CONFIG = Variable.get("CATALOG_FULL_REINDEX_SOLR_CONFIG_PROD", deserialize_json=True)
+CATALOG_SOLR_CONFIG = Variable.get("CATALOG_FULL_REINDEX_SOLR_CONFIG", deserialize_json=True)
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
-PREPRODUCTION_COB_INDEX_VERSION = Variable.get("PREPRODUCTION_COB_INDEX_VERSION")
+COB_INDEX_VERSION = Variable.get("PREPRODUCTION_COB_INDEX_VERSION")
 COLLECTION_NAME = collection_name(
         configset=CONFIGSET,
-        cob_index_version=PREPRODUCTION_COB_INDEX_VERSION)
-PROD_COLLECTION_NAME = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION")
+        cob_index_version=COB_INDEX_VERSION)
 REPLICATION_FACTOR = CATALOG_SOLR_CONFIG.get("replication_factor")
 
-# cob_index Indexer Library Variables
-GIT_BRANCH = Variable.get("PREPRODUCTION_COB_INDEX_VERSION")
+# Used to check the current number of 
+PROD_COLLECTION_NAME = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION")
+
+# Don't think we ever want to actually use this. Remove?
 LATEST_RELEASE = bool(Variable.get("CATALOG_PROD_LATEST_RELEASE"))
 
 # Get S3 data bucket variables
@@ -82,13 +84,6 @@ SET_S3_NAMESPACE = PythonOperator(
     python_callable=datetime.now().strftime,
     op_args=["%Y-%m-%d_%H-%M-%S"],
     dag=DAG
-)
-
-GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
-    DAG,
-    PROD_COLLECTION_NAME,
-    "get_num_solr_docs_pre",
-    conn_id=SOLR_CONN.conn_id
 )
 
 LIST_ALMA_S3_DATA = S3ListOperator(
@@ -153,6 +148,12 @@ CREATE_COLLECTION = PythonOperator(
         }
 )
 
+GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
+    DAG,
+    COLLECTION_NAME,
+    "get_num_solr_docs_pre",
+    conn_id=SOLR_CONN.conn_id
+)
 
 INDEX_SFTP_MARC = BashOperator(
     task_id="index_sftp_marc",
@@ -162,7 +163,7 @@ INDEX_SFTP_MARC = BashOperator(
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/alma_bibs__",
-        "GIT_BRANCH": PREPRODUCTION_COB_INDEX_VERSION,
+        "GIT_BRANCH": COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": str(LATEST_RELEASE),
         "SOLR_AUTH_USER": SOLR_CONN.login or "",
@@ -183,8 +184,15 @@ SOLR_COMMIT = SimpleHttpOperator(
 
 GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     DAG,
-    CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
+    COLLECTION_NAME,
     "get_num_solr_docs_post",
+    conn_id=SOLR_CONN.conn_id
+)
+
+GET_NUM_SOLR_DOCS_CURRENT_PROD = task_solrgetnumdocs(
+    DAG,
+    PROD_COLLECTION_NAME,
+    "get_num_solr_docs_current_prod",
     conn_id=SOLR_CONN.conn_id
 )
 
@@ -197,14 +205,15 @@ POST_SLACK = PythonOperator(
 
 # SET UP TASK DEPENDENCIES
 SET_S3_NAMESPACE.set_upstream(SAFETY_CHECK)
-GET_NUM_SOLR_DOCS_PRE.set_upstream(SET_S3_NAMESPACE)
-LIST_ALMA_S3_DATA.set_upstream(GET_NUM_SOLR_DOCS_PRE)
-LIST_BOUNDWITH_S3_DATA.set_upstream(GET_NUM_SOLR_DOCS_PRE)
+LIST_ALMA_S3_DATA.set_upstream(SET_S3_NAMESPACE)
+LIST_BOUNDWITH_S3_DATA.set_upstream(SET_S3_NAMESPACE)
 PREPARE_BOUNDWITHS.set_upstream(LIST_BOUNDWITH_S3_DATA)
 PREPARE_ALMA_DATA.set_upstream(LIST_ALMA_S3_DATA)
 CREATE_COLLECTION.set_upstream(PREPARE_ALMA_DATA)
 CREATE_COLLECTION.set_upstream(PREPARE_BOUNDWITHS)
-INDEX_SFTP_MARC.set_upstream(CREATE_COLLECTION)
+GET_NUM_SOLR_DOCS_PRE.set_upstream(CREATE_COLLECTION)
+INDEX_SFTP_MARC.set_upstream(GET_NUM_SOLR_DOCS_PRE)
 SOLR_COMMIT.set_upstream(INDEX_SFTP_MARC)
 GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_COMMIT)
 POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_POST)
+POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_CURRENT_PROD)

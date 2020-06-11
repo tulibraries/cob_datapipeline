@@ -11,9 +11,7 @@ from airflow.contrib.operators.s3_list_operator import S3ListOperator
 from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
-from cob_datapipeline.catalog_safety_check import safety_check
-from cob_datapipeline.catalog_create_collection import create_missing_collection, collection_name
-
+from cob_datapipeline import helpers
 """
 INIT SYSTEMWIDE VARIABLES
 
@@ -31,7 +29,7 @@ CATALOG_SOLR_CONFIG = Variable.get("CATALOG_FULL_REINDEX_SOLR_CONFIG", deseriali
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
 COB_INDEX_VERSION = Variable.get("PREPRODUCTION_COB_INDEX_VERSION")
-COLLECTION_NAME = collection_name(
+COLLECTION_NAME = helpers.catalog_collection_name(
         configset=CONFIGSET,
         cob_index_version=COB_INDEX_VERSION)
 REPLICATION_FACTOR = CATALOG_SOLR_CONFIG.get("replication_factor")
@@ -75,7 +73,7 @@ Tasks with custom logic are relegated to individual Python files.
 
 SAFETY_CHECK = PythonOperator(
     task_id="safety_check",
-    python_callable=safety_check,
+    python_callable=helpers.catalog_safety_check,
     dag=DAG
 )
 
@@ -137,7 +135,7 @@ PREPARE_ALMA_DATA = PythonOperator(
 
 CREATE_COLLECTION = PythonOperator(
     task_id="create_collection",
-    python_callable=create_missing_collection,
+    python_callable=helpers.catalog_create_missing_collection,
     provide_context=True,
     dag=DAG,
     op_kwargs={

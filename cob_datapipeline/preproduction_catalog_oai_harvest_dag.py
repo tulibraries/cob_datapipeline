@@ -12,7 +12,7 @@ from cob_datapipeline.sc_xml_parse import prepare_oai_boundwiths, update_variabl
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
 from airflow.operators.http_operator import SimpleHttpOperator
-from cob_datapipeline.catalog_safety_check import safety_check
+from cob_datapipeline import helpers
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -94,7 +94,7 @@ Tasks with custom logic are relegated to individual Python files.
 
 SAFETY_CHECK = PythonOperator(
     task_id="safety_check",
-    python_callable=safety_check,
+    python_callable=helpers.catalog_safety_check,
     dag=DAG
 )
 

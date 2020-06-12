@@ -1,6 +1,6 @@
 # cob_datapipeline
 
-![pylint Score](https://mperlet.github.io/pybadge/badges/4.46.svg) [![Build Status](https://travis-ci.com/tulibraries/cob_datapipeline.svg?branch=qa)](https://travis-ci.com/tulibraries/cob_datapipeline)
+![pylint Score](https://mperlet.github.io/pybadge/badges/4.46.svg) [![Build Status](https://travis-ci.com/tulibraries/cob_datapipeline.svg?branch=master)](https://travis-ci.com/tulibraries/cob_datapipeline)
 
 This is the repository for TUL COB (Temple University Libraries Catalog on Blacklight) Airflow DAGs (Directed Acyclic Graphs, e.g., data processing workflows) along with related scripts.
 
@@ -110,6 +110,14 @@ Currently, there are no tests for this code; they are 'tested' in local Airflow 
 ### Development: Molecule-Docker Install & Run Airflow & COB DAGs
 
 WIP.
+
+* `make up`: Sets up local airflow with these dags.
+* `make down`: Close the local setup.
+* `make reload`: Reload configurations for local setup.
+* `make tty-webserver`: Enter airflow webserver container instance.
+* `make tty-worker`: Enter airflow worker container instance.
+* `make tty-schedular`: Enter airflow schedular contain instance.
+
 
 ### Development: Ansible-Vagrant Install & Run Airflow & COB DAGs
 
@@ -305,18 +313,14 @@ $ systemctl start airflow-webserver
 
 ### QA: Deploy COB DAGs to Airflow
 
-The QA Environment runs Airflow with a Postgres metadata database and with LocalExecutor enabled on a single VM. This QA Airflow core setup is built according to our Airflow Playbook via CI/CD from QA branch PR merges to awaiting Terraform-managed Linode infrastructure. The GUI is accessible via Google Authentication and the Airflow RBAC (roles based authorization control) setup.
+The QA Environment runs Airflow with a Postgres metadata database and with LocalExecutor enabled on a single VM. This QA Airflow core setup is built according to our Airflow Playbook via CI/CD from master branch PR merges to awaiting Terraform-managed Linode infrastructure. The GUI is accessible via Google Authentication and the Airflow RBAC (roles based authorization control) setup.
 
-For these DAGs, merges to the QA branch on this repository rerusn our Airflow Playbook with flags to rerun `cob_datapipeline` DAGs-specific tasks. These:
+For these DAGs, merges to the master branch on this repository reruns our Airflow Playbook with flags to rerun `cob_datapipeline` DAGs-specific tasks. These:
 - Ensure Airflow core is setup on QA;
 - Set up DAG-specific Variables and Connections;
 - Installs DAG-specific required libraries (Python; Pipenv; Ruby; RVM; see above) to be run by the Airflow core user;
 - Checks out via Git the Airflow DAGs directory, QA branch, to the Airflow DAGs directory;
 - Verifies the DAGs are available for use via the Airflow CLI.
-
-### Stage: Deploy COB DAGs to Airflow
-
-WIP.
 
 ### Production: Deploy COB DAGs to Airflow
 

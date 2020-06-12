@@ -22,11 +22,13 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AIRFLOW_DATA_DIR", repo_dir + "/data")
     airflow.models.Variable.set("AIRFLOW_LOG_DIR", repo_dir + "/logs")
     airflow.models.Variable.set("AIRFLOW_USER_HOME", repo_dir)
+    airflow.models.Variable.set("ALMA_API_KEY", "key")
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_FROM_DATE", "none")
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_DATE", "none")
     airflow.models.Variable.set("ALMASFTP_HARVEST_PATH", repo_dir + "/data/sftpdump/")
     airflow.models.Variable.set("ALMASFTP_HOST", "127.0.0.1")
-    airflow.models.Variable.set("ALMASFTP_PORT", 9229 )
+    airflow.models.Variable.set("ALMASFTP_PORT", 9229)
+    airflow.models.Variable.set("ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE", "2020-06-08")
     airflow.models.Variable.set("ALMASFTP_S3_PREFIX", "almasftp")
     airflow.models.Variable.set("ALMASFTP_USER", "almasftp")
     airflow.models.Variable.set("ALMASFTP_PASSWD", "password")
@@ -44,10 +46,10 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AZ_SOLR_CONFIG", {"configset": "tul_cob-az-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("AZ_SOLR_CONFIG_QA", {"configset": "tul_cob-az-0", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("AZ_SOLR_CONFIG_STAGE", {"configset": "tul_cob-az-0", "replication_factor": 2}, serialize_json=True)
-    airflow.models.Variable.set("BLACKLIGHT_CORE_NAME", "tul_cob-catalog")
-    airflow.models.Variable.set("CATALOG_PROD_BRANCH", "CATALOG_BRANCH")
+    airflow.models.Variable.set("PROD_COB_INDEX_VERSION", "CATALOG_BRANCH")
     airflow.models.Variable.set("CATALOG_PROD_LATEST_RELEASE", "False")
-    airflow.models.Variable.set("CATALOG_QA_BRANCH", "CATALOG_BRANCH")
+    airflow.models.Variable.set("CATALOG_PRODUCTION_SOLR_COLLECTION", "foo")
+    airflow.models.Variable.set("PREPRODUCTION_COB_INDEX_VERSION", "CATALOG_BRANCH")
     airflow.models.Variable.set("CATALOG_QA_LATEST_RELEASE", "False")
     airflow.models.Variable.set("CATALOG_STAGE_BRANCH", "CATALOG_BRANCH")
     airflow.models.Variable.set("CATALOG_STAGE_LATEST_RELEASE", "False")
@@ -55,8 +57,13 @@ def pytest_sessionstart():
     airflow.models.Variable.set("CATALOG_CORE", "CATALOG_CORE")
     airflow.models.Variable.set("CATALOG_REPLICATION_FACTOR", 2)
     airflow.models.Variable.set("CATALOG_SOLR_CONFIG", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
-    airflow.models.Variable.set("GIT_PULL_TULCOB_LATEST_RELEASE", False)
-    airflow.models.Variable.set("GIT_PULL_TULCOB_BRANCH_NAME", "qa")
+    airflow.models.Variable.set("CATALOG_FULL_REINDEX_SOLR_CONFIG_QA", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_OAI_HAREVEST_SOLR_CONFIG_QA", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_SOLR_CONFIG_STAGE", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_FULL_REINDEX_SOLR_CONFIG_PROD", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_OAI_HARVEST_SOLR_CONFIG_PROD", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_OAI_HARVEST_SOLR_CONFIG_QA", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION", "FOO")
     airflow.models.Variable.set("SOLR_AUTH_USER", "SOLR_AUTH_USER")
     airflow.models.Variable.set("SOLR_AUTH_PASSWORD", "SOLR_AUTH_PASSWORD")
     airflow.models.Variable.set("WEB_CONTENT_BASE_URL", "WEB_CONTENT_BASE_URL")
@@ -75,12 +82,22 @@ def pytest_sessionstart():
     airflow.models.Variable.set("WEB_CONTENT_SOLR_CONFIG", {"configset": "tul_cob-web-2", "replication_factor": 2}, serialize_json=True)
     airflow.models.Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "WEB_CONTENT_SCHEDULE_INTERVAL")
 
-    solr = airflow.models.Connection(
-        conn_id="AIRFLOW_CONN_SOLR_LEADER",
-        conn_type="http",
-        host="127.0.0.1",
-        port="8983",
-    )
+    airflow.models.Variable.set("CATALOG_OAI_PUBLISH_INTERVAL", 0)
+    airflow.models.Variable.set("CATALOG_PROD_HARVEST_FROM_DATE", "CATALOG_PROD_HARVEST_FROM_DATE")
+    airflow.models.Variable.set("CATALOG_QA_HARVEST_FROM_DATE", "CATALOG_QA_HARVEST_FROM_DATE")
+    airflow.models.Variable.set("CATALOG_STAGE_HARVEST_FROM_DATE", "CATALOG_STAGE_HARVEST_FROM_DATE")
+    airflow.models.Variable.set("CATALOG_HARVEST_UNTIL_DATE", "2020-01-01T00:00:00Z")
+    airflow.models.Variable.set("CATALOG_OAI_CONFIG", {"endpoint": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request", "included_sets": ["blacklight"], "md_prefix": ""}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_OAI_BW_CONFIG", {"endpoint": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request", "included_sets": ["blacklight-bw"], "md_prefix": "marc21"}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_PROD_BRANCH", "CATALOG_PROD_BRANCH")
+    airflow.models.Variable.set("CATALOG_QA_BRANCH", "CATALOG_QA_BRANCH")
+    airflow.models.Variable.set("CATALOG_STAGE_BRANCH", "CATALOG_STAGE_BRANCH")
+    airflow.models.Variable.set("CATALOG_PROD_LATEST_RELEASE", "CATALOG_PROD_LATEST_RELEASE")
+    airflow.models.Variable.set("CATALOG_STAGE_LATEST_RELEASE", "CATALOG_STAGE_LATEST_RELEASE")
+    airflow.models.Variable.set("CATALOG_QA_LATEST_RELEASE", "CATALOG_QA_LATEST_RELEASE")
+
+    airflow.models.Variable.set("CATALOG_SOLR_CONFIG", {"configset": "tul_cob-catalog-2", "replication_factor": 2}, serialize_json=True)
+
     slack = airflow.models.Connection(
         conn_id="AIRFLOW_CONN_SLACK_WEBHOOK",
         conn_type="http",
@@ -90,7 +107,7 @@ def pytest_sessionstart():
     solrcloud = airflow.models.Connection(
         conn_id="SOLRCLOUD",
         conn_type="http",
-        host="127.0.0.1",
+        host="http://127.0.0.1",
         port="8983",
         login="puppy",
         password="chow"
@@ -110,7 +127,6 @@ def pytest_sessionstart():
         password="chow"
     )
     airflow_session = airflow.settings.Session()
-    airflow_session.add(solr)
     airflow_session.add(slack)
     airflow_session.add(solrcloud)
     airflow_session.add(solrcloud_writer)

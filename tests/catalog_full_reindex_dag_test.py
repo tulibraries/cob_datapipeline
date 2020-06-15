@@ -40,7 +40,7 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             "list_alma_s3_data": ["set_s3_namespace"],
             "list_boundwith_s3_data": ["set_s3_namespace"],
             "prepare_boundwiths": ["list_boundwith_s3_data"],
-            "prepare_alma_data": ["list_alma_s3_data"],
+            "prepare_alma_data": ["list_alma_s3_data", "prepare_boundwiths"],
             "create_collection": ["prepare_alma_data", "prepare_boundwiths"],
             "get_num_solr_docs_pre": ["create_collection"],
             "index_sftp_marc": ["get_num_solr_docs_pre"],

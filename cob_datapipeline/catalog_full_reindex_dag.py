@@ -129,7 +129,7 @@ PREPARE_ALMA_DATA = PythonOperator(
         "DEST_PREFIX": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
         "LOOKUP_KEY": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/lookup.tsv",
         "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_alma_s3_data') }}",
-        "SOURCE_PREFIX": ALMASFTP_S3_PREFIX + "/alma_bibs__",
+        "SOURCE_PREFIX": ALMASFTP_S3_PREFIX + "/" + ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE + "/alma_bibs__",
         "SOURCE_SUFFIX": ".tar.gz"
     },
     dag=DAG
@@ -209,6 +209,7 @@ LIST_ALMA_S3_DATA.set_upstream(SET_S3_NAMESPACE)
 LIST_BOUNDWITH_S3_DATA.set_upstream(SET_S3_NAMESPACE)
 PREPARE_BOUNDWITHS.set_upstream(LIST_BOUNDWITH_S3_DATA)
 PREPARE_ALMA_DATA.set_upstream(LIST_ALMA_S3_DATA)
+PREPARE_ALMA_DATA.set_upstream(PREPARE_BOUNDWITHS)
 CREATE_COLLECTION.set_upstream(PREPARE_ALMA_DATA)
 CREATE_COLLECTION.set_upstream(PREPARE_BOUNDWITHS)
 GET_NUM_SOLR_DOCS_PRE.set_upstream(CREATE_COLLECTION)

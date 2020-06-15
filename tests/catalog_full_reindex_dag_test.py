@@ -20,15 +20,16 @@ class TestCatalogFullReindexDag(unittest.TestCase):
         self.assertEqual(self.tasks, [
             "safety_check",
             "set_s3_namespace",
-            "get_num_solr_docs_pre",
             "list_alma_s3_data",
             "list_boundwith_s3_data",
             "prepare_boundwiths",
             "prepare_alma_data",
             "create_collection",
+            "get_num_solr_docs_pre",
             "index_sftp_marc",
             "solr_commit",
             "get_num_solr_docs_post",
+            "get_num_solr_docs_current_prod",
             "slack_post_succ"
             ])
 
@@ -36,16 +37,17 @@ class TestCatalogFullReindexDag(unittest.TestCase):
         """Unit test that the DAG instance contains the expected dependencies."""
         expected_task_deps = {
             "set_s3_namespace": ["safety_check"],
-            "get_num_solr_docs_pre": ["set_s3_namespace"],
-            "list_alma_s3_data": ["get_num_solr_docs_pre"],
-            "list_boundwith_s3_data": ["get_num_solr_docs_pre"],
+            "list_alma_s3_data": ["set_s3_namespace"],
+            "list_boundwith_s3_data": ["set_s3_namespace"],
             "prepare_boundwiths": ["list_boundwith_s3_data"],
             "prepare_alma_data": ["list_alma_s3_data"],
             "create_collection": ["prepare_alma_data", "prepare_boundwiths"],
-            "index_sftp_marc": ["create_collection"],
+            "get_num_solr_docs_pre": ["create_collection"],
+            "index_sftp_marc": ["get_num_solr_docs_pre"],
             "solr_commit": ["index_sftp_marc"],
             "get_num_solr_docs_post": ["solr_commit"],
-            "slack_post_succ": ["get_num_solr_docs_post"],
+            "get_num_solr_docs_current_prod": [],
+            "slack_post_succ": ["get_num_solr_docs_post", "get_num_solr_docs_current_prod"],
         }
         for task, upstream_tasks in expected_task_deps.items():
             upstream_list = [up_task.task_id for up_task in DAG.get_task(task).upstream_list]

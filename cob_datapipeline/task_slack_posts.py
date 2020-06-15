@@ -69,6 +69,33 @@ def notes_slackpostonsuccess(**context):
     return tasks.execute_slackpostonsuccess(context, conn_id="COB_SLACK_WEBHOOK")
 
 
+def full_reindex_slack_post_on_success(**context):
+    """Task Method to Post Successful Full Reindex DAG Completion on Slack."""
+    ti = context.get('task_instance')
+    logurl = ti.log_url
+    dagid = ti.dag_id
+    date = context.get('execution_date')
+    response_pre = ti.xcom_pull(task_ids='get_num_solr_docs_pre')
+    ndocs_pre = json.loads(response_pre)["response"]["numFound"]
+    response_post = ti.xcom_pull(task_ids='get_num_solr_docs_post')
+    ndocs_post = json.loads(response_post)["response"]["numFound"]
+    response_current_prod = ti.xcom_pull(task_ids='get_num_solr_docs_current_prod')
+    ndocs_current_prod = json.loads(response_current_prod)["response"]["numFound"]
+
+    msg = """{date} DAG {dagid} success:
+    We started with {ndocs_pre} docs and ended with {ndocs_post} docs.
+    The current Production Solr Collection has {ndocs_current_prod}
+    {logurl}""".format(
+        date=date,
+        dagid=dagid,
+        ndocs_pre=ndocs_pre,
+        ndocs_post=ndocs_post,
+        ndocs_current_prod=ndocs_current_prod,
+        logurl=logurl
+    )
+
+    return tasks.execute_slackpostonsuccess(context, conn_id="COB_SLACK_WEBHOOK", message=msg)
+
 def slackpostonfail(context):
     """Task Method to Post Failed Task on Aggregator Slack."""
     msg = None

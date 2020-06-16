@@ -35,7 +35,7 @@ class TestDetermineMostRecentDate(unittest.TestCase):
         name = helpers.catalog_collection_name(
                 configset="bizz",
                 cob_index_version="buzz")
-        expected_name = "{{ configset }}.{{ cob_index_version }}-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"
+        expected_name = "bizz.buzz-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"
         self.assertEqual(name, expected_name)
 
         # When CATALOG_PRE_PRODUCTION_SOLR_COLLECTION is not defined
@@ -43,7 +43,7 @@ class TestDetermineMostRecentDate(unittest.TestCase):
         name = helpers.catalog_collection_name(
                 configset="bizz",
                 cob_index_version="buzz")
-        expected_name = "{{ configset }}.{{ cob_index_version }}-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"
+        expected_name = "bizz.buzz-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"
         self.assertEqual(name, expected_name)
 
     @requests_mock.mock()

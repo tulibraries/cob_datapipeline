@@ -15,7 +15,7 @@ def catalog_safety_check(**context):
         raise Exception("The pre production collection cannot be equal to the production collection.")
 
 def catalog_collection_name(configset, cob_index_version):
-    default_name = "{{ configset }}.{{ cob_index_version }}-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"
+    default_name = f"{ configset }.{ cob_index_version }" + "-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"
 
     configured_name = Variable.get("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION", default_name)
 

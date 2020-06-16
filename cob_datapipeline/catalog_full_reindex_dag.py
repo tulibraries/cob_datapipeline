@@ -26,7 +26,8 @@ AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
-SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
+SOLR_WRITER = BaseHook.get_connection("SOLRCLOUD-WRITER")
+SOLR_CLOUD = BaseHook.get_connection("SOLRCLOUD")
 CATALOG_SOLR_CONFIG = Variable.get("CATALOG_FULL_REINDEX_SOLR_CONFIG", deserialize_json=True)
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
@@ -141,7 +142,7 @@ CREATE_COLLECTION = PythonOperator(
     provide_context=True,
     dag=DAG,
     op_kwargs={
-        "conn": SOLR_CONN,
+        "conn": SOLR_CLOUD,
         "collection": COLLECTION_NAME,
         "replication_factor": REPLICATION_FACTOR,
         "configset": CONFIGSET,
@@ -152,7 +153,7 @@ GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
     COLLECTION_NAME,
     "get_num_solr_docs_pre",
-    conn_id=SOLR_CONN.conn_id
+    conn_id=SOLR_CLOUD.conn_id
 )
 
 INDEX_SFTP_MARC = BashOperator(
@@ -166,9 +167,9 @@ INDEX_SFTP_MARC = BashOperator(
         "GIT_BRANCH": COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": str(LATEST_RELEASE),
-        "SOLR_AUTH_USER": SOLR_CONN.login or "",
-        "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
-        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, COLLECTION_NAME),
+        "SOLR_AUTH_USER": SOLR_WRITER.login or "",
+        "SOLR_AUTH_PASSWORD": SOLR_WRITER.password or "",
+        "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION_NAME),
         "TRAJECT_FULL_REINDEX": "yes",
     },
     dag=DAG
@@ -177,7 +178,7 @@ INDEX_SFTP_MARC = BashOperator(
 SOLR_COMMIT = SimpleHttpOperator(
     task_id="solr_commit",
     method="GET",
-    http_conn_id=SOLR_CONN.conn_id,
+    http_conn_id=SOLR_CLOUD.conn_id,
     endpoint= "/solr/" + COLLECTION_NAME + "/update?commit=true",
     dag=DAG
 )
@@ -186,14 +187,14 @@ GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     DAG,
     COLLECTION_NAME,
     "get_num_solr_docs_post",
-    conn_id=SOLR_CONN.conn_id
+    conn_id=SOLR_CLOUD.conn_id
 )
 
 GET_NUM_SOLR_DOCS_CURRENT_PROD = task_solrgetnumdocs(
     DAG,
     PROD_COLLECTION_NAME,
     "get_num_solr_docs_current_prod",
-    conn_id=SOLR_CONN.conn_id
+    conn_id=SOLR_CLOUD.conn_id
 )
 
 POST_SLACK = PythonOperator(

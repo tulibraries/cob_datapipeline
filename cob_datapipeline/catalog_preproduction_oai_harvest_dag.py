@@ -1,4 +1,4 @@
-"""Airflow DAG to perform a partial index of tul_cob catalog from OAI into QA SolrCloud."""
+"""Airflow DAG to perform a partial index of tul_cob catalog from OAI into Pre Production Solr Collection."""
 from datetime import datetime, timedelta
 import os
 from tulflow import harvest, tasks
@@ -26,7 +26,7 @@ AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 # Alma OAI Harvest Dates
 CATALOG_OAI_PUBLISH_INTERVAL = Variable.get("CATALOG_OAI_PUBLISH_INTERVAL")
 CATALOG_OAI_DELTA = timedelta(hours=int(CATALOG_OAI_PUBLISH_INTERVAL))
-CATALOG_HARVEST_FROM_DATE = Variable.get("CATALOG_QA_HARVEST_FROM_DATE")
+CATALOG_HARVEST_FROM_DATE = Variable.get("CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE")
 NOW = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
 CATALOG_HARVEST_UNTIL_DATE = Variable.get("CATALOG_HARVEST_UNTIL_DATE", default_var=NOW)
 CATALOG_UNTIL_DATE_RAW = datetime.strptime(CATALOG_HARVEST_UNTIL_DATE, "%Y-%m-%dT%H:%M:%SZ")
@@ -54,14 +54,14 @@ CATALOG_OAI_BW_INCLUDED_SETS = CATALOG_OAI_BW_CONFIG.get("included_sets")
 CATALOG_OAI_BW_ENDPOINT = CATALOG_OAI_BW_CONFIG.get("endpoint")
 
 # cob_index Indexer Library Variables
-PREPRODUCTION_COB_INDEX_VERSION = Variable.get("PREPRODUCTION_COB_INDEX_VERSION")
-LATEST_RELEASE = Variable.get("CATALOG_QA_LATEST_RELEASE")
+PRE_PRODUCTION_COB_INDEX_VERSION = Variable.get("PRE_PRODUCTION_COB_INDEX_VERSION")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
-CATALOG_SOLR_CONFIG = Variable.get("CATALOG_OAI_HARVEST_SOLR_CONFIG_QA", deserialize_json=True)
+SOLR_CLOUD = BaseHook.get_connection("SOLRCLOUD")
+
+CATALOG_SOLR_CONFIG = Variable.get("CATALOG_PRE_PRODUCTION_SOLR_CONFIG", deserialize_json=True)
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
-CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
 COLLECTION = Variable.get("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION")
 # Get S3 data bucket variables
 AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
@@ -78,7 +78,7 @@ DEFAULT_ARGS = {
 }
 
 DAG = airflow.DAG(
-    "preproduction_catalog_oai_harvest",
+    "catalog_pre_production_oai_harvest",
     catchup=False,
     default_args=DEFAULT_ARGS,
     max_active_runs=1,
@@ -184,9 +184,9 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/new-updated",
-        "GIT_BRANCH": PREPRODUCTION_COB_INDEX_VERSION,
+        "GIT_BRANCH": PRE_PRODUCTION_COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
-        "LATEST_RELEASE": str(LATEST_RELEASE),
+        "LATEST_RELEASE": "false",
         "SOLR_AUTH_USER": SOLR_CONN.login or "",
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
         "SOLR_URL": tasks.get_solr_url(SOLR_CONN, COLLECTION),
@@ -203,9 +203,9 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/deleted",
-        "GIT_BRANCH": PREPRODUCTION_COB_INDEX_VERSION,
+        "GIT_BRANCH": PRE_PRODUCTION_COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
-        "LATEST_RELEASE": str(LATEST_RELEASE),
+        "LATEST_RELEASE": "false",
         "SOLR_AUTH_USER": SOLR_CONN.login or "",
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
         "SOLR_URL": tasks.get_solr_url(SOLR_CONN, COLLECTION),
@@ -235,7 +235,7 @@ UPDATE_DATE_VARIABLES = PythonOperator(
     python_callable=update_variables,
     op_kwargs={
         "UPDATE": {
-            "CATALOG_QA_HARVEST_FROM_DATE": CATALOG_HARVEST_FROM_DATE_NEW
+            "CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE": CATALOG_HARVEST_FROM_DATE_NEW
         }
     },
     dag=DAG

@@ -26,10 +26,10 @@ AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_WRITER = BaseHook.get_connection("SOLRCLOUD-WRITER")
 SOLR_CLOUD = BaseHook.get_connection("SOLRCLOUD")
-CATALOG_SOLR_CONFIG = Variable.get("CATALOG_FULL_REINDEX_SOLR_CONFIG", deserialize_json=True)
+CATALOG_SOLR_CONFIG = Variable.get("CATALOG_PRE_PRODUCTION_SOLR_CONFIG", deserialize_json=True)
 # {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
-COB_INDEX_VERSION = Variable.get("PREPRODUCTION_COB_INDEX_VERSION")
+COB_INDEX_VERSION = Variable.get("PRE_PRODUCTION_COB_INDEX_VERSION")
 COLLECTION_NAME = helpers.catalog_collection_name(
         configset=CONFIGSET,
         cob_index_version=COB_INDEX_VERSION)

@@ -27,7 +27,7 @@ CATALOG_OAI_PUBLISH_INTERVAL = Variable.get("CATALOG_OAI_PUBLISH_INTERVAL")
 CATALOG_OAI_DELTA = timedelta(hours=int(CATALOG_OAI_PUBLISH_INTERVAL))
 CATALOG_HARVEST_FROM_DATE = Variable.get("CATALOG_PROD_HARVEST_FROM_DATE")
 NOW = datetime.now().strftime("%Y-%m-%dT%H:%M:%SZ")
-CATALOG_HARVEST_UNTIL_DATE = Variable.get("CATALOG_HARVEST_UNTIL_DATE", default_var=NOW)
+CATALOG_HARVEST_UNTIL_DATE = Variable.get("CATALOG_PROD_HARVEST_UNTIL_DATE", default_var=NOW)
 CATALOG_UNTIL_DATE_RAW = datetime.strptime(CATALOG_HARVEST_UNTIL_DATE, "%Y-%m-%dT%H:%M:%SZ")
 CATALOG_HARVEST_FROM_DATE_NEW = (CATALOG_UNTIL_DATE_RAW - CATALOG_OAI_DELTA).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -54,14 +54,13 @@ CATALOG_OAI_BW_ENDPOINT = CATALOG_OAI_BW_CONFIG.get("endpoint")
 
 # cob_index Indexer Library Variables
 PROD_COB_INDEX_VERSION = Variable.get("PROD_COB_INDEX_VERSION")
-LATEST_RELEASE = Variable.get("CATALOG_PROD_LATEST_RELEASE")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
-SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
-CATALOG_SOLR_CONFIG = Variable.get("CATALOG_OAI_HARVEST_SOLR_CONFIG_PROD", deserialize_json=True)
-# {"configset": "tul_cob-catalog-0", "replication_factor": 2}
-CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
-ALIAS = CONFIGSET + "-prod"
+SOLR_WRITER = BaseHook.get_connection("SOLRCLOUD-WRITER")
+SOLR_CLOUD  = BaseHook.get_connection("SOLRCLOUD")
+
+COLLECTION = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION")
+
 
 # Get S3 data bucket variables
 AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
@@ -78,7 +77,7 @@ DEFAULT_ARGS = {
 }
 
 DAG = airflow.DAG(
-    "prod_catalog_oai_harvest",
+    "catalog_production_oai_harvest",
     catchup=False,
     default_args=DEFAULT_ARGS,
     max_active_runs=1,
@@ -100,9 +99,9 @@ SET_S3_NAMESPACE = PythonOperator(
 
 GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
-    ALIAS,
+    COLLECTION,
     "get_num_solr_docs_pre",
-    conn_id=SOLR_CONN.conn_id
+    conn_id=SOLR_CLOUD.conn_id
 )
 
 BW_OAI_HARVEST = PythonOperator(
@@ -179,10 +178,10 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/new-updated",
         "GIT_BRANCH": PROD_COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
-        "LATEST_RELEASE": str(LATEST_RELEASE),
-        "SOLR_AUTH_USER": SOLR_CONN.login or "",
-        "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
-        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, ALIAS),
+        "LATEST_RELEASE": "false",
+        "SOLR_AUTH_USER": SOLR_WRITER.login or "",
+        "SOLR_AUTH_PASSWORD": SOLR_WRITER.password or "",
+        "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION),
         "COMMAND": "ingest",
     }},
     dag=DAG
@@ -198,10 +197,10 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "FOLDER": DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/deleted",
         "GIT_BRANCH": PROD_COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
-        "LATEST_RELEASE": str(LATEST_RELEASE),
-        "SOLR_AUTH_USER": SOLR_CONN.login or "",
-        "SOLR_AUTH_PASSWORD": SOLR_CONN.password or "",
-        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, ALIAS),
+        "LATEST_RELEASE": "false",
+        "SOLR_AUTH_USER": SOLR_WRITER.login or "",
+        "SOLR_AUTH_PASSWORD": SOLR_WRITER.password or "",
+        "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION),
         "COMMAND": "delete",
     }},
     dag=DAG
@@ -210,16 +209,16 @@ INDEX_DELETES_OAI_MARC = BashOperator(
 SOLR_COMMIT = SimpleHttpOperator(
     task_id='solr_commit',
     method='GET',
-    http_conn_id=SOLR_CONN.conn_id,
-    endpoint= '/solr/' + ALIAS + '/update?commit=true',
+    http_conn_id=SOLR_WRITER.conn_id,
+    endpoint= '/solr/' + COLLECTION + '/update?commit=true',
     dag=DAG
 )
 
 GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     DAG,
-    ALIAS,
+    COLLECTION,
     "get_num_solr_docs_post",
-    conn_id=SOLR_CONN.conn_id
+    conn_id=SOLR_CLOUD.conn_id
 )
 
 UPDATE_DATE_VARIABLES = PythonOperator(

@@ -69,11 +69,8 @@ workflows:
 
   prod_deploy:
     jobs:
-      - lint_and_test
       - request-prod-deploy:
           type: approval
-          requires:
-            - lint_and_test
           filters:
             branches:
               ignore: /.*/
@@ -81,7 +78,6 @@ workflows:
               only: /^v[0-9]+(\.[0-9]+)*$/
       - prod_deploy:
           requires:
-            - lint_and_test
             - request-prod-deploy
           filters:
             branches:
@@ -91,10 +87,7 @@ workflows:
 
   qa_deploy:
     jobs:
-      - lint_and_test
       - qa_deploy:
-          requires:
-            - lint_and_test
           filters:
             branches:
               only:

@@ -35,7 +35,7 @@ COLLECTION_NAME = helpers.catalog_collection_name(
         cob_index_version=COB_INDEX_VERSION)
 REPLICATION_FACTOR = CATALOG_SOLR_CONFIG.get("replication_factor")
 
-# Used to check the current number of 
+# Used to check the current number of
 PROD_COLLECTION_NAME = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION")
 
 # Don't think we ever want to actually use this. Remove?

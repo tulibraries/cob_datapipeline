@@ -1,6 +1,6 @@
 # cob_datapipeline
 
-![pylint Score](https://mperlet.github.io/pybadge/badges/4.46.svg) [![Build Status](https://travis-ci.com/tulibraries/cob_datapipeline.svg?branch=master)](https://travis-ci.com/tulibraries/cob_datapipeline)
+![pylint Score](https://mperlet.github.io/pybadge/badges/4.46.svg) [![Build Status](https://travis-ci.com/tulibraries/cob_datapipeline.svg?branch=main)](https://travis-ci.com/tulibraries/cob_datapipeline)
 
 This is the repository for TUL COB (Temple University Libraries Catalog on Blacklight) Airflow DAGs (Directed Acyclic Graphs, e.g., data processing workflows) along with related scripts.
 
@@ -286,7 +286,7 @@ AIRFLOW_CONN_SOLR_LEADER
 
 **Install systemd config files**
 
-https://github.com/apache/incubator-airflow/tree/master/scripts/systemd
+https://github.com/apache/incubator-airflow/tree/main/scripts/systemd
 
 **Install logrotate file**
 
@@ -313,9 +313,9 @@ $ systemctl start airflow-webserver
 
 ### QA: Deploy COB DAGs to Airflow
 
-The QA Environment runs Airflow with a Postgres metadata database and with LocalExecutor enabled on a single VM. This QA Airflow core setup is built according to our Airflow Playbook via CI/CD from master branch PR merges to awaiting Terraform-managed Linode infrastructure. The GUI is accessible via Google Authentication and the Airflow RBAC (roles based authorization control) setup.
+The QA Environment runs Airflow with a Postgres metadata database and with LocalExecutor enabled on a single VM. This QA Airflow core setup is built according to our Airflow Playbook via CI/CD from main branch PR merges to awaiting Terraform-managed Linode infrastructure. The GUI is accessible via Google Authentication and the Airflow RBAC (roles based authorization control) setup.
 
-For these DAGs, merges to the master branch on this repository reruns our Airflow Playbook with flags to rerun `cob_datapipeline` DAGs-specific tasks. These:
+For these DAGs, merges to the main branch on this repository reruns our Airflow Playbook with flags to rerun `cob_datapipeline` DAGs-specific tasks. These:
 - Ensure Airflow core is setup on QA;
 - Set up DAG-specific Variables and Connections;
 - Installs DAG-specific required libraries (Python; Pipenv; Ruby; RVM; see above) to be run by the Airflow core user;

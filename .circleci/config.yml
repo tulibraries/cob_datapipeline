@@ -52,7 +52,7 @@ jobs:
           name: 'Run Ansible Airflow Playbook for Prod'
           command: |
             cd ..
-            git clone --single-branch --branch master https://github.com/tulibraries/ansible-playbook-airflow.git
+            git clone --single-branch --branch main https://github.com/tulibraries/ansible-playbook-airflow.git
             cd ansible-playbook-airflow
             sudo pip install pipenv
             pipenv install
@@ -91,4 +91,4 @@ workflows:
           filters:
             branches:
               only:
-                - master
+                - main

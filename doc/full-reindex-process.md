@@ -1,7 +1,7 @@
 
 # Full Reindex Process Steps
 
-This document outlines the expected steps needed to complete the Full Reindex Process to go from exporting data from Alma to having it live in the Production Library Search. This is intended as a checklist for the person responsible for shepherding theprocess to ensure that the steps that the required manual steps are followed.
+This document outlines the expected steps needed to complete the Full Reindex Process to go from exporting data from Alma to having it live in the Production Library Search. This is intended as a checklist for the person responsible for shepherding the process to ensure that the steps that the required manual steps are followed.
 
 1. Initiate Alma FTP Export and wait for completion.
 1. Trigger the `catalog_move_alma_sftp_to_s3` Dag and wait for completion.
@@ -10,6 +10,7 @@ This document outlines the expected steps needed to complete the Full Reindex Pr
    2. Ensure the variable `CATALOG_PRE_PRODUCTION_SOLR_CONFIG` is using the correct version of solr configs
    3. Ensure the variable `PRE_PRODUCTION_COB_INDEX_VERSION` is the correct version of cob index
    4. Ensure the variable `CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE` is set to a date time earlier than the date in the variable `ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE`.
+   5. Update the `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` variable to be None.
 2. Trigger `catalog_full_reindex` Dag and wait for completion
 3. Update the variable `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` to the name of the collection created by the `catalog_full_reindex` dag (s)  
 4. Ensure the `catalog_preproduction_oai_harvest` Dag is On (may be turned off)

@@ -11,7 +11,7 @@ pexpect = "*"
 boto3 = "*"
 tulflow = "==0.6.3"
 awscli = "*"
-lxml = "==4.4.3"
+lxml = "==4.5.1"
 importlib-resources = {version = "*", markers = "python_version < '3.7'"}
 
 [dev-packages]

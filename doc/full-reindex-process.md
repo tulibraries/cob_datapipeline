@@ -14,7 +14,7 @@ This document outlines the expected steps needed to complete the Full Reindex Pr
 2. Trigger `catalog_full_reindex` Dag and wait for completion
 3. Update the variable `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` to the name of the collection created by the `catalog_full_reindex` dag (s)  
 4. Ensure the `catalog_preproduction_oai_harvest` Dag is On (may be turned off)
-5. Create a PR to `tul_cob` changing SOLR_URL in .env to use `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` and wait for merge and deploy to LibrarySearch QA
+5. Create a PR to `tul_cob` changing CATALOG_COLLECTION in .env to use `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` and wait for merge and deploy to LibrarySearch QA
 6. Initiate Testing of changes on LibrarySearch QA and wait for approval to proceed
 7. Create Release of `tul_cob` based on approved changes (usually main) and wait for deploy to Library Search Stage
 8. Initiate lightweight review of changes LibrarySearch Stage and wait for approval to proceed.

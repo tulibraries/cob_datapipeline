@@ -25,6 +25,8 @@ def pytest_sessionstart():
     airflow.models.Variable.set("ALMA_API_KEY", "key")
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_FROM_DATE", "none")
     airflow.models.Variable.set("ALMAOAI_LAST_HARVEST_DATE", "none")
+    airflow.models.Variable.set("CATALOG_PROD_LAST_HARVEST_FROM_DATE", None)
+    airflow.models.Variable.set("CATALOG_PRE_PRODUCTION_LAST_HARVEST_FROM_DATE", None)
     airflow.models.Variable.set("ALMASFTP_HARVEST_PATH", repo_dir + "/data/sftpdump/")
     airflow.models.Variable.set("ALMASFTP_HOST", "127.0.0.1")
     airflow.models.Variable.set("ALMASFTP_PORT", 9229)

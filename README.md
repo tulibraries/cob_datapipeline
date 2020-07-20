@@ -43,11 +43,11 @@ For these TUL COB Dags, the following variables are required:
 - **ALMA_OAI_ENDPOINT**: The ALMA bibliographic data changeset OAI endpoint accessed for indexing partial updates to the designated `BLACKLIGHT_CORE_NAME` in Solr.
 - **BLACKLIGHT_CORE_NAME**: This should be the Solr collection / core name you want to index records into as part of your environment TUL COB DAGs work.
 - **almafullreindex_inprogress**: Flag variable to indicate whether or not a Alma bibliographic full index is in progress.
-- **ALMAOAI_LAST_HARVEST_DATE**: The date of the last successfully completed partial Alma bibliographic index process.
-- **ALMAOAI_LAST_HARVEST_FROM_DATE**: The date the last successfully completed partial Alma bibliographic index process started from.
 - **almaoai_last_num_oai_delete_recs**: The number of bibliographic records successfully processed for deleting from the index in the last partial index.
 - **almaoai_last_num_oai_update_recs**: The number of bibliographic records successfully processed for updating or creation in the last partial index.
 - **traject_num_rejected**: The number of bibliographic records reject by the Traject indexing process during a partial indexing process.
+- **CATALOG_PROD_LAST_HARVEST_FROM_DATE**: Last successful catalog production harvest from date.
+- **CATALOG_PRE_PRODUCTION_LAST_HARVEST_FROM_DATE**: Last successful catalog pre-production harvest from date.
 
 ### Database AZ:
 - AZ_BRANCH: branch of the tulibraries/cob_az_index to checkout.

@@ -203,7 +203,7 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "SOLR_AUTH_USER": SOLR_WRITER.login or "",
         "SOLR_AUTH_PASSWORD": SOLR_WRITER.password or "",
         "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION),
-        "COMMAND": "delete",
+        "COMMAND": "delete --suppress",
     }},
     dag=DAG
 )

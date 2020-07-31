@@ -53,15 +53,14 @@ CATALOG_OAI_BW_INCLUDED_SETS = CATALOG_OAI_BW_CONFIG.get("included_sets")
 CATALOG_OAI_BW_ENDPOINT = CATALOG_OAI_BW_CONFIG.get("endpoint")
 
 # cob_index Indexer Library Variables
-PRE_PRODUCTION_COB_INDEX_VERSION = Variable.get("PRE_PRODUCTION_COB_INDEX_VERSION")
+COB_INDEX_VERSION = Variable.get("PRE_PRODUCTION_COB_INDEX_VERSION")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_WRITER = BaseHook.get_connection("SOLRCLOUD-WRITER")
 SOLR_CLOUD = BaseHook.get_connection("SOLRCLOUD")
 
-CATALOG_SOLR_CONFIG = Variable.get("CATALOG_PRE_PRODUCTION_SOLR_CONFIG", deserialize_json=True)
-# {"configset": "tul_cob-catalog-0", "replication_factor": 2}
 COLLECTION = Variable.get("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION")
+
 # Get S3 data bucket variables
 AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
 AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
@@ -102,8 +101,8 @@ GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
     COLLECTION,
     "get_num_solr_docs_pre",
-    conn_id=SOLR_WRITER.conn_id
-)
+    conn_id=SOLR_CLOUD.conn_id
+    )
 
 BW_OAI_HARVEST = PythonOperator(
     task_id='bw_oai_harvest',
@@ -177,7 +176,7 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "FOLDER": DAG.dag_id + f"/{ S3_NAME_SPACE }/new-updated",
-        "GIT_BRANCH": PRE_PRODUCTION_COB_INDEX_VERSION,
+        "GIT_BRANCH": COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": "false",
         "SOLR_AUTH_USER": SOLR_WRITER.login or "",
@@ -197,7 +196,7 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "FOLDER": DAG.dag_id + f"/{ S3_NAME_SPACE }/deleted",
-        "GIT_BRANCH": PRE_PRODUCTION_COB_INDEX_VERSION,
+        "GIT_BRANCH": COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": "false",
         "SOLR_AUTH_USER": SOLR_WRITER.login or "",
@@ -220,7 +219,7 @@ GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     DAG,
     COLLECTION,
     "get_num_solr_docs_post",
-    conn_id=SOLR_WRITER.conn_id
+    conn_id=SOLR_CLOUD.conn_id
 )
 
 UPDATE_DATE_VARIABLES = PythonOperator(

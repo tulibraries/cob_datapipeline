@@ -8,13 +8,13 @@ The current catalog OAI harvesting process is broken up into two distinct but li
 
 Each of these DAGs will harvest independently to a configured collection:
 * `catalog_pre_production_oai_harvest`  harvests:
-    * from date set in `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` variable.
-    * until `Now()` by default.
-    * into the collection set in `CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE` variable.
+    * from date set in `CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE` variable.
+    * until `execution_date` by default.
+    * into the collection set in `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` variable.
 
 * `catalog_preproduction_oai_harvest_dag` harvests:
     * from date set in `CATALOG_PROD_HARVEST_FROM_DATE` variable.
-    * until `Now()` by default.
+    * until `execution_date` by default.
     * into the collection set in `CATALOG_PRODUCTION_SOLR_COLLECTION` variable
 
 ### Production Collection swap process.

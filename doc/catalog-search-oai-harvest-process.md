@@ -12,7 +12,7 @@ Each of these DAGs will harvest independently to a configured collection:
     * until `execution_date` by default.
     * into the collection set in `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` variable.
 
-* `catalog_preproduction_oai_harvest_dag` harvests:
+* `catalog_production_oai_harvest_dag` harvests:
     * from date set in `CATALOG_PROD_HARVEST_FROM_DATE` variable.
     * until `execution_date` by default.
     * into the collection set in `CATALOG_PRODUCTION_SOLR_COLLECTION` variable

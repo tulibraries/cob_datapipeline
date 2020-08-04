@@ -6,7 +6,7 @@ This is the repository for TUL COB (Temple University Libraries Catalog on Black
 
 These DAGs (and related scripts) are expecting to be run within an Airflow installation akin to the one built by our [TUL Airflow Playbook (private repository)](https://github.com/tulibraries/ansible-playbook-airflow).
 
-Local Development, QA, Stage, and Production environment usage of these DAGs is detailed below.
+Local Development, QA, and Production environment usage of these DAGs is detailed below.
 
 ## Repository Structure
 
@@ -14,7 +14,7 @@ WIP.
 
 ## Airflow Expectations
 
-These the Airflow expectations for these TUL COB DAGs and scripts to successfully run. These apply across environments (development, QA, stage, production).
+These the Airflow expectations for these TUL COB DAGs and scripts to successfully run. These apply across environments (development, QA, production).
 
 **Libraries & Packages**
 
@@ -22,7 +22,7 @@ These the Airflow expectations for these TUL COB DAGs and scripts to successfull
   - 3.6.8 (with pip version 18.1)
 - Python Libraries: see the [Pipfile](Pipfile).
 - Ruby (for running Traject via the TUL_COB Rails Application). These steps are tested with the following Ruby versions:
-  - 2.4.1
+  - 2.6.5
 - Ruby Libraries:
   - rvm
   - [tul_cob](https://github.com/tulibraries/tul_cob) gemset installed:
@@ -42,7 +42,6 @@ For these TUL COB Dags, the following variables are required:
 - **ALMASFTP_USER**: The user that with `ALMASFTP_PASSWD` will access the SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `BLACKLIGHT_CORE_NAME` in Solr.
 - **ALMA_OAI_ENDPOINT**: The ALMA bibliographic data changeset OAI endpoint accessed for indexing partial updates to the designated `BLACKLIGHT_CORE_NAME` in Solr.
 - **BLACKLIGHT_CORE_NAME**: This should be the Solr collection / core name you want to index records into as part of your environment TUL COB DAGs work.
-- **almafullreindex_inprogress**: Flag variable to indicate whether or not a Alma bibliographic full index is in progress.
 - **almaoai_last_num_oai_delete_recs**: The number of bibliographic records successfully processed for deleting from the index in the last partial index.
 - **almaoai_last_num_oai_update_recs**: The number of bibliographic records successfully processed for updating or creation in the last partial index.
 - **traject_num_rejected**: The number of bibliographic records reject by the Traject indexing process during a partial indexing process.

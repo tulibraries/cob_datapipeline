@@ -10,7 +10,6 @@
   "ALMASFTP_S3_PREFIX": "almasftp",
   "ALMASFTP_USER": "almasftp",
   "ALMA_API_KEY": "kittens",
-  "ALMA_OAI_ENDPOINT": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST",
   "AZ_PROD_BRANCH": "main",
   "AZ_QA_BRANCH": "qa",
   "AZ_CLIENT_ID": "123",
@@ -34,21 +33,8 @@
   "CATALOG_PROD_BRANCH": "main",
   "CATALOG_PROD_HARVEST_FROM_DATE": "2019-10-15T12:29:58Z",
   "CATALOG_PROD_LATEST_RELEASE": false,
-  "CATALOG_QA_BRANCH": "qa",
-  "CATALOG_QA_HARVEST_FROM_DATE": "2019-10-15T12:29:58Z",
+  "CATALOG_QA_BRANCH": "main",
   "CATALOG_QA_LATEST_RELEASE": "False",
-  "CATALOG_SOLR_CONFIG": {
-    "configset": "tul_cob-catalog-0",
-    "replication_factor": 2
-  },
-  "CATALOG_SOLR_CONFIG_QA": {
-    "configset": "tul_cob-catalog-2.0.4.0",
-    "replication_factor": 2
-  },
-  "CATALOG_SOLR_CONFIG_PROD": {
-    "configset": "tul_cob-catalog-2.0.4.0",
-    "replication_factor": 2
-  },
   "WEB_CONTENT_BASIC_AUTH_USER": "test",
   "WEB_CONTENT_BASIC_AUTH_PASSWORD": "test",
   "WEB_CONTENT_PROD_BASE_URL": "https://library.temple.edu",

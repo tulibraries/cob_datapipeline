@@ -6,7 +6,7 @@ This is the repository for TUL COB (Temple University Libraries Catalog on Black
 
 These DAGs (and related scripts) are expecting to be run within an Airflow installation akin to the one built by our [TUL Airflow Playbook (private repository)](https://github.com/tulibraries/ansible-playbook-airflow).
 
-Local Development, QA, Stage, and Production environment usage of these DAGs is detailed below.
+Local Development, QA, and Production environment usage of these DAGs is detailed below.
 
 ## Repository Structure
 
@@ -14,7 +14,7 @@ WIP.
 
 ## Airflow Expectations
 
-These the Airflow expectations for these TUL COB DAGs and scripts to successfully run. These apply across environments (development, QA, stage, production).
+These the Airflow expectations for these TUL COB DAGs and scripts to successfully run. These apply across environments (development, QA, production).
 
 **Libraries & Packages**
 
@@ -22,7 +22,7 @@ These the Airflow expectations for these TUL COB DAGs and scripts to successfull
   - 3.6.8 (with pip version 18.1)
 - Python Libraries: see the [Pipfile](Pipfile).
 - Ruby (for running Traject via the TUL_COB Rails Application). These steps are tested with the following Ruby versions:
-  - 2.4.1
+  - 2.6.5
 - Ruby Libraries:
   - rvm
   - [tul_cob](https://github.com/tulibraries/tul_cob) gemset installed:

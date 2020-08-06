@@ -2,7 +2,7 @@
 import os
 import unittest
 import airflow
-from cob_datapipeline.prod_catalog_oai_harvest_dag import DAG
+from cob_datapipeline.catalog_production_oai_harvest_dag import DAG
 
 class TestCatalogOaiIndex(unittest.TestCase):
     """Unit Tests for solrcloud catalog oai harvest dag file."""

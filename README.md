@@ -36,12 +36,10 @@ For these TUL COB Dags, the following variables are required:
 
 - **AIRFLOW_DATA_DIR**: The directory that Airflow puts or pulls data being processed from.
 - **AIRFLOW_HOME**: The local Airflow home directory. Should match `$AIRFLOW_HOME` and the value for airflow_home in the `Airflow.cfg` configuration file. By default, this is `~/airflow` for the application.
-- **ALMASFTP_HOST**: The SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `BLACKLIGHT_CORE_NAME` in Solr.
-- **ALMASFTP_PASSWD**: The password for `ALMASFTP_USER` to access the SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `BLACKLIGHT_CORE_NAME` in Solr.
-- **ALMASFTP_PORT**: The port, if non-standard, for accessing the SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `BLACKLIGHT_CORE_NAME` in Solr.
-- **ALMASFTP_USER**: The user that with `ALMASFTP_PASSWD` will access the SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `BLACKLIGHT_CORE_NAME` in Solr.
-- **ALMA_OAI_ENDPOINT**: The ALMA bibliographic data changeset OAI endpoint accessed for indexing partial updates to the designated `BLACKLIGHT_CORE_NAME` in Solr.
-- **BLACKLIGHT_CORE_NAME**: This should be the Solr collection / core name you want to index records into as part of your environment TUL COB DAGs work.
+- **ALMASFTP_HOST**: The SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` in Solr.
+- **ALMASFTP_PASSWD**: The password for `ALMASFTP_USER` to access the SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` in Solr.
+- **ALMASFTP_PORT**: The port, if non-standard, for accessing the SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` in Solr.
+- **ALMASFTP_USER**: The user that with `ALMASFTP_PASSWD` will access the SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` in Solr.
 - **almafullreindex_inprogress**: Flag variable to indicate whether or not a Alma bibliographic full index is in progress.
 - **almaoai_last_num_oai_delete_recs**: The number of bibliographic records successfully processed for deleting from the index in the last partial index.
 - **almaoai_last_num_oai_update_recs**: The number of bibliographic records successfully processed for updating or creation in the last partial index.
@@ -52,7 +50,7 @@ For these TUL COB Dags, the following variables are required:
 ### Database AZ:
 - AZ_BRANCH: branch of the tulibraries/cob_az_index to checkout.
 - AZ_CLIENT_ID, AZ_CLIENT_SECRET: Databases AZ authentication credentials.
-- AZ_CORE, AZ_CONFIGSET: Solr collection and configset names (equivalent).
+- AZ_SOLR_CONFIG, AZ_SOLR_CONFIG_QA: Solr collection and configset names (equivalent).
 - AZ_REPLICATION_FACTOR: SolrCloud specific collection configuration.
 - AZ_INDEX_SCHEDULE_INTERVAL: Databases AZ indexing schedule.
 

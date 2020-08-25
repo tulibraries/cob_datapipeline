@@ -29,3 +29,14 @@ tty-root-webserver:
 tty-root-schedular:
 	$(INTO-SUBMODULE) && $(MAKE) tty-root-schedular
 
+ps:
+	$(INTO-SUBMODULE) && docker-compose -p infra ps
+
+
+lint:
+	pipenv run pylint cob_datapipeline -E
+	.circleci/pylint
+
+test:
+	pipenv run pytest
+

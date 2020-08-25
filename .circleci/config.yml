@@ -14,8 +14,8 @@ jobs:
           command: |
             sudo pip install pipenv
             SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
-            pipenv run pylint cob_datapipeline -E
-            pipenv run pytest
+            make lint
+            make test
   qa_deploy:
     docker:
       - image: circleci/python:3.6

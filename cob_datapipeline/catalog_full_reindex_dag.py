@@ -11,6 +11,8 @@ from airflow.contrib.operators.s3_list_operator import S3ListOperator
 from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
+from cob_datapipeline.operators import\
+        PushVariable, DeleteCollectionListVariable
 from cob_datapipeline import helpers
 """
 INIT SYSTEMWIDE VARIABLES
@@ -76,6 +78,15 @@ SAFETY_CHECK = PythonOperator(
     task_id="safety_check",
     python_callable=helpers.catalog_safety_check,
     dag=DAG
+)
+
+VERIFY_PROD_COLLECTION = SimpleHttpOperator(
+    task_id="verify_prod_collection",
+    http_conn_id='http_tul_cob',
+    method='GET',
+    endpoint='/okcomputer/solr/' + PROD_COLLECTION_NAME,
+    log_response=True,
+    dag=DAG,
 )
 
 SET_S3_NAMESPACE = PythonOperator(
@@ -147,6 +158,20 @@ CREATE_COLLECTION = PythonOperator(
         }
 )
 
+PUSH_COLLECTION = PushVariable(
+    task_id="push_collection",
+    name="CATALOG_COLLECTIONS",
+    value=COLLECTION_NAME,
+    dag=DAG)
+
+DELETE_COLLECTIONS = DeleteCollectionListVariable(
+    task_id="delete_collections",
+    solr_conn_id='SOLRCLOUD',
+    list_variable="CATALOG_COLLECTIONS",
+    skip_from_last=3,
+    skip_included=[COLLECTION_NAME, PROD_COLLECTION_NAME],
+    dag=DAG)
+
 GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
     COLLECTION_NAME,
@@ -203,7 +228,9 @@ POST_SLACK = PythonOperator(
 )
 
 # SET UP TASK DEPENDENCIES
+
 SET_S3_NAMESPACE.set_upstream(SAFETY_CHECK)
+SET_S3_NAMESPACE.set_upstream(VERIFY_PROD_COLLECTION)
 LIST_ALMA_S3_DATA.set_upstream(SET_S3_NAMESPACE)
 LIST_BOUNDWITH_S3_DATA.set_upstream(SET_S3_NAMESPACE)
 PREPARE_BOUNDWITHS.set_upstream(LIST_BOUNDWITH_S3_DATA)
@@ -211,7 +238,9 @@ PREPARE_ALMA_DATA.set_upstream(LIST_ALMA_S3_DATA)
 PREPARE_ALMA_DATA.set_upstream(PREPARE_BOUNDWITHS)
 CREATE_COLLECTION.set_upstream(PREPARE_ALMA_DATA)
 CREATE_COLLECTION.set_upstream(PREPARE_BOUNDWITHS)
-GET_NUM_SOLR_DOCS_PRE.set_upstream(CREATE_COLLECTION)
+PUSH_COLLECTION.set_upstream(CREATE_COLLECTION)
+DELETE_COLLECTIONS.set_upstream(PUSH_COLLECTION)
+GET_NUM_SOLR_DOCS_PRE.set_upstream(DELETE_COLLECTIONS)
 INDEX_SFTP_MARC.set_upstream(GET_NUM_SOLR_DOCS_PRE)
 SOLR_COMMIT.set_upstream(INDEX_SFTP_MARC)
 GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_COMMIT)

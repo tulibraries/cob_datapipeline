@@ -95,7 +95,10 @@ $ pip install pipenv
 $ SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
   Pipfile.lock not found, creating ...
 # Run the linter:
-$ pipenv run pylint cob_datapipeline
+$ make lint
+
+# Run tests:
+$ make test
   ...
 ```
 

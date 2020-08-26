@@ -1,0 +1,12 @@
+[MASTER]
+# Allow per file linting (good for local development).
+init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append(os.path.dirname(find_pylintrc()))"
+
+# Localized disable duplicate-code check not working:
+# @see https://github.com/PyCQA/pylint/issues/214
+disable=duplicate-code
+
+[DESIGN]
+max-parents=8
+
+

@@ -29,5 +29,9 @@ do
   echo "Indexing file: "$file
   bundle exec cob_index $COMMAND $(aws s3 presign s3://$BUCKET/$file)
   processed_file=$(echo $file | sed 's/new-updated/processed-new-updated/' | sed 's/deleted/processed-deleted/')
-  aws s3 mv s3://$BUCKET/$file s3://$BUCKET/$processed_file
+
+  # In full reindex context $file and $processed_file are equal.
+  if [ "$file" != "$processed_file" ]; then
+    aws s3 mv s3://$BUCKET/$file s3://$BUCKET/$processed_file
+  fi
 done

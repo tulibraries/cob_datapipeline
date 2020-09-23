@@ -9,6 +9,7 @@ These steps are broken down into three sections as these parts can be run sequen
 
 1. Initiate Alma FTP Export and wait for completion.
 1. Trigger the `catalog_move_alma_sftp_to_s3` Dag and wait for completion.
+1. Turn off the catalog_preproduction_oai_harvest
 1. Set variables required for the full reindex:
    1. Set the variable `ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE` to the folder name the sftp -> s3 dag used as a namespace, which will appear in the dags Success slack post. We can also reuse an existing namespace to use data previously exported by that dag.
    1. Ensure the variable `CATALOG_PRE_PRODUCTION_SOLR_CONFIG` is using the correct version of solr configs
@@ -16,10 +17,10 @@ These steps are broken down into three sections as these parts can be run sequen
    1. Ensure the variable `CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE` is set to a date time earlier than the date in the variable `ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE`.
    1. Update the `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` variable to be None.
 1. Trigger `catalog_full_reindex` Dag and wait for completion
-   
+
 ## OAI Harvests
 
-1. Update the variable `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` to the name of the collection created by the `catalog_full_reindex` dag (s)  
+1. Update the variable `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` to the name of the collection created by the `catalog_full_reindex` dag (s)
 1. Ensure the `catalog_preproduction_oai_harvest` Dag is On (may be turned off)
 1. Create a PR to `tul_cob` changing CATALOG_COLLECTION in .env to use `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` and wait for merge and deploy to LibrarySearch QA
 1. Initiate Testing of changes on LibrarySearch QA and wait for approval to proceed

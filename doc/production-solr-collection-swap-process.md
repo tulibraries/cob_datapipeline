@@ -14,7 +14,6 @@ These steps are broken down into three sections as these parts can be run sequen
    1. Set the variable `ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE` to the folder name the sftp -> s3 dag used as a namespace, which will appear in the dags Success slack post. We can also reuse an existing namespace to use data previously exported by that dag.
    1. Ensure the variable `CATALOG_PRE_PRODUCTION_SOLR_CONFIG` is using the correct version of solr configs
    1. Ensure the variable `PRE_PRODUCTION_COB_INDEX_VERSION` is the correct version of cob index
-   1. Ensure the variable `CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE` is set to a date time earlier than the date in the variable `ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE`.
    1. Update the `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` variable to be None.
 1. Trigger `catalog_full_reindex` Dag and wait for completion
 

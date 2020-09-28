@@ -25,5 +25,6 @@ class TestMoveAlmaSFTPToS3Dag(unittest.TestCase):
             "get_list_of_alma_sftp_files_to_transer",
             "move_file_to_s3",
             "archive_files_in_sftp",
+            "update_variables",
             "success_slack_trigger",
             ])

@@ -102,7 +102,7 @@ ARCHIVE_FILES_IN_SFTP = PythonOperator(
 )
 
 def slackpostonsuccess(**context):
-    most_recent_date = context['task_instance'].xcom_pull(task_ids='archive_files_in_sftp', key='most_recent_date' )
+    most_recent_date = context['task_instance'].xcom_pull(task_ids='get_list_of_alma_sftp_files_to_transer', key='most_recent_date' )
     count = context['task_instance'].xcom_pull(task_ids='archive_files_in_sftp' )
     msg = f"{count} files moved from sftp to s3 in almasftp/{most_recent_date} and then archived on the sftp server in archive/{most_recent_date}"
     return tasks.execute_slackpostonsuccess(context, conn_id="COB_SLACK_WEBHOOK", message=msg)

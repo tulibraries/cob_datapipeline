@@ -30,7 +30,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("ALMASFTP_HARVEST_PATH", repo_dir + "/data/sftpdump/")
     airflow.models.Variable.set("ALMASFTP_HOST", "127.0.0.1")
     airflow.models.Variable.set("ALMASFTP_PORT", 9229)
-    airflow.models.Variable.set("ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE", "2020-06-08")
+    airflow.models.Variable.set("ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE", "2020060800")
     airflow.models.Variable.set("ALMASFTP_S3_PREFIX", "almasftp")
     airflow.models.Variable.set("ALMASFTP_USER", "almasftp")
     airflow.models.Variable.set("ALMASFTP_PASSWD", "password")

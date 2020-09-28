@@ -5,7 +5,7 @@ from unittest.mock import patch
 import requests
 import requests_mock
 import airflow
-from cob_datapipeline.catalog_full_reindex_dag import DAG
+from cob_datapipeline.catalog_full_reindex_dag import DAG, CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE
 from tests.helpers import get_connection
 
 class TestCatalogFullReindexDag(unittest.TestCase):
@@ -18,6 +18,7 @@ class TestCatalogFullReindexDag(unittest.TestCase):
     def test_dag_loads(self):
         """Unit test that the DAG identifier is set correctly."""
         self.assertEqual(DAG.dag_id, "catalog_full_reindex")
+
 
     def test_dag_tasks_present(self):
         """Unit test that the DAG instance contains the expected tasks."""
@@ -99,3 +100,6 @@ class TestCatalogFullReindexDag(unittest.TestCase):
                 side_effect=get_connection), self.assertRaises(airflow.exceptions.AirflowException):
 
             DAG.get_task("verify_prod_collection").execute(None)
+
+    def test_we_calculate_correct_harvest_from_date(self):
+        self.assertEqual(CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE, "2020-06-07T00:00:00Z" )

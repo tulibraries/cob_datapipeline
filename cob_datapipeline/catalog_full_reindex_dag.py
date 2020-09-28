@@ -50,6 +50,8 @@ ALMASFTP_S3_PREFIX = Variable.get("ALMASFTP_S3_PREFIX")
 # Namespace of the data transferred by the almasftp dag
 ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE = Variable.get("ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE")
 
+CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE = (datetime.strptime(ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE, '%Y%m%d%H') - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ")
+
 # CREATE DAG
 DEFAULT_ARGS = {
     "owner": "cob",
@@ -213,6 +215,7 @@ UPDATE_DATE_VARIABLES = PythonOperator(
     op_kwargs={
         "UPDATE": {
             "CATALOG_PRE_PRODUCTION_SOLR_COLLECTION": COLLECTION_NAME,
+            "CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE": CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE
         }
     },
     dag=DAG

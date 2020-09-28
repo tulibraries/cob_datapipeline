@@ -8,7 +8,7 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.contrib.operators.s3_list_operator import S3ListOperator
-from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data
+from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data, update_variables
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
 from cob_datapipeline.operators import\
@@ -206,6 +206,18 @@ SOLR_COMMIT = SimpleHttpOperator(
     dag=DAG
 )
 
+UPDATE_DATE_VARIABLES = PythonOperator(
+    task_id="update_variables",
+    provide_context=True,
+    python_callable=update_variables,
+    op_kwargs={
+        "UPDATE": {
+            "CATALOG_PRE_PRODUCTION_SOLR_COLLECTION": COLLECTION_NAME,
+        }
+    },
+    dag=DAG
+)
+
 GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     DAG,
     COLLECTION_NAME,
@@ -243,6 +255,7 @@ DELETE_COLLECTIONS.set_upstream(PUSH_COLLECTION)
 GET_NUM_SOLR_DOCS_PRE.set_upstream(DELETE_COLLECTIONS)
 INDEX_SFTP_MARC.set_upstream(GET_NUM_SOLR_DOCS_PRE)
 SOLR_COMMIT.set_upstream(INDEX_SFTP_MARC)
-GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_COMMIT)
+UPDATE_DATE_VARIABLES.set_upstream(SOLR_COMMIT)
+GET_NUM_SOLR_DOCS_POST.set_upstream(UPDATE_DATE_VARIABLES)
 POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_POST)
 POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_CURRENT_PROD)

@@ -20,7 +20,6 @@ These steps are broken down into three sections as these parts can be run sequen
 
 ## OAI Harvests
 
-1. Update the variable `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` to the name of the collection created by the `catalog_full_reindex` dag (s)
 1. Ensure the `catalog_preproduction_oai_harvest` Dag is On (may be turned off)
 1. Create a PR to `tul_cob` changing CATALOG_COLLECTION in .env to use `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` and wait for merge and deploy to LibrarySearch QA
 1. Initiate Testing of changes on LibrarySearch QA and wait for approval to proceed

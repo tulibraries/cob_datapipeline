@@ -35,6 +35,7 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             "get_num_solr_docs_pre",
             "index_sftp_marc",
             "solr_commit",
+            "update_variables",
             "get_num_solr_docs_post",
             "get_num_solr_docs_current_prod",
             "slack_post_succ"
@@ -54,7 +55,8 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             "get_num_solr_docs_pre": ["delete_collections"],
             "index_sftp_marc": ["get_num_solr_docs_pre"],
             "solr_commit": ["index_sftp_marc"],
-            "get_num_solr_docs_post": ["solr_commit"],
+            "update_variables": ["solr_commit"],
+            "get_num_solr_docs_post": ["update_variables"],
             "get_num_solr_docs_current_prod": [],
             "slack_post_succ": ["get_num_solr_docs_post", "get_num_solr_docs_current_prod"],
         }

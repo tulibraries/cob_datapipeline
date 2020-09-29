@@ -1,5 +1,6 @@
 """Airflow DAG to index Web Content into SolrCloud."""
 from datetime import datetime, timedelta
+from tulflow import tasks
 import airflow
 from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
@@ -9,7 +10,7 @@ from cob_datapipeline.task_slack_posts import web_content_slackpostonsuccess
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.operators import\
         PushVariable, DeleteAliasListVariable, DeleteCollectionListVariable
-from tulflow import tasks
+
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -32,8 +33,8 @@ REPLICATION_FACTOR = SOLR_CONFIG.get("replication_factor")
 WEB_CONTENT_BRANCH = Variable.get("WEB_CONTENT_QA_BRANCH")
 
 # Manifold website creds
-WEB_CONTENT_BASIC_AUTH_USER = Variable.get("WEB_CONTENT_BASIC_AUTH_USER")
-WEB_CONTENT_BASIC_AUTH_PASSWORD = Variable.get("WEB_CONTENT_BASIC_AUTH_PASSWORD")
+WEB_CONTENT_BASIC_AUTH_USER = Variable.get("WEB_CONTENT_QA_BASIC_AUTH_USER")
+WEB_CONTENT_BASIC_AUTH_PASSWORD = Variable.get("WEB_CONTENT_QA_BASIC_AUTH_PASSWORD")
 WEB_CONTENT_BASE_URL = Variable.get("WEB_CONTENT_QA_BASE_URL")
 
 # CREATE DAG

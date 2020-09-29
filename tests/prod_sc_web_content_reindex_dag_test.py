@@ -55,6 +55,4 @@ class TestScWebContentReindexDag(unittest.TestCase):
         self.assertEqual(task.env["HOME"], os.getcwd())
         self.assertIn("http://127.0.0.1:8983/solr/tul_cob-web-2", task.env["SOLR_WEB_URL"])
         self.assertEqual(task.env["WEB_CONTENT_BRANCH"], "WEB_CONTENT_BRANCH")
-        self.assertEqual(task.env["WEB_CONTENT_BASIC_AUTH_USER"], "WEB_CONTENT_BASIC_AUTH_USER")
-        self.assertEqual(task.env["WEB_CONTENT_BASIC_AUTH_PASSWORD"], "WEB_CONTENT_BASIC_AUTH_PASSWORD")
         self.assertEqual(task.env["WEB_CONTENT_BASE_URL"], "WEB_CONTENT_BASE_URL")

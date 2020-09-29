@@ -260,10 +260,10 @@
         },
         "argcomplete": {
             "hashes": [
-                "sha256:2fbe5ed09fd2c1d727d4199feca96569a5b50d44c71b16da9c742201f7cc295c",
-                "sha256:91dc7f9c7f6281d5a0dce5e73d2e33283aaef083495c13974a7dd197a1cdc949"
+                "sha256:5cd1ac4fc49c29d6016fc2cc4b19a3c08c3624544503495bf25989834c443898",
+                "sha256:849c2444c35bb2175aea74100ca5f644c29bf716429399c0f2203bb5d9a8e4e6"
             ],
-            "version": "==1.12.0"
+            "version": "==1.12.1"
         },
         "astroid": {
             "hashes": [
@@ -641,11 +641,11 @@
         },
         "importlib-metadata": {
             "hashes": [
-                "sha256:90bb658cdbbf6d1735b6341ce708fc7024a3e14e99ffdc5783edea9f9b077f83",
-                "sha256:dc15b2969b4ce36305c51eebe62d418ac7791e9a157911d58bfb1f9ccd8e2070"
+                "sha256:77a540690e24b0305878c37ffd421785a6f7e53c8b5720d211b211de8d0e95da",
+                "sha256:cefa1a2f919b866c5beb7c9f7b0ebb4061f30a8a9bf16d609b000e2dfaceb9c3"
             ],
-            "markers": "python_version < '3.8'",
-            "version": "==1.7.0"
+            "markers": "python_version == '3.6'",
+            "version": "==2.0.0"
         },
         "importlib-resources": {
             "hashes": [
@@ -1094,11 +1094,11 @@
         },
         "pytest": {
             "hashes": [
-                "sha256:0e37f61339c4578776e090c3b8f6b16ce4db333889d65d0efb305243ec544b40",
-                "sha256:c8f57c2a30983f469bf03e68cdfa74dc474ce56b8f280ddcb080dfd91df01043"
+                "sha256:1cd09785c0a50f9af72220dd12aa78cfa49cbffc356c61eab009ca189e018a33",
+                "sha256:d010e24666435b39a4cf48740b039885642b6c273a3f77be3e7e03554d2806b7"
             ],
             "index": "pypi",
-            "version": "==6.0.2"
+            "version": "==6.1.0"
         },
         "python-daemon": {
             "hashes": [

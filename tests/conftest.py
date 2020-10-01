@@ -37,7 +37,6 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AZ_PROD_BRANCH", "AZ_BRANCH")
     airflow.models.Variable.set("AZ_QA_BRANCH", "AZ_BRANCH")
     airflow.models.Variable.set("AZ_STAGE_BRANCH", "AZ_BRANCH")
-    airflow.models.Variable.set("AZ_CONFIGSET", "tul_cob-az-1")
     airflow.models.Variable.set("AZ_CORE", "az-database")
     airflow.models.Variable.set("AZ_CLIENT_ID", "AZ_CLIENT_ID")
     airflow.models.Variable.set("AZ_CLIENT_SECRET", "AZ_CLIENT_SECRET")

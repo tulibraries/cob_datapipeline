@@ -50,10 +50,9 @@ For these TUL COB Dags, the following variables are required:
 - **traject_num_rejected**: The number of bibliographic records reject by the Traject indexing process during a partial indexing process.
 
 ### Database AZ:
-- AZ_BRANCH: branch of the tulibraries/cob_az_index to checkout.
+- AZ_PROD_BRANCH/AZ_QA_BRANCH: branch of the tulibraries/cob_az_index to checkout.
 - AZ_CLIENT_ID, AZ_CLIENT_SECRET: Databases AZ authentication credentials.
-- AZ_CORE, AZ_CONFIGSET: Solr collection and configset names (equivalent).
-- AZ_REPLICATION_FACTOR: SolrCloud specific collection configuration.
+- AZ_SOLR_CONFIG: Solr configset names (equivalent) and replication_factor.
 - AZ_INDEX_SCHEDULE_INTERVAL: Databases AZ indexing schedule.
 
 

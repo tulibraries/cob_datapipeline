@@ -51,7 +51,6 @@ For these TUL COB Dags, the following variables are required:
 - AZ_BRANCH: branch of the tulibraries/cob_az_index to checkout.
 - AZ_CLIENT_ID, AZ_CLIENT_SECRET: Databases AZ authentication credentials.
 - AZ_SOLR_CONFIG, AZ_SOLR_CONFIG_QA: Solr collection and configset names (equivalent).
-- AZ_REPLICATION_FACTOR: SolrCloud specific collection configuration.
 - AZ_INDEX_SCHEDULE_INTERVAL: Databases AZ indexing schedule.
 
 

@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+
+# pylint -E only throws errors for exceptions.
+
+# The following files have been vetted with just "pylint" which is a lot more
+# opinionated.
+
+pipenv run pylint cob_datapipeline/models \
+  cob_datapipeline/operators/solr_api \
+  cob_datapipeline/operators/push_variable.py tests/models/ \
+  cob_datapipeline/exceptions.py \
+  tests/helpers.py \
+  tests/operators/solr_api \
+  tests/operators/push_variable_test.py

@@ -1,12 +1,12 @@
 # cob_datapipeline
 
-![pylint Score](https://mperlet.github.io/pybadge/badges/4.46.svg) [![Build Status](https://travis-ci.com/tulibraries/cob_datapipeline.svg?branch=qa)](https://travis-ci.com/tulibraries/cob_datapipeline)
+![pylint Score](https://mperlet.github.io/pybadge/badges/4.46.svg) [![Build Status](https://travis-ci.com/tulibraries/cob_datapipeline.svg?branch=main)](https://travis-ci.com/tulibraries/cob_datapipeline)
 
 This is the repository for TUL COB (Temple University Libraries Catalog on Blacklight) Airflow DAGs (Directed Acyclic Graphs, e.g., data processing workflows) along with related scripts.
 
 These DAGs (and related scripts) are expecting to be run within an Airflow installation akin to the one built by our [TUL Airflow Playbook (private repository)](https://github.com/tulibraries/ansible-playbook-airflow).
 
-Local Development, QA, Stage, and Production environment usage of these DAGs is detailed below.
+Local Development, QA, and Production environment usage of these DAGs is detailed below.
 
 ## Repository Structure
 
@@ -14,7 +14,7 @@ WIP.
 
 ## Airflow Expectations
 
-These the Airflow expectations for these TUL COB DAGs and scripts to successfully run. These apply across environments (development, QA, stage, production).
+These the Airflow expectations for these TUL COB DAGs and scripts to successfully run. These apply across environments (development, QA, production).
 
 **Libraries & Packages**
 
@@ -22,7 +22,7 @@ These the Airflow expectations for these TUL COB DAGs and scripts to successfull
   - 3.6.8 (with pip version 18.1)
 - Python Libraries: see the [Pipfile](Pipfile).
 - Ruby (for running Traject via the TUL_COB Rails Application). These steps are tested with the following Ruby versions:
-  - 2.4.1
+  - 2.6.5
 - Ruby Libraries:
   - rvm
   - [tul_cob](https://github.com/tulibraries/tul_cob) gemset installed:
@@ -36,23 +36,21 @@ For these TUL COB Dags, the following variables are required:
 
 - **AIRFLOW_DATA_DIR**: The directory that Airflow puts or pulls data being processed from.
 - **AIRFLOW_HOME**: The local Airflow home directory. Should match `$AIRFLOW_HOME` and the value for airflow_home in the `Airflow.cfg` configuration file. By default, this is `~/airflow` for the application.
-- **ALMASFTP_HOST**: The SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `BLACKLIGHT_CORE_NAME` in Solr.
-- **ALMASFTP_PASSWD**: The password for `ALMASFTP_USER` to access the SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `BLACKLIGHT_CORE_NAME` in Solr.
-- **ALMASFTP_PORT**: The port, if non-standard, for accessing the SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `BLACKLIGHT_CORE_NAME` in Solr.
-- **ALMASFTP_USER**: The user that with `ALMASFTP_PASSWD` will access the SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `BLACKLIGHT_CORE_NAME` in Solr.
-- **ALMA_OAI_ENDPOINT**: The ALMA bibliographic data changeset OAI endpoint accessed for indexing partial updates to the designated `BLACKLIGHT_CORE_NAME` in Solr.
-- **BLACKLIGHT_CORE_NAME**: This should be the Solr collection / core name you want to index records into as part of your environment TUL COB DAGs work.
+- **ALMASFTP_HOST**: The SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` in Solr.
+- **ALMASFTP_PASSWD**: The password for `ALMASFTP_USER` to access the SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` in Solr.
+- **ALMASFTP_PORT**: The port, if non-standard, for accessing the SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` in Solr.
+- **ALMASFTP_USER**: The user that with `ALMASFTP_PASSWD` will access the SFTP Host for the Alma instance (sandbox or production) used by these workflows. This is the SFTP box that has Alma bibliographic data dumps for full indexing to the designated `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` in Solr.
 - **almafullreindex_inprogress**: Flag variable to indicate whether or not a Alma bibliographic full index is in progress.
-- **ALMAOAI_LAST_HARVEST_DATE**: The date of the last successfully completed partial Alma bibliographic index process.
-- **ALMAOAI_LAST_HARVEST_FROM_DATE**: The date the last successfully completed partial Alma bibliographic index process started from.
 - **almaoai_last_num_oai_delete_recs**: The number of bibliographic records successfully processed for deleting from the index in the last partial index.
 - **almaoai_last_num_oai_update_recs**: The number of bibliographic records successfully processed for updating or creation in the last partial index.
 - **traject_num_rejected**: The number of bibliographic records reject by the Traject indexing process during a partial indexing process.
+- **CATALOG_PROD_LAST_HARVEST_FROM_DATE**: Last successful catalog production harvest from date.
+- **CATALOG_PRE_PRODUCTION_LAST_HARVEST_FROM_DATE**: Last successful catalog pre-production harvest from date.
 
 ### Database AZ:
 - AZ_PROD_BRANCH/AZ_QA_BRANCH: branch of the tulibraries/cob_az_index to checkout.
 - AZ_CLIENT_ID, AZ_CLIENT_SECRET: Databases AZ authentication credentials.
-- AZ_SOLR_CONFIG: Solr configset names (equivalent) and replication_factor.
+- AZ_SOLR_CONFIG, AZ_SOLR_CONFIG_QA: Solr collection and configset names (equivalent).
 - AZ_INDEX_SCHEDULE_INTERVAL: Databases AZ indexing schedule.
 
 
@@ -96,7 +94,10 @@ $ pip install pipenv
 $ SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
   Pipfile.lock not found, creating ...
 # Run the linter:
-$ pipenv run pylint cob_datapipeline
+$ make lint
+
+# Run tests:
+$ make test
   ...
 ```
 
@@ -285,7 +286,7 @@ AIRFLOW_CONN_SOLR_LEADER
 
 **Install systemd config files**
 
-https://github.com/apache/incubator-airflow/tree/master/scripts/systemd
+https://github.com/apache/incubator-airflow/tree/main/scripts/systemd
 
 **Install logrotate file**
 
@@ -312,18 +313,14 @@ $ systemctl start airflow-webserver
 
 ### QA: Deploy COB DAGs to Airflow
 
-The QA Environment runs Airflow with a Postgres metadata database and with LocalExecutor enabled on a single VM. This QA Airflow core setup is built according to our Airflow Playbook via CI/CD from QA branch PR merges to awaiting Terraform-managed Linode infrastructure. The GUI is accessible via Google Authentication and the Airflow RBAC (roles based authorization control) setup.
+The QA Environment runs Airflow with a Postgres metadata database and with LocalExecutor enabled on a single VM. This QA Airflow core setup is built according to our Airflow Playbook via CI/CD from main branch PR merges to awaiting Terraform-managed Linode infrastructure. The GUI is accessible via Google Authentication and the Airflow RBAC (roles based authorization control) setup.
 
-For these DAGs, merges to the QA branch on this repository rerusn our Airflow Playbook with flags to rerun `cob_datapipeline` DAGs-specific tasks. These:
+For these DAGs, merges to the main branch on this repository reruns our Airflow Playbook with flags to rerun `cob_datapipeline` DAGs-specific tasks. These:
 - Ensure Airflow core is setup on QA;
 - Set up DAG-specific Variables and Connections;
 - Installs DAG-specific required libraries (Python; Pipenv; Ruby; RVM; see above) to be run by the Airflow core user;
 - Checks out via Git the Airflow DAGs directory, QA branch, to the Airflow DAGs directory;
 - Verifies the DAGs are available for use via the Airflow CLI.
-
-### Stage: Deploy COB DAGs to Airflow
-
-WIP.
 
 ### Production: Deploy COB DAGs to Airflow
 

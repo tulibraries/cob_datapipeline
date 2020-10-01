@@ -14,8 +14,8 @@ jobs:
           command: |
             sudo pip install pipenv
             SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
-            pipenv run pylint cob_datapipeline -E
-            pipenv run pytest
+            make lint
+            make test
   qa_deploy:
     docker:
       - image: circleci/python:3.6
@@ -37,29 +37,7 @@ jobs:
             pipenv run ansible-galaxy install -r requirements.yml
             cp .circleci/.vault ~/.vault;
             chmod +x ~/.vault
-            pipenv run ansible-playbook -i inventory/qa playbook.yml --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
-  stage_deploy:
-    docker:
-      - image: circleci/python:3.6
-        environment:
-          PIPENV_VENV_IN_PROJECT: true
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints:
-            - "2f:37:66:17:11:ae:f9:0f:9e:52:98:41:fe:d0:0c:78"
-      - run:
-          name: 'Run Ansible Airflow Playbook for Stage'
-          command: |
-            cd ..
-            git clone --single-branch --branch master https://github.com/tulibraries/ansible-playbook-airflow.git
-            cd ansible-playbook-airflow
-            sudo pip install pipenv
-            pipenv install
-            pipenv run ansible-galaxy install -r requirements.yml
-            cp .circleci/.vault ~/.vault;
-            chmod +x ~/.vault
-            pipenv run ansible-playbook -i inventory/stage playbook.yml --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
+            pipenv run ansible-playbook -i inventory/qa playbook.yml --tags "jumphost,role::airflow::dags" --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
   prod_deploy:
     docker:
       - image: circleci/python:3.6
@@ -74,46 +52,43 @@ jobs:
           name: 'Run Ansible Airflow Playbook for Prod'
           command: |
             cd ..
-            git clone --single-branch --branch master https://github.com/tulibraries/ansible-playbook-airflow.git
+            git clone --single-branch --branch main https://github.com/tulibraries/ansible-playbook-airflow.git
             cd ansible-playbook-airflow
             sudo pip install pipenv
             pipenv install
             pipenv run ansible-galaxy install -r requirements.yml
             cp .circleci/.vault ~/.vault;
             chmod +x ~/.vault
-            pipenv run ansible-playbook -i inventory/prod playbook.yml --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
+            pipenv run ansible-playbook -i inventory/prod playbook.yml --tags "jumphost,role::airflow::dags" --vault-password-file=~/.vault -e 'ansible_ssh_port=9229' -e cob_datapipeline_branch=$CIRCLE_TAG
 
 workflows:
   version: 2
-  dags_ci_cd:
+  build_test:
     jobs:
       - lint_and_test
-      - qa_deploy:
-          requires:
-            - lint_and_test
-          filters:
-            branches:
-              only:
-                - qa
-      - stage_deploy:
-          requires:
-            - lint_and_test
-          filters:
-            branches:
-              only:
-                - master
+
+  prod_deploy:
+    jobs:
       - request-prod-deploy:
           type: approval
-          requires:
-            - lint_and_test
           filters:
             branches:
-              only:
-                - master
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*$/
       - prod_deploy:
           requires:
             - request-prod-deploy
           filters:
             branches:
+              ignore: /.*/
+            tags:
+              only: /^v[0-9]+(\.[0-9]+)*$/
+
+  qa_deploy:
+    jobs:
+      - qa_deploy:
+          filters:
+            branches:
               only:
-                - master
+                - main

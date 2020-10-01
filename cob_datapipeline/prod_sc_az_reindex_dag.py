@@ -6,7 +6,6 @@ from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from cob_datapipeline.task_ingest_databases import get_solr_url
 from cob_datapipeline.task_slack_posts import az_slackpostonsuccess
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from tulflow import tasks

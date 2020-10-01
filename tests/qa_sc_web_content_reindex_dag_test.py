@@ -28,6 +28,10 @@ class TestScWebContentReindexDag(unittest.TestCase):
             "index_web_content",
             "get_num_solr_docs_post",
             "solr_alias_swap",
+            "push_alias",
+            "delete_aliases",
+            "push_collection",
+            "delete_collections",
             "slack_post_succ"
             ])
 
@@ -39,7 +43,11 @@ class TestScWebContentReindexDag(unittest.TestCase):
             "index_web_content": "create_collection",
             "get_num_solr_docs_post": "index_web_content",
             "solr_alias_swap": "get_num_solr_docs_post",
-            "slack_post_succ": "solr_alias_swap",
+            "push_alias": "solr_alias_swap",
+            "delete_aliases": "push_alias",
+            "push_collection": "delete_aliases",
+            "delete_collections": "push_collection",
+            "slack_post_succ": "delete_collections",
         }
 
         for task, upstream_task in expected_task_deps.items():
@@ -55,6 +63,6 @@ class TestScWebContentReindexDag(unittest.TestCase):
         self.assertEqual(task.env["HOME"], os.getcwd())
         self.assertIn("http://127.0.0.1:8983/solr/tul_cob-web-2", task.env["SOLR_WEB_URL"])
         self.assertEqual(task.env["WEB_CONTENT_BRANCH"], "WEB_CONTENT_BRANCH")
-        self.assertEqual(task.env["WEB_CONTENT_BASIC_AUTH_USER"], "WEB_CONTENT_BASIC_AUTH_USER")
-        self.assertEqual(task.env["WEB_CONTENT_BASIC_AUTH_PASSWORD"], "WEB_CONTENT_BASIC_AUTH_PASSWORD")
+        self.assertEqual(task.env["WEB_CONTENT_BASIC_AUTH_USER"], "WEB_CONTENT_QA_BASIC_AUTH_USER")
+        self.assertEqual(task.env["WEB_CONTENT_BASIC_AUTH_PASSWORD"], "WEB_CONTENT_QA_BASIC_AUTH_PASSWORD")
         self.assertEqual(task.env["WEB_CONTENT_BASE_URL"], "WEB_CONTENT_BASE_URL")

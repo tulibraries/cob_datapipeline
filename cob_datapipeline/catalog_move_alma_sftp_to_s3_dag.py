@@ -6,13 +6,11 @@ import logging
 import airflow
 from airflow.models import Variable
 from airflow.contrib.hooks.sftp_hook import SFTPHook
-from airflow.hooks.base_hook import BaseHook
 from airflow.operators.python_operator import PythonOperator
-from airflow.operators.bash_operator import BashOperator
-
 
 from cob_datapipeline.operators.batch_sftp_to_s3_operator import BatchSFTPToS3Operator
 from cob_datapipeline.helpers import determine_most_recent_date
+from cob_datapipeline.sc_xml_parse import update_variables
 
 from tulflow import tasks
 
@@ -104,9 +102,21 @@ ARCHIVE_FILES_IN_SFTP = PythonOperator(
     dag=DAG
 )
 
+UPDATE_VARIABLES = PythonOperator(
+    task_id="update_variables",
+    provide_context=True,
+    python_callable=update_variables,
+    op_kwargs={
+        "UPDATE": {
+            "ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE": "{{ ti.xcom_pull(task_ids='get_list_of_alma_sftp_files_to_transer', key='most_recent_date' )}}" ,
+        }
+    },
+    dag=DAG
+)
+
 def slackpostonsuccess(**context):
-    most_recent_date = context['task_instance'].xcom_pull(task_ids='archive_files_in_sftp', key='most_recent_date' )
-    count = context['task_instance'].xcom_pull(task_ids='get_list_of_alma_sftp_files_to_transer' )
+    most_recent_date = context['task_instance'].xcom_pull(task_ids='get_list_of_alma_sftp_files_to_transer', key='most_recent_date' )
+    count = context['task_instance'].xcom_pull(task_ids='archive_files_in_sftp' )
     msg = f"{count} files moved from sftp to s3 in almasftp/{most_recent_date} and then archived on the sftp server in archive/{most_recent_date}"
     return tasks.execute_slackpostonsuccess(context, conn_id="COB_SLACK_WEBHOOK", message=msg)
 
@@ -119,4 +129,5 @@ SLACK_POST_SUCCESS = PythonOperator(
 
 GET_LIST_OF_FILES_TO_TRANSFER.set_downstream(MOVE_FILES_TO_S3)
 MOVE_FILES_TO_S3.set_downstream(ARCHIVE_FILES_IN_SFTP)
-ARCHIVE_FILES_IN_SFTP.set_downstream(SLACK_POST_SUCCESS)
+ARCHIVE_FILES_IN_SFTP.set_downstream(UPDATE_VARIABLES)
+UPDATE_VARIABLES.set_downstream(SLACK_POST_SUCCESS)

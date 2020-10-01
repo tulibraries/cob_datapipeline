@@ -28,6 +28,10 @@ class TestScAZReindexDag(unittest.TestCase):
             "index_az",
             "get_num_solr_docs_post",
             "solr_alias_swap",
+            "push_alias",
+            "delete_aliases",
+            "push_collection",
+            "delete_collections",
             "slack_post_succ",
             ])
 
@@ -39,7 +43,11 @@ class TestScAZReindexDag(unittest.TestCase):
             "index_az": "create_collection",
             "get_num_solr_docs_post": "index_az",
             "solr_alias_swap": "get_num_solr_docs_post",
-            "slack_post_succ": "solr_alias_swap",
+            "push_alias": "solr_alias_swap",
+            "delete_aliases": "push_alias",
+            "push_collection": "delete_aliases",
+            "delete_collections": "push_collection",
+            "slack_post_succ": "delete_collections",
         }
 
         for task, upstream_task in expected_task_deps.items():

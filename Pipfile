@@ -9,7 +9,6 @@ xmltodict = "*"
 sickle = "*"
 pexpect = "*"
 boto3 = "*"
-tulflow = "==0.5.3"
 awscli = "*"
 lxml = "==4.4.3"
 importlib-resources = {version = "*", markers = "python_version < '3.7'"}
@@ -23,6 +22,7 @@ moto = "*"
 requests-mock = "*"
 paramiko = "*"
 sshtunnel = "*"
+tulflow = "==0.6.3"
 
 [requires]
 python_version = "3.6"

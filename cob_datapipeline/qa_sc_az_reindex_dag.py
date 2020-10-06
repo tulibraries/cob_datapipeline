@@ -12,7 +12,6 @@ from cob_datapipeline.operators import\
         PushVariable, DeleteAliasListVariable, DeleteCollectionListVariable
 from tulflow import tasks
 
-
 """
 INIT SYSTEMWIDE VARIABLES
 

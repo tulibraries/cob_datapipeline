@@ -11,7 +11,6 @@ from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.operators import\
         PushVariable, DeleteAliasListVariable, DeleteCollectionListVariable
 
-
 """
 INIT SYSTEMWIDE VARIABLES
 

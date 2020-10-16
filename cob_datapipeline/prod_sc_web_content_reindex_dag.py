@@ -1,5 +1,6 @@
 # Airflow DAG to index Web Content into SolrCloud.
 from datetime import datetime, timedelta
+from tulflow import tasks
 import airflow
 from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
@@ -7,7 +8,8 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.task_slack_posts import web_content_slackpostonsuccess
 from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
-from tulflow import tasks
+from cob_datapipeline.operators import\
+        PushVariable, DeleteAliasListVariable, DeleteCollectionListVariable
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -22,11 +24,11 @@ SCHEDULE_INTERVAL = Variable.get("WEB_CONTENT_SCHEDULE_INTERVAL")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
-WEB_CONTENT_SOLR_CONFIG = Variable.get("WEB_CONTENT_SOLR_CONFIG", deserialize_json=True)
+SOLR_CONFIG = Variable.get("WEB_CONTENT_SOLR_CONFIG", deserialize_json=True)
 # {"configset": "tul_cob-web-2", "replication_factor": 2}
-CONFIGSET = WEB_CONTENT_SOLR_CONFIG.get("configset")
+CONFIGSET = SOLR_CONFIG.get("configset")
 ALIAS = CONFIGSET + "-prod"
-REPLICATION_FACTOR = WEB_CONTENT_SOLR_CONFIG.get("replication_factor")
+REPLICATION_FACTOR = SOLR_CONFIG.get("replication_factor")
 WEB_CONTENT_BRANCH = Variable.get("WEB_CONTENT_PROD_BRANCH")
 
 # Manifold website creds
@@ -109,6 +111,34 @@ SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
     ALIAS
 )
 
+PUSH_ALIAS = PushVariable(
+    task_id="push_alias",
+    name="WEB_CONTENT_QA_ALIASES",
+    value=ALIAS,
+    dag=DAG)
+
+DELETE_ALIAS = DeleteAliasListVariable(
+    task_id="delete_aliases",
+    solr_conn_id='SOLRCLOUD',
+    list_variable="WEB_CONTENT_QA_ALIASES",
+    skip_from_last=2,
+    skip_included=[ALIAS],
+    dag=DAG)
+
+PUSH_COLLECTION = PushVariable(
+    task_id="push_collection",
+    name="WEB_CONTENT_QA_COLLECTIONS",
+    value=CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
+    dag=DAG)
+
+DELETE_COLLECTIONS = DeleteCollectionListVariable(
+    task_id="delete_collections",
+    solr_conn_id='SOLRCLOUD',
+    list_variable="WEB_CONTENT_QA_COLLECTIONS",
+    skip_from_last=2,
+    skip_included=[CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}"],
+    dag=DAG)
+
 POST_SLACK = PythonOperator(
     task_id='slack_post_succ',
     python_callable=web_content_slackpostonsuccess,
@@ -122,4 +152,8 @@ CREATE_COLLECTION.set_upstream(SET_COLLECTION_NAME)
 INDEX_WEB_CONTENT.set_upstream(CREATE_COLLECTION)
 GET_NUM_SOLR_DOCS_POST.set_upstream(INDEX_WEB_CONTENT)
 SOLR_ALIAS_SWAP.set_upstream(GET_NUM_SOLR_DOCS_POST)
-POST_SLACK.set_upstream(SOLR_ALIAS_SWAP)
+PUSH_ALIAS.set_upstream(SOLR_ALIAS_SWAP)
+DELETE_ALIAS.set_upstream(PUSH_ALIAS)
+PUSH_COLLECTION.set_upstream(DELETE_ALIAS)
+DELETE_COLLECTIONS.set_upstream(PUSH_COLLECTION)
+POST_SLACK.set_upstream(DELETE_COLLECTIONS)

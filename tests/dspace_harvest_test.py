@@ -18,7 +18,18 @@ class TestDspaceHarvestDag(unittest.TestCase):
         """Unit test that the DAG instance contains the expected tasks."""
         self.assertEqual(self.tasks, [
             "oai_harvest",
+            "cleanup_data"
             ])
+
+    def test_dag_task_order(self):
+        """Unit test that the DAG instance contains the expected dependencies."""
+        expected_task_deps = {
+            "oai_harvest": [],
+            "cleanup_data": ["oai_harvest"]
+        }
+        for task, upstream_tasks in expected_task_deps.items():
+            upstream_list = [up_task.task_id for up_task in DAG.get_task(task).upstream_list]
+            self.assertCountEqual(upstream_tasks, upstream_list)
 
     def test_oai_harvest_task(self):
         """Unit test that oai_harvest dag has kwargs."""

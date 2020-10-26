@@ -1,6 +1,7 @@
 """Airflow DAG to harvest DSpace electronic theses and dissertations"""
 from datetime import datetime, timedelta
 from tulflow import harvest, tasks
+from cob_datapipeline import helpers
 from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
 from airflow.operators.python_operator import PythonOperator
@@ -39,7 +40,7 @@ DEFAULT_ARGS = {
 }
 
 DAG = airflow.DAG(
-    'dspace_harvest',
+    dag_id="dspace_harvest",
     default_args=DEFAULT_ARGS,
     catchup=False,
     max_active_runs=1,
@@ -64,9 +65,27 @@ OAI_HARVEST = PythonOperator(
         "harvest_until_date": DSPACE_HARVEST_UNTIL_DATE,
         "metadata_prefix": DSPACE_OAI_MD_PREFIX,
         "oai_endpoint": DSPACE_OAI_ENDPOINT,
-        "setspec": DSPACE_OAI_SETSPEC,
         "records_per_file": 1000,
         "timestamp": f"{ S3_NAME_SPACE }"
     },
     dag=DAG
 )
+
+CLEANUP_DATA = PythonOperator(
+    task_id='cleanup_data',
+    provide_context=True,
+    python_callable=helpers.cleanup_metadata,
+    op_kwargs={
+        "source_prefix": DAG.dag_id + "/" + S3_NAME_SPACE + "/new-updated",
+        "destination_prefix": DAG.dag_id + "/" + S3_NAME_SPACE + "/cleaned",
+        "access_id": AIRFLOW_S3.login,
+        "access_secret": AIRFLOW_S3.password,
+        "bucket_name": AIRFLOW_DATA_BUCKET,
+        "records_per_file": 1000,
+        "timestamp": f"{ S3_NAME_SPACE }"
+    },
+    dag=DAG
+)
+
+# SET UP TASK DEPENDENCIES
+CLEANUP_DATA.set_upstream(OAI_HARVEST)

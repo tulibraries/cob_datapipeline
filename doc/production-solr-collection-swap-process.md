@@ -16,6 +16,10 @@ These steps are broken down into three sections as these parts can be run sequen
    1. Update the `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` variable to be None.
 1. Trigger `catalog_full_reindex` Dag and wait for completion
 
+### Caveats and Incidentals
+* `cob_datapipeline` deployments to airflow-prod only happen on new releases for that repo (plus verified CI deployment step).
+* `ansible-playbook-airflow` prod updates need shepherding from qa to main branch and then a verified deployment step in the CI.
+
 ## OAI Harvests
 
 1. Ensure the `catalog_preproduction_oai_harvest` Dag is On (may be turned off)

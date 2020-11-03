@@ -10,7 +10,7 @@ sickle = "*"
 pexpect = "*"
 boto3 = "*"
 awscli = "*"
-lxml = "==4.4.3"
+lxml = "*"
 importlib-resources = {version = "*", markers = "python_version < '3.7'"}
 
 [dev-packages]

@@ -1,9 +1,11 @@
 """Airflow DAG to harvest DSpace electronic theses and dissertations"""
 from datetime import datetime, timedelta
+import os
 from tulflow import harvest, tasks
 from cob_datapipeline import helpers
 from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
+from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 import airflow
 
@@ -12,6 +14,9 @@ INIT SYSTEMWIDE VARIABLES
 check for existence of systemwide variables shared across tasks that can be
 initialized here if not found (i.e. if this is a new installation)
 """
+
+AIRFLOW_HOME = Variable.get("AIRFLOW_HOME")
+AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 
 # Get S3 data bucket variables
 AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
@@ -87,5 +92,23 @@ CLEANUP_DATA = PythonOperator(
     dag=DAG
 )
 
+XSL_TRANSFORM = BashOperator(
+    task_id="xsl_transform",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/transform.sh ",
+    env={**os.environ, **{
+        "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
+        "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
+        "BUCKET": AIRFLOW_DATA_BUCKET,
+        "DAG_ID": DAG.dag_id,
+        "DAG_TS": S3_NAME_SPACE,
+        "DEST": "transformed",
+        "HOME": AIRFLOW_USER_HOME,
+        "SOURCE": "cleaned",
+        "XSL_FILENAME": AIRFLOW_HOME + "/dags/cob_datapipeline/files/TEU_XOAItoMARCXML.xsl"
+    }},
+    dag=DAG
+)
+
 # SET UP TASK DEPENDENCIES
 CLEANUP_DATA.set_upstream(OAI_HARVEST)
+XSL_TRANSFORM.set_upstream(CLEANUP_DATA)

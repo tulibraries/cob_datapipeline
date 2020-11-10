@@ -104,7 +104,8 @@ XSL_TRANSFORM = BashOperator(
         "DEST": "transformed",
         "HOME": AIRFLOW_USER_HOME,
         "SOURCE": "cleaned",
-        "XSL_FILENAME": AIRFLOW_HOME + "/dags/cob_datapipeline/files/TEU_XOAItoMARCXML.xsl"
+        "XSL_FILENAME": AIRFLOW_HOME + "/dags/cob_datapipeline/files/TEU_XOAItoMARCXML.xsl",
+        "BATCH_TRANSFORM": AIRFLOW_HOME + "/dags/cob_datapipeline/files/batch_transform.xsl"
     }},
     dag=DAG
 )

@@ -69,7 +69,7 @@ def cleanup_metadata(**op_kwargs):
 
         # Removes extra metadata element
         for record in collection:
-            for metadata in record.findall("{http://www.openarchives.org/OAI/2.0/}metadata"):
+            for metadata in record.findall("metadata"):
                 for child in metadata:
                     metadata.remove(child)
                     metadata.extend(child)

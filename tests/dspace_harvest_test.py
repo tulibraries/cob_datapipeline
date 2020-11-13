@@ -19,7 +19,8 @@ class TestDspaceHarvestDag(unittest.TestCase):
         self.assertEqual(self.tasks, [
             "oai_harvest",
             "cleanup_data",
-            "xsl_transform"
+            "xsl_transform",
+            "s3_to_sftp"
             ])
 
     def test_dag_task_order(self):
@@ -27,7 +28,8 @@ class TestDspaceHarvestDag(unittest.TestCase):
         expected_task_deps = {
             "oai_harvest": [],
             "cleanup_data": ["oai_harvest"],
-            "xsl_transform": ["cleanup_data"]
+            "xsl_transform": ["cleanup_data"],
+            "s3_to_sftp": ["xsl_transform"]
         }
         for task, upstream_tasks in expected_task_deps.items():
             upstream_list = [up_task.task_id for up_task in DAG.get_task(task).upstream_list]

@@ -7,6 +7,7 @@ from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
+from airflow.contrib.operators.s3_to_sftp_operator import S3ToSFTPOperator
 import airflow
 
 """
@@ -110,6 +111,17 @@ XSL_TRANSFORM = BashOperator(
     dag=DAG
 )
 
+S3_TO_SFTP = S3ToSFTPOperator(
+    task_id="s3_to_sftp",
+    sftp_conn_id="ALMASFTP",
+    sftp_path="/sftp/dspacesftp",
+    s3_conn_id="AIRFLOW_S3",
+    s3_bucket=AIRFLOW_DATA_BUCKET,
+    s3_key="dspace_harvest/" + S3_NAME_SPACE + "/transformed",
+    dag=DAG
+)
+
 # SET UP TASK DEPENDENCIES
 CLEANUP_DATA.set_upstream(OAI_HARVEST)
 XSL_TRANSFORM.set_upstream(CLEANUP_DATA)
+S3_TO_SFTP.set_upstream(XSL_TRANSFORM)

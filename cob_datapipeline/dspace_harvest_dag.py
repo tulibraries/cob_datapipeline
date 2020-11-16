@@ -8,6 +8,7 @@ from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.contrib.operators.s3_to_sftp_operator import S3ToSFTPOperator
+from airflow.contrib.operators.s3_list_operator import S3ListOperator
 import airflow
 
 """
@@ -21,6 +22,7 @@ AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 
 # Get S3 data bucket variables
 AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
+ALMASFTP = BaseHook.get_connection("ALMASFTP")
 AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
 S3_NAME_SPACE = '{{ execution_date.strftime("%Y-%m-%d_%H-%M-%S") }}'
 
@@ -111,17 +113,29 @@ XSL_TRANSFORM = BashOperator(
     dag=DAG
 )
 
-S3_TO_SFTP = S3ToSFTPOperator(
-    task_id="s3_to_sftp",
-    sftp_conn_id="ALMASFTP",
-    sftp_path="/sftp/dspacesftp",
-    s3_conn_id="AIRFLOW_S3",
-    s3_bucket=AIRFLOW_DATA_BUCKET,
-    s3_key="dspace_harvest/" + S3_NAME_SPACE + "/transformed",
+LIST_S3_FILES = S3ListOperator(
+    task_id="list_s3_files",
+    bucket=AIRFLOW_DATA_BUCKET,
+    prefix="dspace_harvest/" + S3_NAME_SPACE + "/transformed/",
+    aws_conn_id=AIRFLOW_S3.conn_id,
     dag=DAG
 )
+
+KEYS = ["{{ ti.xcom_pull(task_ids='list_s3_files') }}"]
+
+for key in KEYS:
+    S3_TO_SFTP = S3ToSFTPOperator(
+        task_id="s3_to_sftp",
+        sftp_conn_id=ALMASFTP.conn_id,
+        sftp_path="/sftp/dspacesftp",
+        s3_conn_id=AIRFLOW_S3.conn_id,
+        s3_bucket=AIRFLOW_DATA_BUCKET,
+        s3_key=key,
+        dag=DAG
+    )
 
 # SET UP TASK DEPENDENCIES
 CLEANUP_DATA.set_upstream(OAI_HARVEST)
 XSL_TRANSFORM.set_upstream(CLEANUP_DATA)
-S3_TO_SFTP.set_upstream(XSL_TRANSFORM)
+LIST_S3_FILES.set_upstream(XSL_TRANSFORM)
+S3_TO_SFTP.set_upstream(LIST_S3_FILES)

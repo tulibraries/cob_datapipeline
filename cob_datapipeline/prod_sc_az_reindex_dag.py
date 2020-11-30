@@ -114,28 +114,28 @@ SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
 
 PUSH_ALIAS = PushVariable(
     task_id="push_alias",
-    name="AZ_QA_ALIASES",
+    name="AZ_PROD_ALIASES",
     value=ALIAS,
     dag=DAG)
 
 DELETE_ALIASES = DeleteAliasListVariable(
     task_id="delete_aliases",
     solr_conn_id='SOLRCLOUD',
-    list_variable="AZ_QA_ALIASES",
+    list_variable="AZ_PROD_ALIASES",
     skip_from_last=2,
     skip_included=[ALIAS],
     dag=DAG)
 
 PUSH_COLLECTION = PushVariable(
     task_id="push_collection",
-    name="AZ_QA_COLLECTIONS",
+    name="AZ_PROD_COLLECTIONS",
     value=CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
     dag=DAG)
 
 DELETE_COLLECTIONS = DeleteCollectionListVariable(
     task_id="delete_collections",
     solr_conn_id='SOLRCLOUD',
-    list_variable="AZ_QA_COLLECTIONS",
+    list_variable="AZ_PROD_COLLECTIONS",
     skip_from_last=2,
     skip_included=[CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}"],
     dag=DAG)

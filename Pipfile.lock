@@ -1345,11 +1345,11 @@
         },
         "sshtunnel": {
             "hashes": [
-                "sha256:5eee2e414c3fd9e9ef5d058bebece272a6aae928849ef7f2d9561b7fffab7aea",
-                "sha256:c813fdcda8e81c3936ffeac47cb69cfb2d1f5e77ad0de656c6dab56aeebd9249"
+                "sha256:50b8c607d5d3a7ed7b18dae80b4fa94c7aed3063c764119d06fead4ed89bf8f2",
+                "sha256:e0cac8a6a154c7a9651b42038e3f6cf35bb88c8ee4b94822b28a5b2fe7140f95"
             ],
             "index": "pypi",
-            "version": "==0.1.5"
+            "version": "==0.3.1"
         },
         "tabulate": {
             "hashes": [

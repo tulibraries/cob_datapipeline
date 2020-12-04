@@ -22,7 +22,7 @@ These the Airflow expectations for these TUL COB DAGs and scripts to successfull
   - 3.6.8 (with pip version 18.1)
 - Python Libraries: see the [Pipfile](Pipfile).
 - Ruby (for running Traject via the TUL_COB Rails Application). These steps are tested with the following Ruby versions:
-  - 2.6.5
+  - 2.7.2
 - Ruby Libraries:
   - rvm
   - [tul_cob](https://github.com/tulibraries/tul_cob) gemset installed:

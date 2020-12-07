@@ -7,8 +7,8 @@ from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from airflow.contrib.operators.s3_to_sftp_operator import S3ToSFTPOperator
 from airflow.contrib.operators.s3_list_operator import S3ListOperator
+from cob_datapipeline.operators.batch_s3_to_sftp_operator import BatchS3ToSFTPOperator
 import airflow
 
 """
@@ -116,8 +116,20 @@ XSL_TRANSFORM = BashOperator(
 LIST_S3_FILES = S3ListOperator(
     task_id="list_s3_files",
     bucket=AIRFLOW_DATA_BUCKET,
-    prefix="dspace_harvest/" + S3_NAME_SPACE + "/transformed/",
+    prefix=DAG.dag_id + "/" + S3_NAME_SPACE + "/transformed/",
     aws_conn_id=AIRFLOW_S3.conn_id,
+    dag=DAG
+)
+
+S3_TO_SFTP = BatchS3ToSFTPOperator(
+    task_id="s3_to_sftp",
+    provide_context=True,
+    sftp_conn_id="DSPACESFTP",
+    files_list_task_xcom_id="{{ ti.xcom_pull(task_ids='list_s3_files') }}",
+    sftp_base_path="/sftp/dspacesftp",
+    s3_conn_id="AIRFLOW_S3",
+    s3_bucket=AIRFLOW_DATA_BUCKET,
+    s3_prefix="dspace_harvest/" + S3_NAME_SPACE + "/transformed",
     dag=DAG
 )
 

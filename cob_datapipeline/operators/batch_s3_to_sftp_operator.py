@@ -50,10 +50,11 @@ class BatchS3ToSFTPOperator(S3ToSFTPOperator):
         s3_files_list = context['task_instance'].xcom_pull(task_ids=self.xcom_id)
         self.log.info("The files list is %s", s3_files_list)
         for file in s3_files_list:
-            self.log.info("Sending %s from s3", file)
+            sftp_path = self.sftp_base_path + file.replace("/", "-")
+            self.log.info("Sending %s from s3 to %s", file, sftp_path)
             count += 1
-            self.s3_key = f"{self.s3_prefix}{file}"
-            self.sftp_path = f"{self.sftp_base_path}/{file}"
+            self.s3_key = file
+            self.sftp_path = sftp_path
 
             super(BatchS3ToSFTPOperator, self).execute(context)
             self.log.info("Sent to sftp: %s/%s", self.sftp_path, self.s3_key)

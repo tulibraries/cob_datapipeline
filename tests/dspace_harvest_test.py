@@ -20,6 +20,7 @@ class TestDspaceHarvestDag(unittest.TestCase):
             "oai_harvest",
             "cleanup_data",
             "xsl_transform",
+            "list_s3_files",
             "s3_to_sftp"
             ])
 
@@ -29,7 +30,8 @@ class TestDspaceHarvestDag(unittest.TestCase):
             "oai_harvest": [],
             "cleanup_data": ["oai_harvest"],
             "xsl_transform": ["cleanup_data"],
-            "s3_to_sftp": ["xsl_transform"]
+            "list_s3_files": ["xsl_transform"],
+            "s3_to_sftp": ["list_s3_files"]
         }
         for task, upstream_tasks in expected_task_deps.items():
             upstream_list = [up_task.task_id for up_task in DAG.get_task(task).upstream_list]

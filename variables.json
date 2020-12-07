@@ -35,6 +35,11 @@
   "CATALOG_PROD_LATEST_RELEASE": false,
   "CATALOG_QA_BRANCH": "main",
   "CATALOG_QA_LATEST_RELEASE": "False",
+  "DSPACE_OAI_CONFIG": {
+    "endpoint": "https://scholarshare.temple.edu/oai/request",
+    "md_prefix": "xoai",
+    "setspec": "col_20.500.12613_11"
+  },
   "WEB_CONTENT_BASIC_AUTH_USER": "test",
   "WEB_CONTENT_BASIC_AUTH_PASSWORD": "test",
   "WEB_CONTENT_PROD_BASE_URL": "https://library.temple.edu",

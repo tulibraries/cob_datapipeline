@@ -133,19 +133,6 @@ S3_TO_SFTP = BatchS3ToSFTPOperator(
     dag=DAG
 )
 
-KEYS = ["{{ ti.xcom_pull(task_ids='list_s3_files') }}"]
-
-for key in KEYS:
-    S3_TO_SFTP = S3ToSFTPOperator(
-        task_id="s3_to_sftp",
-        sftp_conn_id=ALMASFTP.conn_id,
-        sftp_path="/sftp/dspacesftp",
-        s3_conn_id=AIRFLOW_S3.conn_id,
-        s3_bucket=AIRFLOW_DATA_BUCKET,
-        s3_key=key,
-        dag=DAG
-    )
-
 # SET UP TASK DEPENDENCIES
 CLEANUP_DATA.set_upstream(OAI_HARVEST)
 XSL_TRANSFORM.set_upstream(CLEANUP_DATA)

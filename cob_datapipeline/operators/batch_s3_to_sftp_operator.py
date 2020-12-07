@@ -56,6 +56,6 @@ class BatchS3ToSFTPOperator(S3ToSFTPOperator):
             self.sftp_path = f"{self.sftp_base_path}/{file}"
 
             super(BatchS3ToSFTPOperator, self).execute(context)
-            self.log.info("Sent to sftp: %s/%s", self.s3_base_bath, self.s3_key)
+            self.log.info("Sent to sftp: %s/%s", self.sftp_path, self.s3_key)
 
         self.log.info(f"Total Files transfered: {count}")

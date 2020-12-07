@@ -22,7 +22,6 @@ AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 
 # Get S3 data bucket variables
 AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
-ALMASFTP = BaseHook.get_connection("ALMASFTP")
 AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
 S3_NAME_SPACE = '{{ execution_date.strftime("%Y-%m-%d_%H-%M-%S") }}'
 
@@ -126,7 +125,7 @@ S3_TO_SFTP = BatchS3ToSFTPOperator(
     provide_context=True,
     sftp_conn_id="DSPACESFTP",
     files_list_task_xcom_id="{{ ti.xcom_pull(task_ids='list_s3_files') }}",
-    sftp_base_path="/sftp/dspacesftp",
+    sftp_base_path="/sftp/dspacesftp/incoming",
     s3_conn_id="AIRFLOW_S3",
     s3_bucket=AIRFLOW_DATA_BUCKET,
     s3_prefix="dspace_harvest/" + S3_NAME_SPACE + "/transformed",

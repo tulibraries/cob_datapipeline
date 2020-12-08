@@ -38,7 +38,7 @@
   "DSPACE_OAI_CONFIG": {
     "endpoint": "https://scholarshare.temple.edu/oai/request",
     "md_prefix": "xoai",
-    "setspec": "col_20.500.12613_11"
+    "included_sets": ["col_20.500.12613_11"]
   },
   "WEB_CONTENT_BASIC_AUTH_USER": "test",
   "WEB_CONTENT_BASIC_AUTH_PASSWORD": "test",

@@ -32,7 +32,7 @@ DSPACE_HARVEST_UNTIL_DATE = Variable.get("DSPACE_HARVEST_UNTIL_DATE", default_va
 DSPACE_OAI_CONFIG = Variable.get("DSPACE_OAI_CONFIG", deserialize_json=True)
 DSPACE_OAI_MD_PREFIX = DSPACE_OAI_CONFIG.get("md_prefix")
 DSPACE_OAI_ENDPOINT = DSPACE_OAI_CONFIG.get("endpoint")
-DSPACE_OAI_SETSPEC = DSPACE_OAI_CONFIG.get("setspec")
+DSPACE_OAI_INCLUDED_SETS = DSPACE_OAI_CONFIG.get("included_sets")
 
 # CREATE DAG
 DEFAULT_ARGS = {
@@ -72,6 +72,7 @@ OAI_HARVEST = PythonOperator(
         "harvest_until_date": DSPACE_HARVEST_UNTIL_DATE,
         "metadata_prefix": DSPACE_OAI_MD_PREFIX,
         "oai_endpoint": DSPACE_OAI_ENDPOINT,
+        "included_sets": DSPACE_OAI_INCLUDED_SETS,
         "records_per_file": 1000,
         "timestamp": f"{ S3_NAME_SPACE }"
     },

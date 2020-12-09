@@ -25,7 +25,7 @@ class BatchS3ToSFTPOperator(S3ToSFTPOperator):
     :type xcom_id: str
     """
 
-    template_fields = ('s3_prefix','s3_key', 'sftp_path')
+    template_fields = ('s3_prefix', 's3_key', 'sftp_path')
 
     @apply_defaults
     def __init__(self,
@@ -37,7 +37,11 @@ class BatchS3ToSFTPOperator(S3ToSFTPOperator):
                  s3_conn_id='aws_default',
                  *args,
                  **kwargs):
-        super(BatchS3ToSFTPOperator, self).__init__(s3_bucket=s3_bucket, s3_key=None, sftp_path=None, *args, **kwargs)
+        super(BatchS3ToSFTPOperator, self).__init__(s3_bucket=s3_bucket,
+                                                    s3_key=None,
+                                                    sftp_path=None,
+                                                    *args,
+                                                    **kwargs)
         self.sftp_conn_id = sftp_conn_id
         self.xcom_id = xcom_id
         self.sftp_base_path = sftp_base_path
@@ -46,11 +50,12 @@ class BatchS3ToSFTPOperator(S3ToSFTPOperator):
         self.s3_conn_id = s3_conn_id
 
     def execute(self, context):
+        """Method to move each file to sftp server"""
         count = 0
         s3_files_list = context['task_instance'].xcom_pull(task_ids=self.xcom_id)
         self.log.info("The files list is %s", s3_files_list)
         for file in s3_files_list:
-            sftp_path = self.sftp_base_path + file.replace("/", "-")
+            sftp_path = self.sftp_base_path + file.replace("/", "-") + ".xml"
             self.log.info("Sending %s from s3 to %s", file, sftp_path)
             count += 1
             self.s3_key = file

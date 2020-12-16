@@ -38,9 +38,9 @@
 
             <!-- Variables -->
 
-            <xsl:variable name="thesisDate" select="//element[@name='date']/element[@name='issued']/element/field[@name='value']" />
+            <xsl:variable name="thesisDate" select="//element[@name='date']/element[@name='issued'][1]/element/field[@name='value']" />
             <xsl:variable name="thesisYear">
-                <xsl:value-of select="substring($thesisDate, 1,4)"/>
+                <xsl:value-of select="substring($thesisDate,1,4)"/>
             </xsl:variable>
             <xsl:variable name="thesisLanguage" select="element[@name='language']/element[@name='iso']/element/field[@name='value']" />
             <xsl:variable name="thesisTitle" select="element[@name='title']/element/field[@name='value'][1]" />

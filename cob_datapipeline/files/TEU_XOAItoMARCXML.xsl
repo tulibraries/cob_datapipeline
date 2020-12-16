@@ -38,10 +38,11 @@
 
             <!-- Variables -->
 
-            <xsl:variable name="thesisDate" select="//element[@name='date']/element[@name='issued'][1]/element/field[@name='value'][1]" />
+            <xsl:variable name="thesisDate" select="//element[@name='date']/element[@name='issued']/element/field[@name='value']" />
+            <!--
             <xsl:variable name="thesisYear">
                 <xsl:value-of select="substring($thesisDate,1,4)"/>
-            </xsl:variable>
+            </xsl:variable>-->
             <xsl:variable name="thesisLanguage" select="element[@name='language']/element[@name='iso']/element/field[@name='value']" />
             <xsl:variable name="thesisTitle" select="element[@name='title']/element/field[@name='value'][1]" />
             <xsl:variable name="thesisAuthor" select="element[@name='creator']/element/field[@name='value']" />
@@ -61,7 +62,7 @@
             <controlfield tag="008">
                 <xsl:text>000000</xsl:text>
                 <xsl:text xml:space="preserve">s</xsl:text>
-                <xsl:value-of select="$thesisYear"/>
+                <xsl:value-of select="$thesisDate"/>
                 <xsl:text xml:space="preserve">\\\\pau\\\\\obm\\\000\0\</xsl:text>
                 <xsl:value-of select="$thesisLanguage"/>
                 <xsl:text xml:space="preserve">\d</xsl:text>
@@ -215,7 +216,7 @@
                     <xsl:text xml:space="preserve">Temple University Libraries, </xsl:text>
                 </subfield>
                 <subfield code="c">
-                    <xsl:value-of select="$thesisYear" />.
+                    <xsl:value-of select="$thesisDate" />.
                 </subfield>
             </datafield>
 
@@ -272,7 +273,7 @@
                 </subfield>
                 <subfield code="c">Temple University</subfield>
                 <subfield code="d">
-                    <xsl:value-of select="$thesisYear"/>
+                    <xsl:value-of select="$thesisDate"/>
                 </subfield>
             </datafield>
             

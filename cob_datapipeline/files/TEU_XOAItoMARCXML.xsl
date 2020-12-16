@@ -38,7 +38,7 @@
 
             <!-- Variables -->
 
-            <xsl:variable name="thesisDate" select="//element[@name='date']/element[@name='issued'][1]/element/field[@name='value']" />
+            <xsl:variable name="thesisDate" select="//element[@name='date']/element[@name='issued'][1]/element/field[@name='value'][1]" />
             <xsl:variable name="thesisYear">
                 <xsl:value-of select="substring($thesisDate,1,4)"/>
             </xsl:variable>

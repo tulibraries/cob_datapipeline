@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0"
+<xsl:stylesheet version="2.0"
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:dcterms="http://purl.org/dc/terms/1.1"
     xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
@@ -70,6 +70,8 @@
             <!-- Variable Length Fields -->
 
             <!-- Temple Identifier -->
+            
+            <xsl:if test="element[@name='identifier']/element[@name='filename']">
 
             <xsl:variable name="filename" select="element[@name='identifier']/element[@name='filename']/element/field[@name='value']"/>
             <xsl:variable name="filename-id" select="substring-before($filename,'.pdf')"/>
@@ -79,13 +81,31 @@
                     <xsl:value-of select="$filename-id" />
                 </subfield>
             </datafield>
+                
+            </xsl:if>
 
             <!-- ProQuest ETD Admin Identifier -->
+            
+            <xsl:if test="element[@name='identifier']/element[@name='proqst']">
 
             <datafield tag="035" ind1=" " ind2=" ">
                 <subfield code="a">
                     <xsl:text xml:space="preserve">(MiAaPQD)</xsl:text>
                     <xsl:value-of select="element[@name='identifier']/element[@name='proqst']/element/field[@name='value']"/>
+                </subfield>
+            </datafield>
+                
+            </xsl:if>
+            
+            <!-- DOI-based identifier -->
+            
+            <xsl:variable name="doi1" select="element[@name='relation']/element[@name='doi']/element/field[@name='value']"/>
+            <xsl:variable name="itemID" select="replace(substring-after($doi1,'doi.org/'),'[^a-zA-Z0-9\-:_]','_')"/>
+            
+            <datafield tag="035" ind1=" " ind2=" ">
+                <subfield code="a">
+                    <xsl:text xml:space="preserve">(PPT)</xsl:text>
+                    <xsl:value-of select="$itemID"/>
                 </subfield>
             </datafield>
 
@@ -157,7 +177,7 @@
                             <xsl:text>.</xsl:text>
                         </xsl:if>
                         <xsl:if test="not (contains($thesisAuthor, ','))">
-                            <xsl:text xml:space="preserve">by </xsl:text>
+                            <xsl:text xml:space="preserve">by</xsl:text>
                             <xsl:value-of select="$thesisAuthor"/>
                             <xsl:text>.</xsl:text>
                         </xsl:if>
@@ -254,10 +274,15 @@
                 <subfield code="d">
                     <xsl:value-of select="$thesisYear"/>
                 </subfield>
-                <subfield code="g">
-                    <xsl:value-of select="element[@name='description']/element[@name='schoolcollege']/element/field[@name='value']"/>
-                </subfield>
             </datafield>
+            
+            <xsl:if test="element[@name='description']/element[@name='schoolcollege']">
+                <datafield tag="500" ind1=" " ind2=" ">
+                    <subfield code="a">
+                        <xsl:value-of select="element[@name='description']/element[@name='schoolcollege']/element/field[@name='value']"/>
+                    </subfield>
+                </datafield>
+            </xsl:if>
 
             <!-- Abstract -->
 
@@ -306,6 +331,8 @@
 
             <!-- Local practice has been to map the department name to a local subject heading with
             a subfield x for Temple University theses-->
+            
+            <xsl:if test="element[@name='description']/element[@name='schoolcollege']">
 
             <datafield tag="690" ind1=" " ind2="4">
                 <subfield code="a">
@@ -315,6 +342,8 @@
                     <xsl:text xml:space="preserve">Temple University theses.</xsl:text>
                 </subfield>
             </datafield>
+                
+            </xsl:if>
 
             <!-- Standardized local subject heading for Temple theses -->
 
@@ -402,7 +431,7 @@
 
         <xsl:choose>
             <!-- IF A PAREN, STOP AT AN OPENING semicolon -->
-            <xsl:when test="contains($string, $delimiter)!=0">
+            <xsl:when test="contains($string, $delimiter)">
                 <xsl:variable name="newstem" select="substring-after($string, $delimiter)" />
                 <datafield>
                     <xsl:attribute name="tag">
@@ -477,13 +506,13 @@
             <!-- CAPTURE PRIMARY NAME BY LOOKING FOR A PAREN OR A DASH OR NEITHER -->
             <xsl:choose>
                 <!-- IF A PAREN, STOP AT AN OPENING PAREN -->
-                <xsl:when test="contains($string, '(')!=0">
+                <xsl:when test="contains($string, '(')">
                     <subfield code="a">
                         <xsl:value-of select="substring-before($string, '(')" />
                     </subfield>
                 </xsl:when>
                 <!-- IF A DASH, CHECK IF IT'S A DATE OR PART OF THE NAME -->
-                <xsl:when test="contains($string, '-')!=0">
+                <xsl:when test="contains($string, '-')">
                     <xsl:variable name="name_1" select="substring-before($string, '-')" />
                     <xsl:choose>
                         <!-- IF IT'S A DATE REMOVE IT -->
@@ -498,7 +527,7 @@
                             <xsl:variable name="remainder" select="substring-after($string, '-')" />
                             <xsl:choose>
                                 <!-- IF THERE'S A DASH, ASSUME IT'S A DATE AND REMOVE IT -->
-                                <xsl:when test="contains($remainder, '-')!=0">
+                                <xsl:when test="contains($remainder, '-')">
                                     <xsl:variable name="tmp" select="substring-before($remainder, '-')" />
                                     <xsl:variable name="name_2" select="substring($tmp, 1, (string-length($tmp)-6))" />
                                     <subfield code="a">
@@ -525,7 +554,7 @@
             </xsl:choose>
 
             <!-- CAPTURE SECONDARY NAME IN PARENS FOR SUBFIELD Q -->
-            <xsl:if test="contains($string, '(')!=0">
+            <xsl:if test="contains($string, '(')">
                 <xsl:variable name="subq_tmp" select="substring-after($string, '(')" />
                 <xsl:variable name="subq" select="substring-before($subq_tmp, ')')" />
                 <subfield code="q">
@@ -537,12 +566,12 @@
 
             <!-- CAPTURE DATE FOR SUBFIELD D, ASSUME DATE IS LAST ITEM IN FIELD -->
             <!-- Note: does not work if name has a dash in it -->
-            <xsl:if test="contains($string, '-')!=0">
+            <xsl:if test="contains($string, '-')">
                 <xsl:variable name="date_tmp" select="substring-before($string, '-')" />
                 <xsl:variable name="remainder" select="substring-after($string, '-')" />
                 <xsl:choose>
                     <!-- CHECK SECOND HALF FOR ANOTHER DASH; IF PRESENT, ASSUME THAT IS DATE -->
-                    <xsl:when test="contains($remainder, '-')!=0">
+                    <xsl:when test="contains($remainder, '-')">
                         <xsl:variable name="tmp" select="substring-before($remainder, '-')" />
                         <xsl:variable name="date_1" select="substring($remainder, (string-length($tmp)-3))" />
                         <!-- CHECK WHETHER IT HAS A NUMBER BEFORE IT AND IF SO, OUTPUT IT AS DATE -->

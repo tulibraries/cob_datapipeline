@@ -170,7 +170,7 @@
                     </subfield>
                     <subfield code="c">
                         <xsl:if test="contains($thesisAuthor, ',')">
-                            <xsl:text xml:space="preserve">by </xsl:text>
+                            <xsl:text xml:space="preserve">by</xsl:text>
                             <xsl:value-of select="substring-after($thesisAuthor,',')"/>
                             <xsl:text xml:space="preserve"> </xsl:text>
                             <xsl:value-of select="substring-before($thesisAuthor,',')"/>

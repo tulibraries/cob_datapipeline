@@ -22,7 +22,7 @@ moto = "*"
 requests-mock = "*"
 paramiko = "*"
 sshtunnel = "*"
-tulflow = "==0.6.3"
+tulflow = "==0.7.2"
 
 [requires]
 python_version = "3.6"

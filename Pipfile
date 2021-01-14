@@ -3,26 +3,24 @@ name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
 
-[packages]
-setuptools = "*"
-xmltodict = "*"
-sickle = "*"
-pexpect = "*"
-boto3 = "*"
-awscli = "*"
-lxml = "==4.6.2"
-importlib-resources = {version = "*", markers = "python_version < '3.7'"}
 
 [dev-packages]
 pytest = "*"
-apache-airflow = "*"
-pysftp = "*"
+apache-airflow = "==1.10.14"
 pylint = "*"
 moto = "*"
 requests-mock = "*"
 paramiko = "*"
 sshtunnel = "*"
-tulflow = "==0.6.3"
+sickle = "*"
+lxml = "==4.4.3"
+tulflow = "==0.7.2"
+boto3 = "*"
+pexpect = "*"
+
+[packages]
+pysftp = "*"
+setuptools = "*"
 
 [requires]
 python_version = "3.6"

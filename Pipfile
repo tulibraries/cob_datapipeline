@@ -12,6 +12,8 @@ moto = "*"
 requests-mock = "*"
 paramiko = "*"
 sshtunnel = "*"
+sickle = "*"
+lxml = "==4.4.3"
 tulflow = "==0.7.2"
 boto3 = "*"
 

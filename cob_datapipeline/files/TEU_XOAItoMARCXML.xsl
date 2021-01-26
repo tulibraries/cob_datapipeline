@@ -31,9 +31,12 @@
     <xsl:template match="element[@name='dc']">
         <record>
             <xsl:element name="leader">
+                <!--
                 <xsl:variable name="leader06">a</xsl:variable>
                 <xsl:variable name="leader07">m</xsl:variable>
                 <xsl:value-of select="concat('      ',$leader06,$leader07,'         Ki     ')"/>
+                -->
+                <xsl:text xml:space="preserve">00000nam\a2200000Ki\4500</xsl:text>
             </xsl:element>
 
             <!-- Variables -->
@@ -55,7 +58,7 @@
             </controlfield>
 
             <controlfield tag="007">
-                <xsl:text>cr</xsl:text>
+                <xsl:text xml:space="preserve">cr#unu||||||||</xsl:text>
             </controlfield>
 
             <controlfield tag="008">

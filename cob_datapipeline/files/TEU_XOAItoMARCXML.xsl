@@ -112,6 +112,23 @@
                 </subfield>
             </datafield>
 
+            <!-- Cataloging Source -->
+            
+            <datafield tag="040" ind1=" " ind2=" ">
+                <subfield code="a">
+                    <xsl:text>TEU</xsl:text>
+                </subfield>
+                <subfield code="b">
+                    <xsl:text>eng</xsl:text>
+                </subfield>
+                <subfield code="c">
+                    <xsl:text>TEU</xsl:text>
+                </subfield>
+                <subfield code="e">
+                    <xsl:text>rda</xsl:text>
+                </subfield>
+            </datafield>
+            
             <!-- Author -->
 
             <xsl:for-each select="element[@name='creator']/element/field[@name='value']">
@@ -143,9 +160,7 @@
 
             <!-- Title -->
 
-            <!-- Notes:
-            Due to a DSpace error, currently this is title[1]
-            The [1] will not be necessary once that is fixed.
+            <!-- Notes:          
             While sentence case conversion is possible, it may note be desirable due to
             lack of detection for proper names, which are common.-->
 
@@ -279,20 +294,18 @@
                 </subfield>
             </datafield>
             
-            <xsl:if test="element[@name='description']/element[@name='schoolcollege']">
+            <xsl:if test="element[@name='description']/element[@name='department']">
                 <datafield tag="500" ind1=" " ind2=" ">
                     <subfield code="a">
-                        <xsl:value-of select="element[@name='description']/element[@name='schoolcollege']/element/field[@name='value']"/>
+                        <xsl:text xml:space="preserve">Department: </xsl:text>
+                        <xsl:value-of select="element[@name='description']/element[@name='department']/element/field[@name='value']"/>
+                        <xsl:text>.</xsl:text>
                     </subfield>
                 </datafield>
             </xsl:if>
 
             <!-- Abstract -->
-
-            <!-- Note:
-            Due a DSpace error this is set to only map abtract[1]
-            Once this error is fixed the [1] can be removed-->
-
+       
             <xsl:for-each select="element[@name='description']/element[@name='abstract']/element/field[@name='value'][1]">
                 <datafield tag="520" ind1=" " ind2=" ">
                     <subfield code="a">
@@ -335,11 +348,11 @@
             <!-- Local practice has been to map the department name to a local subject heading with
             a subfield x for Temple University theses-->
             
-            <xsl:if test="element[@name='description']/element[@name='schoolcollege']">
+            <xsl:if test="element[@name='description']/element[@name='department']">
 
             <datafield tag="690" ind1=" " ind2="4">
                 <subfield code="a">
-                    <xsl:value-of select="element[@name='description']/element[@name='schoolcollege']/element/field[@name='value']"/>
+                    <xsl:value-of select="element[@name='description']/element[@name='department']/element/field[@name='value']"/>
                 </subfield>
                 <subfield code="x">
                     <xsl:text xml:space="preserve">Temple University theses.</xsl:text>
@@ -417,6 +430,20 @@
                     </subfield>
                 </datafield>
             </xsl:if>
+            
+            <!-- Local note to flag supplemental files -->
+            
+            <xsl:variable name="bitstream" select="../element[@name='bundles']/element[@name='bundle']/element[@name='bitstreams']/element[@name='bitstream']/field[@name='description']"/>
+            
+            <xsl:if test="$bitstream='Supplemental File'">
+                <datafield tag="902" ind1=" " ind2=" ">
+                    <subfield code="a">
+                        <xsl:text xml:space="preserve">Includes Supplemental File</xsl:text>
+                    </subfield>
+                </datafield>
+            </xsl:if>
+            
+            
 
             <!-- End Variable Length Fields -->
 

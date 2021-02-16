@@ -3,6 +3,7 @@
     xmlns:dc="http://purl.org/dc/elements/1.1/"
     xmlns:dcterms="http://purl.org/dc/terms/1.1"
     xmlns:oai_dc="http://www.openarchives.org/OAI/2.0/oai_dc/"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.lyncode.com/xoai http://www.lyncode.com/xsd/xoai.xsd"
     xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
@@ -16,16 +17,6 @@
             <xsl:apply-templates />
         </collection>
     </xsl:template>
-
-    <!--
-    <xsl:template name="OAI-PMH">
-        <xsl:for-each select = "ListRecords/record/metadata/xoai">
-            <xsl:apply-templates  />
-        </xsl:for-each>
-        <xsl:for-each select = "GetRecord/record/metadata/xoai">
-            <xsl:apply-templates  />
-        </xsl:for-each>
-    </xsl:template>-->
 
     <xsl:template match="text()" />
     <xsl:template match="element[@name='dc']">
@@ -50,9 +41,20 @@
             <xsl:variable name="thesisAuthor" select="element[@name='creator']/element/field[@name='value']" />
             <xsl:variable name="authorORCID" select="element[@name='creator']/element[@name='orcid']/element/field[@name='value']"/>
             <xsl:variable name="embargo" select="element[@name='embargo']/element[@name='lift']/element/field[@name='value']" />
+            <xsl:variable name="hdl" select="element[@name='identifier']/element[@name='uri']/element/field[@name='value']"/>
+            <xsl:variable name="doi" select="element[@name='relation']/element[@name='doi']/element/field[@name='value']"/>
+            <xsl:variable name="currentDateTrim" select="translate(substring(string(current-date()), 3, 8), '-:T.', '')"/>
+            <xsl:variable name="currentDateTimeTrim" select="translate(substring(string(current-dateTime()), 1, 19), '-:T.', '')"/>
 
             <!-- Control Fields -->
 
+            <!--
+            <controlfield tag="005">
+                <xsl:value-of select="$currentDateTimeTrim"/>
+                <xsl:text>.0</xsl:text>
+            </controlfield>
+            -->
+            
             <controlfield tag="006">
                 <xsl:text xml:space="preserve">m\\\\\o\\d\\\\\\\\</xsl:text>
             </controlfield>
@@ -62,7 +64,7 @@
             </controlfield>
 
             <controlfield tag="008">
-                <xsl:text>000000</xsl:text>
+                <xsl:value-of select="$currentDateTrim"/>
                 <xsl:text xml:space="preserve">s</xsl:text>
                 <xsl:value-of select="$thesisYear"/>
                 <xsl:text xml:space="preserve">\\\\pau\\\\\obm\\\000\0\</xsl:text>
@@ -100,10 +102,9 @@
                 
             </xsl:if>
             
-            <!-- DOI-based identifier -->
+            <!-- DOI-based identifier -->           
             
-            <xsl:variable name="doi1" select="element[@name='relation']/element[@name='doi']/element/field[@name='value']"/>
-            <xsl:variable name="itemID" select="replace(substring-after($doi1,'doi.org/'),'[^a-zA-Z0-9\-:_]','_')"/>
+            <xsl:variable name="itemID" select="replace(substring-after($doi,'doi.org/'),'[^a-zA-Z0-9\-:_]','_')"/>
             
             <datafield tag="035" ind1=" " ind2=" ">
                 <subfield code="a">
@@ -401,10 +402,7 @@
                 </xsl:call-template>
             </xsl:for-each>
 
-            <!-- URL -->
-
-            <xsl:variable name="hdl" select="element[@name='identifier']/element[@name='uri']/element/field[@name='value']"/>
-            <xsl:variable name="doi" select="element[@name='relation']/element[@name='doi']/element/field[@name='value']"/>
+            <!-- URL -->            
 
             <datafield tag="856" ind1="4" ind2="0">
                 <subfield code="u">
@@ -441,9 +439,7 @@
                         <xsl:text xml:space="preserve">Includes Supplemental File</xsl:text>
                     </subfield>
                 </datafield>
-            </xsl:if>
-            
-            
+            </xsl:if>                      
 
             <!-- End Variable Length Fields -->
 
@@ -634,6 +630,5 @@
             </xsl:if>
         </datafield>
     </xsl:template>
-
 
 </xsl:stylesheet>

@@ -17,7 +17,7 @@
   "AZ_INDEX_SCHEDULE_INTERVAL": "@daily",
   "AZ_SOLR_CONFIG": {
     "configset": "tul_cob-az-0",
-    "replication_factor": 2
+    "replication_factor": 4
   },
   "CATALOG_OAI_CONFIG": {
     "endpoint": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request",
@@ -49,7 +49,7 @@
   "WEB_CONTENT_SCHEDULE_INTERVAL": "@daily",
   "WEB_CONTENT_SOLR_CONFIG": {
     "configset": "tul_cob-web-0",
-    "replication_factor": 2
+    "replication_factor": 4
   },
   "almaoai_last_num_oai_delete_recs": 1349,
   "almaoai_last_num_oai_update_recs": 34655,

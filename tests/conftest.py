@@ -42,14 +42,14 @@ def pytest_sessionstart():
     airflow.models.Variable.set("AZ_CLIENT_SECRET", "AZ_CLIENT_SECRET")
     airflow.models.Variable.set("AZ_DELETE_SWITCH", "--delete")
     airflow.models.Variable.set("AZ_INDEX_SCHEDULE_INTERVAL", "@weekly")
-    airflow.models.Variable.set("AZ_SOLR_CONFIG", {"configset": "tul_cob-az-0", "replication_factor": 2}, serialize_json=True)
-    airflow.models.Variable.set("AZ_SOLR_CONFIG_QA", {"configset": "tul_cob-az-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("AZ_SOLR_CONFIG", {"configset": "tul_cob-az-0", "replication_factor": 4}, serialize_json=True)
+    airflow.models.Variable.set("AZ_SOLR_CONFIG_QA", {"configset": "tul_cob-az-0", "replication_factor": 4}, serialize_json=True)
     airflow.models.Variable.set("PROD_COB_INDEX_VERSION", "CATALOG_BRANCH")
     airflow.models.Variable.set("CATALOG_PROD_LATEST_RELEASE", "False")
     airflow.models.Variable.set("CATALOG_PRODUCTION_SOLR_COLLECTION", "foo")
     airflow.models.Variable.set("PRE_PRODUCTION_COB_INDEX_VERSION", "CATALOG_BRANCH")
     airflow.models.Variable.set("CATALOG_QA_LATEST_RELEASE", "False")
-    airflow.models.Variable.set("CATALOG_PRE_PRODUCTION_SOLR_CONFIG", {"configset": "tul_cob-catalog-0", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_PRE_PRODUCTION_SOLR_CONFIG", {"configset": "tul_cob-catalog-0", "replication_factor": 4}, serialize_json=True)
     airflow.models.Variable.set("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION", "FOO")
     airflow.models.Variable.set("DSPACE_HARVEST_FROM_DATE", "DSPACE_PROD_HARVEST_FROM_DATE")
     airflow.models.Variable.set("DSPACE_HARVEST_UNTIL_DATE", "2020-01-01T00:00:00Z")
@@ -66,7 +66,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("WEB_CONTENT_QA_BRANCH", "WEB_CONTENT_BRANCH")
     airflow.models.Variable.set("WEB_CONTENT_CONFIGSET", "tul_cob-web-1")
     airflow.models.Variable.set("WEB_CONTENT_CORE", "WEB_CONTENT_CORE")
-    airflow.models.Variable.set("WEB_CONTENT_SOLR_CONFIG", {"configset": "tul_cob-web-2", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("WEB_CONTENT_SOLR_CONFIG", {"configset": "tul_cob-web-2", "replication_factor": 4}, serialize_json=True)
     airflow.models.Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "WEB_CONTENT_SCHEDULE_INTERVAL")
     airflow.models.Variable.set("CATALOG_OAI_PUBLISH_INTERVAL", 0)
     airflow.models.Variable.set("CATALOG_PROD_HARVEST_FROM_DATE", "CATALOG_PROD_HARVEST_FROM_DATE")
@@ -78,7 +78,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("CATALOG_PROD_LATEST_RELEASE", "CATALOG_PROD_LATEST_RELEASE")
     airflow.models.Variable.set("CATALOG_QA_LATEST_RELEASE", "CATALOG_QA_LATEST_RELEASE")
 
-    airflow.models.Variable.set("CATALOG_FULL_REINDEX_SOLR_CONFIG", {"configset": "tul_cob-catalog-2", "replication_factor": 2}, serialize_json=True)
+    airflow.models.Variable.set("CATALOG_FULL_REINDEX_SOLR_CONFIG", {"configset": "tul_cob-catalog-2", "replication_factor": 4}, serialize_json=True)
 
     slack = airflow.models.Connection(
         conn_id="AIRFLOW_CONN_SLACK_WEBHOOK",

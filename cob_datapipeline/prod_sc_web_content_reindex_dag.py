@@ -25,7 +25,7 @@ SCHEDULE_INTERVAL = Variable.get("WEB_CONTENT_SCHEDULE_INTERVAL")
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
 SOLR_CONFIG = Variable.get("WEB_CONTENT_SOLR_CONFIG", deserialize_json=True)
-# {"configset": "tul_cob-web-2", "replication_factor": 2}
+# {"configset": "tul_cob-web-2", "replication_factor": 4}
 CONFIGSET = SOLR_CONFIG.get("configset")
 ALIAS = CONFIGSET + "-prod"
 REPLICATION_FACTOR = SOLR_CONFIG.get("replication_factor")

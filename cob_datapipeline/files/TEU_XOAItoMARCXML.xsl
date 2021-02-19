@@ -39,7 +39,7 @@
             <xsl:variable name="thesisLanguage" select="element[@name='language']/element[@name='iso']/element/field[@name='value']" />
             <xsl:variable name="thesisTitle" select="element[@name='title']/element/field[@name='value'][1]" />
             <xsl:variable name="thesisAuthor" select="element[@name='creator']/element/field[@name='value']" />
-            <xsl:variable name="authorORCID" select="element[@name='creator']/element[@name='orcid']/element/field[@name='value']"/>
+            <xsl:variable name="authorORCID" select="element[@name='creator']/element[@name='orcid']/element/field[@name='value'][1]"/>
             <xsl:variable name="embargo" select="element[@name='embargo']/element[@name='lift']/element/field[@name='value']" />
             <xsl:variable name="hdl" select="element[@name='identifier']/element[@name='uri']/element/field[@name='value']"/>
             <xsl:variable name="doi" select="element[@name='relation']/element[@name='doi']/element/field[@name='value']"/>
@@ -624,7 +624,9 @@
             </subfield>
             <xsl:if test="$orcid">
                 <subfield code="0">
-                    <xsl:text xml:space="preserve">(orcid)</xsl:text>
+                    <xsl:if test="not(contains($orcid, 'http'))">
+                        <xsl:text xml:space="preserve">(orcid)</xsl:text>
+                    </xsl:if>
                     <xsl:value-of select="$orcid"/>
                 </subfield>
             </xsl:if>

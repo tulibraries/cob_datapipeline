@@ -2,7 +2,7 @@
 
 ![pylint Score](https://mperlet.github.io/pybadge/badges/4.46.svg) [![Build Status](https://travis-ci.com/tulibraries/cob_datapipeline.svg?branch=main)](https://travis-ci.com/tulibraries/cob_datapipeline)
 
-This is the repository for TUL COB (Temple University Libraries Catalog on Blacklight) Airflow DAGs (Directed Acyclic Graphs, e.g., data processing workflows) along with related scripts.
+**cob_datapipeline** is the repository that holds Airflow DAGs (Directed Acyclic Graphs, e.g., data processing workflows) along with related scripts for Temple University Libraries' Library Search  ([tul_cob](https://github.com/tulibraries/tul_cob)) indexing workflows.
 
 These DAGs (and related scripts) are expecting to be run within an Airflow installation akin to the one built by our [TUL Airflow Playbook (private repository)](https://github.com/tulibraries/ansible-playbook-airflow).
 
@@ -14,7 +14,7 @@ WIP.
 
 ## Airflow Expectations
 
-These the Airflow expectations for these TUL COB DAGs and scripts to successfully run. These apply across environments (development, QA, production).
+These are the Airflow expectations for the Library Search DAGs and scripts to successfully run. These apply across environments (development, QA, production).
 
 **Libraries & Packages**
 
@@ -32,7 +32,7 @@ These the Airflow expectations for these TUL COB DAGs and scripts to successfull
 
 **Airflow Variables**
 
-For these TUL COB Dags, the following variables are required:
+For these Library Search DAGs, the following variables are required:
 
 - **AIRFLOW_DATA_DIR**: The directory that Airflow puts or pulls data being processed from.
 - **AIRFLOW_HOME**: The local Airflow home directory. Should match `$AIRFLOW_HOME` and the value for airflow_home in the `Airflow.cfg` configuration file. By default, this is `~/airflow` for the application.
@@ -56,10 +56,10 @@ For these TUL COB Dags, the following variables are required:
 
 **Airflow Connections**
 
-For these TUL COB Dags, the following connections are required:
+For these Library Search DAGs, the following connections are required:
 
-- **AIRFLOW_CONN_SOLR_LEADER**: The HTTP URL for accessing the appropriate TUL COB Solr instance for indexing into. Required is a `conn_id` (the name at the start of this line) and a `conn_uri`, which should include protocol, authentication, and ports.
-- **AIRFLOW_CONN_SLACK_WEBHOOK**: The HTTP Webhook URL for posting TUL COB DAGs notifications to Slack. Required is a `conn_id` (the name at the start of this line) and a `conn_uri`, which should include protocol (usually https for Slack webhooks).
+- **AIRFLOW_CONN_SOLR_LEADER**: The HTTP URL for accessing the appropriate Solr instance for indexing into. Required is a `conn_id` (the name at the start of this line) and a `conn_uri`, which should include protocol, authentication, and ports.
+- **AIRFLOW_CONN_SLACK_WEBHOOK**: The HTTP Webhook URL for posting Library Search DAGs notifications to Slack. Required is a `conn_id` (the name at the start of this line) and a `conn_uri`, which should include protocol (usually https for Slack webhooks).
 
 **Environment Variables**
 
@@ -171,7 +171,7 @@ $ pipenv shell
 (cob_datapipeline) $
 ```
 
-This gets Airflow and needed libraries (for Airflow and for the TUL COB DAGs) installed in your Pipenv virtual environment. You can see and manage the Airflow auto-generated configurations by looking in your `$AIRFLOW_HOME` directory.
+This gets Airflow and needed libraries (for Airflow and for the Library Search DAGs) installed in your Pipenv virtual environment. You can see and manage the Airflow auto-generated configurations by looking in your `$AIRFLOW_HOME` directory.
 
 Now you have to setup your local environment Airflow database; here, we're just using SQLite for our Airflow database & the `SequentialExecutor`, which runs Airflow jobs on the local machine and without concurrency. You can use other databases and executors if you wish; see the other environment setups to understand how they need to be connected to Airflow:
 
@@ -219,7 +219,7 @@ $ pipenv shell
 
 **Import DAGs to Local Airflow**
 
-This gets a local copy of the TUL COB DAGs into your local Airflow Environment for development purposes. By default, this local installation of Airflow expects DAGs to be places in `$AIRFLOW_HOME/dags`
+This gets a local copy of the Library Search DAGs into your local Airflow Environment for development purposes. By default, this local installation of Airflow expects DAGs to be places in `$AIRFLOW_HOME/dags`
 
 ```
 (cob_datapipeline) $ mkdir $AIRFLOW_HOME/dags
@@ -268,7 +268,7 @@ Note: You can also, optionally register Airflow connections in your Airflow inst
 For local development DAGs runs, besides the above, you need to make sure that you have access to some sort of mock endpoints for the rest of the infrastructure. Here's one way to do this:
 - **Accessible SFTP Server**: Get your local environment IP approved for accessing the Alma Production or Alma Sandbox SFTP Machines.
 - **Accessible OAI-PMH API Endpoint**: Get your local environment IP approved for accessing the Alma Production or Alma Sandbox OAI Endpoints.
-- **Accessible Solr Endpoint and Collection**: Use the [TUL Cob instructions](https://github.com/tulibraries/tul_cob#start-the-application) to pull down and run SolrWrapper from that codebase's setup. Unfortunately, it does require you pull down the whole application and install all the relevant libraries, but you only need to run Solr Wrapper command.
+- **Accessible Solr Endpoint and Collection**: Use the [tul_cob instructions](https://github.com/tulibraries/tul_cob#start-the-application) to pull down and run SolrWrapper from that codebase's setup. Unfortunately, it does require you pull down the whole application and install all the relevant libraries, but you only need to run Solr Wrapper command.
 
 ### Dev: COB DAGS & Airflow Setup on Lurch
 

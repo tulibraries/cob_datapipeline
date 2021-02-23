@@ -17,11 +17,11 @@ lxml = "==4.4.3"
 tulflow = "==0.7.3"
 boto3 = "*"
 pexpect = "*"
-
-[packages]
 pysftp = "*"
 setuptools = "*"
 cryptography = "==3.3.2"
+
+[packages]
 
 [requires]
 python_version = "3.6"

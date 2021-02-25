@@ -89,14 +89,6 @@ Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """
 
-
-
-
-
-
-
-
-
 GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
     COLLECTION,

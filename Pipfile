@@ -19,7 +19,7 @@ boto3 = "*"
 pexpect = "*"
 pysftp = "*"
 setuptools = "*"
-cryptography = "==3.3.2"
+cryptography = "==3.4.6"
 
 [packages]
 

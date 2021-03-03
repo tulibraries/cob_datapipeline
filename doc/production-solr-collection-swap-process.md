@@ -12,6 +12,7 @@ These steps are broken down into three sections as these parts can be run sequen
 1. If needed, move the latest boundwith export file from almasftp to s3 (To be automated).
    1. From almasftp server export AWS credentials (if needed) and then run following command (example):
    1. `aws s3 sync . s3://tulib-airflow-prod/almasftp --exclude '*'  --include 'alma_bibs__boundwith2_2021021914_22144742000003811_new.xml.tar.gz' `
+   1. Delete the old boundwith file on s3.
 1. Turn off the catalog_preproduction_oai_harvest
 1. Set variables required for the full reindex:
    1. Ensure the variable `CATALOG_PRE_PRODUCTION_SOLR_CONFIG` is using the correct version of solr configs

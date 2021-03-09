@@ -1,13 +1,12 @@
 """Tests suite for XML parsing function primarily used by Catalog DAGs."""
 import unittest
+import io
+from tulflow import process
 import boto3
-from cob_datapipeline import sc_xml_parse
+from cob_datapipeline.tasks import xml_parse
 from lxml import etree
 from moto import mock_s3
-from tulflow import process
-import logging
 import pandas
-import io
 
 NS = {
     "marc21": "http://www.loc.gov/MARC21/slim"
@@ -45,7 +44,7 @@ class TestBWXMLProcessIntegration(unittest.TestCase):
             Body=open("tests/fixtures/alma_bibs__boundwith_new_1.xml.tar.gz", "rb").read()
         )
 
-        sc_xml_parse.prepare_boundwiths(**self.kwargs)
+        xml_parse.prepare_boundwiths(**self.kwargs)
         test_result = conn.get_object(
             Bucket=self.kwargs.get("BUCKET"),
             Key=self.kwargs.get("DEST_FOLDER")
@@ -101,7 +100,7 @@ class TestAlmaXMLProcessIntegration(unittest.TestCase):
             Body=open("tests/fixtures/desired_lookup.tsv", "rb").read()
         )
 
-        sc_xml_parse.prepare_alma_data(**self.kwargs)
+        xml_parse.prepare_alma_data(**self.kwargs)
         test_result = conn.list_objects(
             Bucket=self.kwargs.get("BUCKET"),
             Prefix=self.kwargs.get("DEST_PREFIX")

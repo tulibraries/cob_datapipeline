@@ -2,9 +2,9 @@
 import os
 import unittest
 import airflow
-from cob_datapipeline.prod_sc_az_reindex_dag import DAG
+from cob_datapipeline.prod_az_reindex_dag import DAG
 
-class TestScAZReindexDag(unittest.TestCase):
+class TestAZReindexDag(unittest.TestCase):
     """Primary Class for Testing the TUL Cob Reindex DAG."""
 
     def setUp(self):
@@ -13,7 +13,7 @@ class TestScAZReindexDag(unittest.TestCase):
 
     def test_dag_loads(self):
         """Unit test that the DAG identifier is set correctly."""
-        self.assertEqual(DAG.dag_id, "prod_sc_az_reindex")
+        self.assertEqual(DAG.dag_id, "prod_az_reindex")
 
     def test_dag_interval_is_variable(self):
         """Unit test that the DAG schedule is set by configuration."""

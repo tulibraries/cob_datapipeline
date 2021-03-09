@@ -8,9 +8,9 @@ from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from cob_datapipeline.sc_xml_parse import prepare_oai_boundwiths, update_variables
-from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
-from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
+from cob_datapipeline.tasks.xml_parse import prepare_oai_boundwiths, update_variables
+from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
+from cob_datapipeline.tasks.task_slack_posts import catalog_slackpostonsuccess
 from airflow.operators.http_operator import SimpleHttpOperator
 
 
@@ -162,7 +162,7 @@ OAI_HARVEST = PythonOperator(
 
 INDEX_UPDATES_OAI_MARC = BashOperator(
     task_id="index_updates_oai_marc",
-    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh ",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
     env={**os.environ, **{
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
@@ -182,7 +182,7 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
 
 INDEX_DELETES_OAI_MARC = BashOperator(
     task_id="index_deletes_oai_marc",
-    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh ",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
     env={**os.environ, **{
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,

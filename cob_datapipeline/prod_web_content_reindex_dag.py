@@ -6,8 +6,8 @@ from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from cob_datapipeline.task_slack_posts import web_content_slackpostonsuccess
-from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
+from cob_datapipeline.tasks.task_slack_posts import web_content_slackpostonsuccess
+from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.operators import\
         PushVariable, DeleteAliasListVariable, DeleteCollectionListVariable
 
@@ -47,7 +47,7 @@ DEFAULT_ARGS = {
 }
 
 DAG = airflow.DAG(
-    'prod_sc_web_content_reindex',
+    'prod_web_content_reindex',
     default_args=DEFAULT_ARGS,
     catchup=False,
     max_active_runs=1,

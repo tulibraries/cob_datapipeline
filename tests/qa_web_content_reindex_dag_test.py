@@ -1,8 +1,8 @@
-"""Unit Tests for the TUL Cob Web Content Index DAG."""
+"""Unit Tests for the QA TUL Cob Web Content Index DAG."""
 import os
 import unittest
 import airflow
-from cob_datapipeline.qa_sc_web_content_reindex_dag import DAG
+from cob_datapipeline.qa_web_content_reindex_dag import DAG
 
 class TestScWebContentReindexDag(unittest.TestCase):
     """Primary Class for Testing the TUL Cob Web Content DAG."""
@@ -13,7 +13,7 @@ class TestScWebContentReindexDag(unittest.TestCase):
 
     def test_dag_loads(self):
         """Unit test that the DAG identifier is set correctly."""
-        self.assertEqual(DAG.dag_id, "qa_sc_web_content_reindex")
+        self.assertEqual(DAG.dag_id, "qa_web_content_reindex")
 
     def test_dag_interval_is_variable(self):
         """Unit test that the DAG schedule is set by configuration"""

@@ -8,9 +8,9 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.contrib.operators.s3_list_operator import S3ListOperator
-from cob_datapipeline.sc_xml_parse import prepare_boundwiths, prepare_alma_data, update_variables
-from cob_datapipeline.task_sc_get_num_docs import task_solrgetnumdocs
-from cob_datapipeline.task_slack_posts import catalog_slackpostonsuccess
+from cob_datapipeline.tasks.xml_parse import prepare_boundwiths, prepare_alma_data, update_variables
+from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
+from cob_datapipeline.tasks.task_slack_posts import catalog_slackpostonsuccess
 from cob_datapipeline.operators import\
         PushVariable, DeleteCollectionListVariable
 from cob_datapipeline import helpers
@@ -183,7 +183,7 @@ GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
 
 INDEX_SFTP_MARC = BashOperator(
     task_id="index_sftp_marc",
-    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh ",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
     env={
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,

@@ -69,7 +69,7 @@ class TestCatalogFullReindexDag(unittest.TestCase):
         """Test that we index sftp files"""
         airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
         task = DAG.get_task("index_sftp_marc")
-        expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/sc_ingest_marc.sh "
+        expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/ingest_marc.sh "
         self.assertEqual(task.env["HOME"], os.getcwd())
         self.assertEqual(task.bash_command, expected_bash_path)
 

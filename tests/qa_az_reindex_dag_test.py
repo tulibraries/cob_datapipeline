@@ -1,11 +1,11 @@
-"""Unit Tests for the TUL Cob Web Content Index DAG."""
+"""Unit Tests for the TUL Cob AZ Reindex SC DAG."""
 import os
 import unittest
 import airflow
-from cob_datapipeline.prod_sc_web_content_reindex_dag import DAG
+from cob_datapipeline.qa_az_reindex_dag import DAG
 
-class TestScWebContentReindexDag(unittest.TestCase):
-    """Primary Class for Testing the TUL Cob Web Content DAG."""
+class TestScAZReindexDag(unittest.TestCase):
+    """Primary Class for Testing the TUL Cob Reindex DAG."""
 
     def setUp(self):
         """Method to set up the DAG Class instance for testing."""
@@ -13,35 +13,33 @@ class TestScWebContentReindexDag(unittest.TestCase):
 
     def test_dag_loads(self):
         """Unit test that the DAG identifier is set correctly."""
-        self.assertEqual(DAG.dag_id, "prod_sc_web_content_reindex")
+        self.assertEqual(DAG.dag_id, "qa_az_reindex")
 
     def test_dag_interval_is_variable(self):
-        """Unit test that the DAG schedule is set by configuration"""
-        self.assertEqual(DAG.schedule_interval, "WEB_CONTENT_SCHEDULE_INTERVAL")
+        """Unit test that the DAG schedule is set by configuration."""
+        self.assertEqual(DAG.schedule_interval, "@weekly")
 
     def test_dag_tasks_present(self):
         """Unit test that the DAG instance contains the expected tasks."""
         self.assertEqual(self.tasks, [
-            "set_collection_name",
             "get_num_solr_docs_pre",
             "create_collection",
-            "index_web_content",
+            "index_az",
             "get_num_solr_docs_post",
             "solr_alias_swap",
             "push_alias",
             "delete_aliases",
             "push_collection",
             "delete_collections",
-            "slack_post_succ"
+            "slack_post_succ",
             ])
 
     def test_dag_task_order(self):
         """Unit test that the DAG instance contains the expected dependencies."""
         expected_task_deps = {
-            "set_collection_name": "get_num_solr_docs_pre",
-            "create_collection": "set_collection_name",
-            "index_web_content": "create_collection",
-            "get_num_solr_docs_post": "index_web_content",
+            "create_collection": "get_num_solr_docs_pre",
+            "index_az": "create_collection",
+            "get_num_solr_docs_post": "index_az",
             "solr_alias_swap": "get_num_solr_docs_post",
             "push_alias": "solr_alias_swap",
             "delete_aliases": "push_alias",
@@ -54,13 +52,14 @@ class TestScWebContentReindexDag(unittest.TestCase):
             actual_ut = DAG.get_task(task).upstream_list[0].task_id
             self.assertEqual(upstream_task, actual_ut)
 
-    def test_index_web_content_task(self):
+    def test_index_databases_task(self):
         """Unit test that the DAG instance can find required solr indexing bash script."""
-        task = DAG.get_task("index_web_content")
+        task = DAG.get_task("index_az")
         airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
-        expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/ingest_web_content.sh "
+        expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/ingest_databases.sh "
         self.assertEqual(task.bash_command, expected_bash_path)
         self.assertEqual(task.env["HOME"], os.getcwd())
-        self.assertIn("http://127.0.0.1:8983/solr/tul_cob-web-2", task.env["SOLR_WEB_URL"])
-        self.assertEqual(task.env["WEB_CONTENT_BRANCH"], "WEB_CONTENT_BRANCH")
-        self.assertEqual(task.env["WEB_CONTENT_BASE_URL"], "WEB_CONTENT_BASE_URL")
+        self.assertEqual(task.env["AZ_BRANCH"], "AZ_BRANCH")
+        self.assertEqual(task.env["AZ_CLIENT_ID"], "AZ_CLIENT_ID")
+        self.assertEqual(task.env["AZ_CLIENT_SECRET"], "AZ_CLIENT_SECRET")
+        self.assertEqual(task.env["SOLR_AZ_URL"], "http://127.0.0.1:8983/solr/tul_cob-az-0-{{ execution_date.strftime(\"%Y-%m-%d_%H-%M-%S\") }}")

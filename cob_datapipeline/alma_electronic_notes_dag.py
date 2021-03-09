@@ -9,7 +9,7 @@ from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
 from airflow.contrib.operators.s3_to_sftp_operator import S3ToSFTPOperator
 from airflow.contrib.operators.ssh_operator import SSHOperator
-from cob_datapipeline.task_slack_posts import notes_slackpostonsuccess
+from cob_datapipeline.tasks.task_slack_posts import notes_slackpostonsuccess
 
 
 """

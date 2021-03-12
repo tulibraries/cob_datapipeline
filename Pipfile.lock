@@ -19,10 +19,10 @@
     "develop": {
         "alembic": {
             "hashes": [
-                "sha256:8a8ccd58a262b1e3ac79b7224d0f9a4ac3bf96ace149972feb3ef9d7a06ac8b5",
-                "sha256:bcb9b6cd58761a517e19d927642cd8364f37cd2db4d28dd04ffad9cf70079ddf"
+                "sha256:66bbb0e7d6277b007dfe7e27237093c79b76cf4f94e6fbd0f7af6f9409546fe6",
+                "sha256:f33d561f3ce2ca390f1c87ff3849cd7d97bb93bae9c91357727263498e10028f"
             ],
-            "version": "==1.5.6"
+            "version": "==1.5.7"
         },
         "apache-airflow": {
             "hashes": [
@@ -84,18 +84,17 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:1ca39de26205439832fa740fcc200de85f107b615dae445f869a16b76672e663",
-                "sha256:d6716f6701aae771f6ff2386a1d641855a99a9fedd64bd25476b83bacdd50c94"
+                "sha256:64a8900b3a110e2d6ff4d87f4d8cd56f0c8527361d9fc9385fcb50efe7a4975a",
+                "sha256:8e9ff8006c41889ed8a11831dee62adf922e071f14d54c52946d1f7855ae7a8e"
             ],
             "index": "pypi",
-            "version": "==1.17.23"
+            "version": "==1.17.26"
         },
         "botocore": {
             "hashes": [
-                "sha256:d5ea913331e93cecde25773841397c5d2abbc04f38b1c96c636444e8bb3478f8",
-                "sha256:f3ae5cae250c3fb200d33abacbee3f0c6513fc6f1d17a851b04a3998de68c829"
+                "sha256:4a785847a351e59f2329627fc9a19cf50f07644ea68996a1595d5a20487a423f"
             ],
-            "version": "==1.20.23"
+            "version": "==1.20.26"
         },
         "cached-property": {
             "hashes": [

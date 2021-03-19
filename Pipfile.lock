@@ -629,11 +629,11 @@
         },
         "moto": {
             "hashes": [
-                "sha256:5c729d67bd879f3874d772cb486da7788e8c9820f49d676b9cb839333ff40bb9",
-                "sha256:b0761ad0d73eaaf92324a190f780bb482dfed57c235c1cada1f5cfbf84ae6feb"
+                "sha256:4610d27ead9124eaa84a78eca7dfa25a8ccb66cf6a7cb8a8889b5ca0c7796889",
+                "sha256:f5db62e50a5377da4457307675281198e9ffbe9425866a88f523bef0c6e8d463"
             ],
             "index": "pypi",
-            "version": "==2.0.1"
+            "version": "==2.0.2"
         },
         "natsort": {
             "hashes": [

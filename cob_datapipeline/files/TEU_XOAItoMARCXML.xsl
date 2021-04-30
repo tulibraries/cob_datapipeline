@@ -276,12 +276,18 @@
                     <xsl:text>rdacarrier</xsl:text>
                 </subfield>
             </datafield>
-
-            <!-- Bibliography Note -->
-
-            <datafield tag="504" ind1=" " ind2=" ">
-                <subfield code="a"><xsl:text xml:space="preserve" >Includes bibliographical references.</xsl:text></subfield>
-            </datafield>
+            
+            <!-- Description Notes (Supplementary Files, etc.) -->
+            
+            <xsl:if test="element[@name='description']/element/field[@name='value']">
+                <xsl:for-each select="element[@name='description']/element/field[@name='value']">
+                    <datafield tag="500" ind1=" " ind2=" ">
+                        <subfield code="a">
+                            <xsl:value-of select="normalize-space(.)"/>
+                        </subfield>
+                    </datafield>
+                </xsl:for-each>
+            </xsl:if>
 
             <!-- Thesis Note -->
 
@@ -303,10 +309,10 @@
                         <xsl:text>.</xsl:text>
                     </subfield>
                 </datafield>
-            </xsl:if>
-
+            </xsl:if>       
+            
             <!-- Abstract -->
-       
+            
             <xsl:for-each select="element[@name='description']/element[@name='abstract']/element/field[@name='value'][1]">
                 <datafield tag="520" ind1=" " ind2=" ">
                     <subfield code="a">
@@ -314,6 +320,29 @@
                     </subfield>
                 </datafield>
             </xsl:for-each>
+            
+            <!-- Bibliography Note -->
+            
+            <datafield tag="504" ind1=" " ind2=" ">
+                <subfield code="a"><xsl:text xml:space="preserve" >Includes bibliographical references.</xsl:text></subfield>
+            </datafield>
+            
+            <!-- Restrictions on Access -->
+            
+            <datafield tag="506" ind1="0" ind2=" ">
+                <subfield code="a">
+                    <xsl:text>Free-to-read</xsl:text>
+                </subfield>
+                <subfield code="f">
+                    <xsl:text>Unrestricted online access</xsl:text>
+                </subfield>
+                <subfield code="2">
+                    <xsl:text>star</xsl:text>
+                </subfield>
+                <subfield code="5">
+                    <xsl:text>PPT</xsl:text>
+                </subfield>
+            </datafield>
 
             <!-- Rights -->
 

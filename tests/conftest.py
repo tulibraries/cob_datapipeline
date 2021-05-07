@@ -124,4 +124,4 @@ def pytest_sessionfinish():
     subprocess.run("rm -rf dags", shell=True)
     subprocess.run("rm -rf data", shell=True)
     subprocess.run("rm -rf logs", shell=True)
-    subprocess.run("yes | airflow resetdb", shell=True)
+    subprocess.run("yes | airflow db reset", shell=True)

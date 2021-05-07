@@ -10,10 +10,12 @@ export PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH"
 # * WEB_CONTENT_BRANCH: used here to checkout the corrent cob_web_content_index version.
 # * WEB_CONTENT_BASE_URL: Base url to retreive api data
 # * SOLR_AUTH_USER, SOLR_AUTH_PASSWORD: For basic auth requests.
+# * SOLR_AUTH_USER, SOLR_AUTH_PASSWORD: For basic auth requests.
 # * DELETE_SWITCH: Used to enable/disable delete of collection prior to ingesting.
 
 
 # * WEB_CONTENT_BASIC_AUTH_USER, WEB_CONTENT_BASIC_AUTH_PASSWORD: used by cob_web_content_index to authenticate.
+# * WEB_CONTENT_READ_TIMEOUT: used by cob_web_content_index to handle slow response for large data requests.
 # * This is Temporary until the website is in production.
 
 set -e

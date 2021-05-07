@@ -4,7 +4,6 @@ import unittest
 from re import compile as re_compile
 import logging
 import boto3
-from mock import patch
 from lxml import etree
 from moto import mock_s3
 import requests_mock

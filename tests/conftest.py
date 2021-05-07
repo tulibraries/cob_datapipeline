@@ -61,6 +61,7 @@ def pytest_sessionstart():
     airflow.models.Variable.set("WEB_CONTENT_QA_BASE_URL", "WEB_CONTENT_BASE_URL")
     airflow.models.Variable.set("WEB_CONTENT_QA_BASIC_AUTH_USER", "WEB_CONTENT_QA_BASIC_AUTH_USER")
     airflow.models.Variable.set("WEB_CONTENT_QA_BASIC_AUTH_PASSWORD", "WEB_CONTENT_QA_BASIC_AUTH_PASSWORD")
+    airflow.models.Variable.set("WEB_CONTENT_READ_TIMEOUT", "WEB_CONTENT_READ_TIMEOUT")
     airflow.models.Variable.set("WEB_CONTENT_BRANCH", "WEB_CONTENT_BRANCH")
     airflow.models.Variable.set("WEB_CONTENT_PROD_BRANCH", "WEB_CONTENT_BRANCH")
     airflow.models.Variable.set("WEB_CONTENT_QA_BRANCH", "WEB_CONTENT_BRANCH")

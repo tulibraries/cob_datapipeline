@@ -46,6 +46,7 @@
   "WEB_CONTENT_PROD_BRANCH": "main",
   "WEB_CONTENT_QA_BASE_URL": "https://web.tul-infra.page",
   "WEB_CONTENT_QA_BRANCH": "main",
+  "WEB_CONTENT_READ_TIMEOUT": 180,
   "WEB_CONTENT_SCHEDULE_INTERVAL": "@daily",
   "WEB_CONTENT_SOLR_CONFIG": {
     "configset": "tul_cob-web-0",

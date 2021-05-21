@@ -88,6 +88,7 @@ VERIFY_PROD_COLLECTION = SimpleHttpOperator(
     method='GET',
     endpoint='/okcomputer/solr/' + PROD_COLLECTION_NAME,
     log_response=True,
+    retries=2,
     dag=DAG,
 )
 

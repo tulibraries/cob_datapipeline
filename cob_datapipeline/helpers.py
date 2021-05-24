@@ -76,5 +76,5 @@ def cleanup_metadata(**op_kwargs):
 
         etree.cleanup_namespaces(collection)
         filename = s3_key.replace(source_prefix, dest_prefix)
-        transformed_xml = etree.tostring(collection)
+        transformed_xml = etree.tostring(collection, encoding="utf-8")
         process.generate_s3_object(transformed_xml, bucket, filename, access_id, access_secret)

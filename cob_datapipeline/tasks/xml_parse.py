@@ -106,11 +106,11 @@ def boundwith_record_process(record, lookup_csv):
     parent_xml_str = b""
     for parent_xml_item in parent_xml_items:
         if parent_xml_item is not None:
-            parent_xml_str = etree.tostring(parent_xml_item) + b"||"
+            parent_xml_str = etree.tostring(parent_xml_item, encoding="utf-8") + b"||"
     for parent_xml_hldg in parent_xml_hldgs:
         if parent_xml_hldg is not None:
-            parent_xml_str += etree.tostring(parent_xml_hldg) + b"||"
-    parent_xml_str += etree.tostring(parent_xml_new_field)
+            parent_xml_str += etree.tostring(parent_xml_hldg, encoding="utf-8") + b"||"
+    parent_xml_str += etree.tostring(parent_xml_new_field, encoding="utf-8")
     parent_xml_str = parent_xml_str.rstrip()
     # Gather Children Identifiers, Verify they are MMS Identifiers, & Add to Lookup
     children_ids = record.xpath(
@@ -166,7 +166,7 @@ def prepare_alma_data(**kwargs):
                         logging.error(parent_node)
         dest_key = key.replace(src_suffix, "").replace(src_prefix, dest_prefix + "/alma_bibs__")
         process.generate_s3_object(
-            etree.tostring(src_xml),
+            etree.tostring(src_xml, encoding="utf-8"),
             bucket,
             dest_key,
             access_id,

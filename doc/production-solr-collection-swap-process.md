@@ -41,4 +41,5 @@ If something goes wrong with the full reindex and you need to rerun it from the 
 1. Before the deploy, turn off Pre Production and Production OAI Harvest Dags
 1. Approve Deploy To Prod task in CircleCI that was created when the Release and wait for deploy to prod to complete. This deploy [updates the airflow variable](https://github.com/tulibraries/tul_cob/blob/main/.circleci/update-airflow.sh) `CATALOG_PRODUCTION_SOLR_COLLECTION` to the same value as `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION`
 1. After the deployment is complete we, update the `CATALOG_PROD_HARVEST_FROM_DATE` variable with the `CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE` variable value.
-1. Turn the Production OAI HArvest back on
+1. Update the `PROD_COB_INDEX_VERSION` to match the version used in `PRE_PRODUCTION_COB_INDEX_VERSION`.
+1. Turn the Production OAI Harvest back on

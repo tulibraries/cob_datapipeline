@@ -36,8 +36,6 @@ AZ_CLIENT_ID = Variable.get("AZ_CLIENT_ID")
 AZ_CLIENT_SECRET = Variable.get("AZ_CLIENT_SECRET")
 AZ_BRANCH = Variable.get("AZ_QA_BRANCH")
 
-EXECUTION_DATE = '-{{ execution_date.strftime("%Y-%m-%d_%H-%M-%S") }}'
-
 # CREATE DAG
 DEFAULT_ARGS = {
     "owner": "cob-qa",
@@ -64,6 +62,12 @@ Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """
 
+SET_COLLECTION_NAME = PythonOperator(
+    task_id="set_collection_name",
+    python_callable=datetime.now().strftime,
+    op_args=["%Y-%m-%d_%H-%M-%S"],
+    dag=DAG
+)
 
 GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
@@ -75,7 +79,7 @@ GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
 CREATE_COLLECTION = tasks.create_sc_collection(
     DAG,
     SOLR_CONN.conn_id,
-    CONFIGSET + EXECUTION_DATE,
+    CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
     REPLICATION_FACTOR,
     CONFIGSET
 )
@@ -85,7 +89,7 @@ INDEX_DATABASES = BashOperator(
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_databases.sh ",
     env={**os.environ, **{
         "HOME": AIRFLOW_USER_HOME,
-        "SOLR_AZ_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + EXECUTION_DATE),
+        "SOLR_AZ_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"),
         "AZ_CLIENT_ID": AZ_CLIENT_ID,
         "AZ_CLIENT_SECRET": AZ_CLIENT_SECRET,
         "AZ_BRANCH": AZ_BRANCH,
@@ -97,14 +101,14 @@ INDEX_DATABASES = BashOperator(
 
 GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     DAG,
-    CONFIGSET + EXECUTION_DATE,
+    CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
     "get_num_solr_docs_post",
     conn_id=SOLR_CONN.conn_id)
 
 SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
     DAG,
     SOLR_CONN.conn_id,
-    CONFIGSET + EXECUTION_DATE,
+    CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
     ALIAS
 )
 
@@ -125,7 +129,7 @@ DELETE_ALIASES = DeleteAliasListVariable(
 PUSH_COLLECTION = PushVariable(
     task_id="push_collection",
     name="AZ_QA_COLLECTIONS",
-    value=CONFIGSET + EXECUTION_DATE,
+    value=CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
     dag=DAG)
 
 DELETE_COLLECTIONS = DeleteCollectionListVariable(
@@ -133,7 +137,7 @@ DELETE_COLLECTIONS = DeleteCollectionListVariable(
     solr_conn_id='SOLRCLOUD',
     list_variable="AZ_QA_COLLECTIONS",
     skip_from_last=2,
-    skip_included=[CONFIGSET + EXECUTION_DATE],
+    skip_included=[CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}"],
     dag=DAG)
 
 POST_SLACK = PythonOperator(
@@ -144,7 +148,8 @@ POST_SLACK = PythonOperator(
 )
 
 # SET UP TASK DEPENDENCIES
-CREATE_COLLECTION.set_upstream(GET_NUM_SOLR_DOCS_PRE)
+SET_COLLECTION_NAME.set_upstream(GET_NUM_SOLR_DOCS_PRE)
+CREATE_COLLECTION.set_upstream(SET_COLLECTION_NAME)
 INDEX_DATABASES.set_upstream(CREATE_COLLECTION)
 GET_NUM_SOLR_DOCS_POST.set_upstream(INDEX_DATABASES)
 SOLR_ALIAS_SWAP.set_upstream(GET_NUM_SOLR_DOCS_POST)

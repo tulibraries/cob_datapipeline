@@ -7,8 +7,8 @@ from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from airflow.contrib.operators.s3_to_sftp_operator import S3ToSFTPOperator
-from airflow.contrib.operators.ssh_operator import SSHOperator
+from airflow.providers.amazon.aws.transfers.s3_to_sftp.S3ToSFTPOperator import S3ToSFTPOperator
+from airflow.providers.ssh.operators.ssh.SSHOperator import SSHOperator
 from cob_datapipeline.tasks.task_slack_posts import notes_slackpostonsuccess
 
 

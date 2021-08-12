@@ -7,7 +7,7 @@ from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.python_operator import PythonOperator
-from airflow.contrib.operators.s3_list_operator import S3ListOperator
+from airflow.providers.amazon.aws.operators.s3_list.S3ListOperator import S3ListOperator
 from cob_datapipeline.operators.batch_s3_to_sftp_operator import BatchS3ToSFTPOperator
 import airflow
 

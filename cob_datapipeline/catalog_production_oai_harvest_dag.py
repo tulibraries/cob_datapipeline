@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import os
 from tulflow import harvest, tasks
 import airflow
-from airflow.contrib.operators.s3_list_operator import S3ListOperator
+from airflow.providers.amazon.aws.operators.s3_list.S3ListOperator import S3ListOperator
 from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator

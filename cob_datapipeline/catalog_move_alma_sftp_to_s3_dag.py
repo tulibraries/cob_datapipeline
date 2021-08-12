@@ -4,7 +4,7 @@ import logging
 from tulflow import tasks
 import airflow
 from airflow.models import Variable
-from airflow.contrib.hooks.sftp_hook import SFTPHook
+from airflow.providers.sftp.hooks.sftp.SFTPHook import SFTPHook
 from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.operators.batch_sftp_to_s3_operator import BatchSFTPToS3Operator
 from cob_datapipeline.helpers import determine_most_recent_date

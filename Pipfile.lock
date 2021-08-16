@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "1bce33bc9dbefc26cc2e487e3ab2b6eb7e9c65f32bf8acfcb4441c8d5ae4459f"
+            "sha256": "a0c4d2f60fdd639ff7e5a4dc440a0b3a53f5ac32440a091da9edd301b5e99648"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -123,11 +123,11 @@
         },
         "apache-airflow-backport-providers-amazon": {
             "hashes": [
-                "sha256:9a1384536aaf9f276d71b39614b8af29138ab578ef5368b1ec5defc042133c26",
-                "sha256:fa6492fdb75f1064484437602f89a676eef47c96fbf8207002e61bb95c691cc6"
+                "sha256:1ae7bb4400d218dd97eb0233466eae29a7819f6ff7d02076e5d93ae9e874ccd9",
+                "sha256:4e6d4dc043c7e05d66c64bad87be0cfb74cfbfa3da27baed1fdbde1ac04e6162"
             ],
             "index": "pypi",
-            "version": "==2021.3.3"
+            "version": "==2020.11.23"
         },
         "apache-airflow-backport-providers-ftp": {
             "hashes": [
@@ -136,6 +136,14 @@
             ],
             "index": "pypi",
             "version": "==2021.3.17"
+        },
+        "apache-airflow-backport-providers-http": {
+            "hashes": [
+                "sha256:103d8f2d281790c6e4f8ba56572b6b2fc65e12d3bfe270c86c6b0aa564cba20e",
+                "sha256:9cfb04caa905f769248c592320a66070317ecc8472dead372e2521536cfac4d1"
+            ],
+            "index": "pypi",
+            "version": "==2021.4.10"
         },
         "apache-airflow-backport-providers-sftp": {
             "hashes": [
@@ -455,7 +463,7 @@
             "hashes": [
                 "sha256:bbf4467f41c56cf1fd8a5870d2556f419c572aad2b4085757581c3f9b4d7767a"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4.0'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4'",
             "version": "==3.25.1"
         },
         "flask-login": {
@@ -560,7 +568,7 @@
                 "sha256:27f503220e6845d9db954fb212b95b0362d8b7e6c1b2326a87061c3de93594b1",
                 "sha256:d7bc01b1c2a43b259570bb307f057abc578786ea734ba2b87b836c5efc5bd443"
             ],
-            "markers": "python_full_version >= '3.6.2' and python_version < '4.0'",
+            "markers": "python_full_version >= '3.6.2' and python_version < '4'",
             "version": "==1.0.2"
         },
         "isort": {
@@ -568,7 +576,7 @@
                 "sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7",
                 "sha256:e8443a5e7a020e9d7f97f1d7d9cd17c88bcb3bc7e218bf9cf5095fe550be2951"
             ],
-            "markers": "python_full_version >= '3.6.1' and python_version < '4.0'",
+            "markers": "python_full_version >= '3.6.1' and python_version < '4'",
             "version": "==5.10.1"
         },
         "itsdangerous": {
@@ -1247,10 +1255,11 @@
         },
         "s3transfer": {
             "hashes": [
-                "sha256:35627b86af8ff97e7ac27975fe0a98a312814b46c6333d8a6b889627bcd80994",
-                "sha256:efa5bd92a897b6a8d5c1383828dca3d52d0790e0756d49740563a3fb6ed03246"
+                "sha256:50ed823e1dc5868ad40c8dc92072f757aa0e653a192845c94a3b676f4a62da4c",
+                "sha256:9c1dc369814391a6bda20ebbf4b70a0f34630592c9aa520856bf384916af2803"
             ],
-            "version": "==0.3.7"
+            "markers": "python_version >= '3.6'",
+            "version": "==0.5.0"
         },
         "setproctitle": {
             "hashes": [
@@ -1478,7 +1487,7 @@
                 "sha256:8d7eaa5a82a1cac232164990f04874c594c9453ec55eef02eab885aa02fc17a2",
                 "sha256:f5321fbe4bf3fefa0efd0bfe7fb14e90909eb62a48ccda331726b4319897dd5e"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4.0'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3, 3.4' and python_version < '4'",
             "version": "==1.25.11"
         },
         "watchtower": {

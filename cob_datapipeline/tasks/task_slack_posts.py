@@ -2,7 +2,7 @@
 import json
 from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
-from airflow.providers.slack.operators.slack_webhook.SlackWebhookOperator import SlackWebhookOperator
+from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator
 from tulflow import tasks
 
 

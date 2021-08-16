@@ -1,4 +1,4 @@
-from airflow.providers.amazon.aws.transfers.sftp_to_s3.SFTPToS3Operator import SFTPToS3Operator
+from airflow.providers.amazon.aws.transfers.sftp_to_s3 import SFTPToS3Operator
 from airflow.utils.decorators import apply_defaults
 
 

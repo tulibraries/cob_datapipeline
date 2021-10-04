@@ -22,6 +22,7 @@ class TestAZReindexDag(unittest.TestCase):
     def test_dag_tasks_present(self):
         """Unit test that the DAG instance contains the expected tasks."""
         self.assertEqual(self.tasks, [
+            "set_collection_name",
             "get_num_solr_docs_pre",
             "create_collection",
             "index_az",
@@ -37,7 +38,8 @@ class TestAZReindexDag(unittest.TestCase):
     def test_dag_task_order(self):
         """Unit test that the DAG instance contains the expected dependencies."""
         expected_task_deps = {
-            "create_collection": "get_num_solr_docs_pre",
+            "set_collection_name": "get_num_solr_docs_pre",
+            "create_collection": "set_collection_name",
             "index_az": "create_collection",
             "get_num_solr_docs_post": "index_az",
             "solr_alias_swap": "get_num_solr_docs_post",
@@ -62,4 +64,4 @@ class TestAZReindexDag(unittest.TestCase):
         self.assertEqual(task.env["AZ_BRANCH"], "AZ_BRANCH")
         self.assertEqual(task.env["AZ_CLIENT_ID"], "AZ_CLIENT_ID")
         self.assertEqual(task.env["AZ_CLIENT_SECRET"], "AZ_CLIENT_SECRET")
-        self.assertEqual(task.env["SOLR_AZ_URL"], "http://127.0.0.1:8983/solr/tul_cob-az-0-{{ execution_date.strftime(\"%Y-%m-%d_%H-%M-%S\") }}")
+        self.assertEqual(task.env["SOLR_AZ_URL"], "http://127.0.0.1:8983/solr/tul_cob-az-0-{{ ti.xcom_pull(task_ids='set_collection_name') }}")

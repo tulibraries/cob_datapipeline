@@ -23,7 +23,7 @@ AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 SCHEDULE_INTERVAL = Variable.get("WEB_CONTENT_SCHEDULE_INTERVAL")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
-SOLR_CONN = BaseHook.get_connection("SOLRCLOUD")
+SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
 SOLR_CONFIG = Variable.get("WEB_CONTENT_SOLR_CONFIG", deserialize_json=True)
 # {"configset": "tul_cob-web-2", "replication_factor": 4}
 CONFIGSET = SOLR_CONFIG.get("configset")

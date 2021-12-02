@@ -4,7 +4,7 @@ jobs:
   lint_and_test:
     working_directory: ~/cob_datapipeline
     docker:
-      - image: circleci/python:3.6
+      - image: cimg/python:3.7.11
         environment:
           PIPENV_VENV_IN_PROJECT: true
     steps:
@@ -12,13 +12,12 @@ jobs:
       - run:
           name: 'Run Pylint & Pytest'
           command: |
-            sudo pip install pipenv
             SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
             make lint
             make test
   qa_deploy:
     docker:
-      - image: circleci/python:3.6
+      - image: cimg/python:3.7.11
         environment:
           PIPENV_VENV_IN_PROJECT: true
     steps:
@@ -32,7 +31,6 @@ jobs:
             cd ..
             git clone --single-branch --branch qa https://github.com/tulibraries/ansible-playbook-airflow.git
             cd ansible-playbook-airflow
-            sudo pip install pipenv
             pipenv install
             pipenv run ansible-galaxy install -r requirements.yml
             cp .circleci/.vault ~/.vault;
@@ -40,7 +38,7 @@ jobs:
             pipenv run ansible-playbook -i inventory/qa playbook.yml --tags "jumphost,role::airflow::dags" --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
   prod_deploy:
     docker:
-      - image: circleci/python:3.6
+      - image: cimg/python:3.7.11
         environment:
           PIPENV_VENV_IN_PROJECT: true
     steps:
@@ -54,7 +52,6 @@ jobs:
             cd ..
             git clone --single-branch --branch main https://github.com/tulibraries/ansible-playbook-airflow.git
             cd ansible-playbook-airflow
-            sudo pip install pipenv
             pipenv install
             pipenv run ansible-galaxy install -r requirements.yml
             cp .circleci/.vault ~/.vault;

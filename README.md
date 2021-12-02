@@ -8,10 +8,6 @@ These DAGs (and related scripts) are expecting to be run within an Airflow insta
 
 Local Development, QA, and Production environment usage of these DAGs is detailed below.
 
-## Repository Structure
-
-WIP.
-
 ## Airflow Expectations
 
 These are the Airflow expectations for the Library Search DAGs and scripts to successfully run. These apply across environments (development, QA, production).
@@ -19,7 +15,7 @@ These are the Airflow expectations for the Library Search DAGs and scripts to su
 **Libraries & Packages**
 
 - Python. These steps are tested & working with the following Python versions:
-  - 3.6.8 (with pip version 18.1)
+  - 3.7.11 (with pip version 18.1)
 - Python Libraries: see the [Pipfile](Pipfile).
 - Ruby (for running Traject via the TUL_COB Rails Application). These steps are tested with the following Ruby versions:
   - 2.7.2
@@ -102,8 +98,6 @@ $ make test
 ```
 
 Linting for Errors only (`pipenv run pylint cob_datapipeline -E`) is run by Travis on every PR.
-
-Currently, there are no tests for this code; they are 'tested' in local Airflow deployments. WIP.
 
 ## Running these DAGs
 

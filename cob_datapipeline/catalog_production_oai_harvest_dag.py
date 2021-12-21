@@ -11,7 +11,7 @@ from airflow.operators.python_operator import PythonOperator
 from cob_datapipeline.tasks.xml_parse import prepare_oai_boundwiths, update_variables
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.tasks.task_slack_posts import catalog_slackpostonsuccess
-from airflow.operators.http_operator import SimpleHttpOperator
+from airflow.providers.http.operators.http import SimpleHttpOperator
 
 
 """

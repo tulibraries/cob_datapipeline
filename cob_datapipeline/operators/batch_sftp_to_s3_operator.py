@@ -1,4 +1,4 @@
-from airflow.contrib.operators.sftp_to_s3_operator import SFTPToS3Operator
+from airflow.providers.amazon.aws.transfers.sftp_to_s3 import SFTPToS3Operator
 from airflow.utils.decorators import apply_defaults
 
 
@@ -9,7 +9,7 @@ class BatchSFTPToS3Operator(SFTPToS3Operator):
     :param sftp_conn_id: The sftp connection id. The name or identifier for
         establishing a connection to the SFTP server.
     :type sftp_conn_id: str
-    :param sftp_base_path: The sftp remote path where the batch of files can be found. 
+    :param sftp_base_path: The sftp remote path where the batch of files can be found.
     :type sftp_path: str
     :param s3_conn_id: The s3 connection id. The name or identifier for
         establishing a connection to S3
@@ -17,7 +17,7 @@ class BatchSFTPToS3Operator(SFTPToS3Operator):
     :param s3_bucket: The targeted s3 bucket. This is the S3 bucket to where
         the file is uploaded.
     :type s3_bucket: str
-    :param s3_prefix: The prefix that will be used to generate full s3 key path for each file in 
+    :param s3_prefix: The prefix that will be used to generate full s3 key path for each file in
         the batch.
     :type s3_prefix: str
     :param xcom_id: Id of the task which pushed the list of files to be transferred to xcom.
@@ -54,9 +54,8 @@ class BatchSFTPToS3Operator(SFTPToS3Operator):
             count += 1
             self.s3_key = f"{self.s3_prefix}{f}"
             self.sftp_path = f"{self.sftp_base_path}/{f}"
-            
+
             super(BatchSFTPToS3Operator, self).execute(context)
             self.log.info("Sent to s3://%s/%s", self.s3_bucket, self.s3_key)
-        
-        self.log.info(f"Total Files transfered: {count}")
 
+        self.log.info(f"Total Files transfered: {count}")

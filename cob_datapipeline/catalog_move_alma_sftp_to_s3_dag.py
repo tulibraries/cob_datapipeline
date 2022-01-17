@@ -58,7 +58,7 @@ MOVE_FILES_TO_S3 = BatchSFTPToS3Operator(
     s3_bucket=S3_BUCKET,
     s3_prefix="almasftp/{{ ti.xcom_pull(task_ids='get_list_of_alma_sftp_files_to_transer', key='most_recent_date' )}}/",
     sftp_base_path="./",
-    files_list_task_xcom_id="get_list_of_alma_sftp_files_to_transer",
+    xcom_id="get_list_of_alma_sftp_files_to_transer",
     sftp_conn_id="ALMASFTP",
     s3_conn_id=S3_CONN_ID,
     dag=DAG,

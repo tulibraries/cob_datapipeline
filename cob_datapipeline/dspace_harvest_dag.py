@@ -125,7 +125,7 @@ S3_TO_SFTP = BatchS3ToSFTPOperator(
     task_id="s3_to_sftp",
     provide_context=True,
     sftp_conn_id="DSPACESFTP",
-    files_list_task_xcom_id="{{ ti.xcom_pull(task_ids='list_s3_files') }}",
+    xcom_id="{{ ti.xcom_pull(task_ids='list_s3_files') }}",
     sftp_base_path="production/",
     s3_conn_id="AIRFLOW_S3",
     s3_bucket=AIRFLOW_DATA_BUCKET,

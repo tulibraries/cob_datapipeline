@@ -35,6 +35,7 @@ class BatchS3ToSFTPOperator(S3ToSFTPOperator):
                  xcom_id="",
                  sftp_conn_id='ssh_default',
                  s3_conn_id='aws_default',
+                 provide_context=True,
                  **kwargs):
         super(BatchS3ToSFTPOperator, self).__init__(s3_bucket=s3_bucket,
                                                     s3_key=None,

@@ -13,9 +13,9 @@
     <xsl:output method="xml" encoding="UTF-8" indent="yes"/>
 
     <xsl:template match="/">
-        
+        <collection>
             <xsl:apply-templates />
-        
+        </collection>
     </xsl:template>
 
     <xsl:template match="text()" />

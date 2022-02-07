@@ -1289,11 +1289,11 @@
         },
         "setuptools": {
             "hashes": [
-                "sha256:5c89b1a14a67ac5f0956f1cb0aeb7d1d3f4c8ba4e4e1ab7bf1af4933f9a2f0fe",
-                "sha256:675fcebecb43c32eb930481abf907619137547f4336206e4d673180242e1a278"
+                "sha256:07e97e2f1e5607d240454e98c75c7004560ac8417ca5ae1dbaa50811cb6cc95c",
+                "sha256:23aad87cc27f4ae704079618c1d117a71bd43d41e355f0698c35f6b1c796d26c"
             ],
             "index": "pypi",
-            "version": "==60.2.0"
+            "version": "==60.8.1"
         },
         "sickle": {
             "hashes": [
@@ -1313,11 +1313,11 @@
         },
         "slack-sdk": {
             "hashes": [
-                "sha256:54f2a5f7419f1ab932af9e3200f7f2f93db96e0f0eb8ad7d3b4214aa9f124641",
-                "sha256:aae6ce057e286a5e7fe7a9f256e85b886eee556def8e04b82b08f699e64d7f67"
+                "sha256:9d9db582f81fbe3f24663386eb6bfb76ef15e43690ac54d5633d76dd4849c6ba",
+                "sha256:d817be1b6e665d9fcb0fc2339f61ed5da091c944d3d7c9bb86df10d34ec00403"
             ],
             "markers": "python_version >= '3.6'",
-            "version": "==3.13.0"
+            "version": "==3.14.0"
         },
         "sqlalchemy": {
             "hashes": [

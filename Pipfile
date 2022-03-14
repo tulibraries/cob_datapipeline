@@ -34,7 +34,7 @@ marshmallow = "==2.21.0"
 wtforms = "==2.3.3"
 
 [packages]
-pytest = "==6.2.5"
+pytest = "==7.1.0"
 
 [requires]
 python_version = "3.7"

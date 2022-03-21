@@ -1,4 +1,4 @@
-"""Airflow DAG to index AZ Databases into Solr."""
+"""Airflow DAG to move alma FTP files to S3 and then archive those files into ./backup folder."""
 from datetime import datetime, timedelta
 import logging
 from tulflow import tasks

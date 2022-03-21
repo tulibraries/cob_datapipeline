@@ -49,6 +49,7 @@ AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
 ALMASFTP_S3_PREFIX = Variable.get("ALMASFTP_S3_PREFIX")
 # Namespace of the data transferred by the almasftp dag
 ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE = Variable.get("ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE")
+ALMASFTP_S3_ORIGINAL_BW_DATA_NAMESPACE = Variable.get("ALMASFTP_S3_ORIGINAL_BW_DATA_NAMESPACE")
 
 CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE = (datetime.strptime(ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE, '%Y%m%d%H') - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -111,7 +112,7 @@ LIST_ALMA_S3_DATA = S3ListOperator(
 LIST_BOUNDWITH_S3_DATA = S3ListOperator(
     task_id="list_boundwith_s3_data",
     bucket=AIRFLOW_DATA_BUCKET,
-    prefix=ALMASFTP_S3_PREFIX + "/alma_bibs__boundwith",
+    prefix=ALMASFTP_S3_PREFIX + "/bw/" + ALMASFTP_S3_ORIGINAL_BW_DATA_NAMESPACE + "/alma_bibs__boundwith",
     delimiter="/",
     aws_conn_id=AIRFLOW_S3.conn_id,
     dag=DAG

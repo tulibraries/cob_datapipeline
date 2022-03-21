@@ -10,16 +10,18 @@ These steps are broken down into three sections as these parts can be run sequen
 1. Initiate Alma FTP Export and wait for completion.
 1. Trigger the `catalog_move_alma_sftp_to_s3` Dag and wait for completion.
    1. Skip this step if you want to reuse the s3 alma_sftp files from the last run.
-3. If needed, move the latest boundwith export file from almasftp to s3 (To be automated).
+1. Trigger the `catalog_move_alma_sftp_bw_to_s3` Dag and wait for completion.
+   1. Skip this step if you want to reuse the s3 alma_sftp files from the last run.
+1. If needed, move the latest boundwith export file from almasftp to s3 (To be automated).
    1. From almasftp server export AWS credentials (if needed) and then run following command (example):
    1. `aws s3 sync . s3://tulib-airflow-prod/almasftp --exclude '*'  --include 'alma_bibs__boundwith2_2021021914_22144742000003811_new.xml.tar.gz' `
    1. Delete the old boundwith file on s3.
-4. Turn off the catalog_preproduction_oai_harvest
-5. Set variables required for the full reindex:
+1. Turn off the catalog_preproduction_oai_harvest
+1. Set variables required for the full reindex:
    1. Ensure the variable `CATALOG_PRE_PRODUCTION_SOLR_CONFIG` is using the correct version of solr configs
    1. Ensure the variable `PRE_PRODUCTION_COB_INDEX_VERSION` is the correct version of cob index
    1. Update the `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` variable to be None.
-6. Trigger `catalog_full_reindex` Dag and wait for completion
+1. Trigger `catalog_full_reindex` Dag and wait for completion
 
 ### Caveats and Incidentals
 * `cob_datapipeline` deployments to airflow-prod only happen on new releases for that repo (plus verified CI deployment step).

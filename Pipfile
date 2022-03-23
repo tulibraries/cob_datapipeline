@@ -31,7 +31,7 @@ flask-sqlalchemy = "==2.4.4"
 jinja2 = "==2.11.3"
 werkzeug = "==0.16.1"
 marshmallow = "==2.21.0"
-wtforms = "==2.3.3"
+wtforms = "==3.0.1"
 markupsafe= "==2.0.1"
 
 # required in circleci context.

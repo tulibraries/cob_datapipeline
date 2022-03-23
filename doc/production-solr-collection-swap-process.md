@@ -12,7 +12,6 @@ These steps are broken down into three sections as these parts can be run sequen
    1. Skip this step if you want to reuse the s3 alma_sftp files from the last run.
 1. Trigger the `catalog_move_alma_sftp_bw_to_s3` Dag and wait for completion.
    1. Skip this step if you want to reuse the s3 alma_sftp files from the last run.
-1. If needed, move the latest boundwith export file from almasftp to s3 (To be automated).
    1. From almasftp server export AWS credentials (if needed) and then run following command (example):
    1. `aws s3 sync . s3://tulib-airflow-prod/almasftp --exclude '*'  --include 'alma_bibs__boundwith2_2021021914_22144742000003811_new.xml.tar.gz' `
    1. Delete the old boundwith file on s3.

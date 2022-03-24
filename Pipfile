@@ -32,7 +32,7 @@ jinja2 = "==2.11.3"
 werkzeug = "==0.16.1"
 marshmallow = "==2.21.0"
 wtforms = "==2.3.3"
-markupsafe= "==2.0.1"
+markupsafe= "==2.1.1"
 
 # required in circleci context.
 numpy= "*"

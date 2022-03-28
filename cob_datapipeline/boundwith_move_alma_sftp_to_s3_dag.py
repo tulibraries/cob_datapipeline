@@ -41,7 +41,7 @@ def calculate_list_of_files_to_move(**context):
     files = [f for f in files_list if f.startswith("alma_bibs__boundwith2_20")]
     if files:
         most_recent_date = determine_most_recent_date(files)
-        context["task_instance"].xcom_push(key="most_recent__bw_date", value=most_recent_date)
+        context["task_instance"].xcom_push(key="most_recent_date", value=most_recent_date)
         return [f for f in files_list if f.startswith(f"alma_bibs__boundwith2_{most_recent_date}")]
     else:
         raise ValueError("No matching bw files were found on the alma sftp server")

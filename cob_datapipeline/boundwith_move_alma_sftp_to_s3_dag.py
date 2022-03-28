@@ -27,7 +27,7 @@ DEFAULT_ARGS = {
 }
 
 DAG = airflow.DAG(
-    "catalog_move_alma_sftp_bw_to_s3",
+    "boundwith_move_alma_sftp_to_s3",
     default_args=DEFAULT_ARGS,
     catchup=False,
     max_active_runs=1,

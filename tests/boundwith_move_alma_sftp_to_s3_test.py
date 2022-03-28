@@ -2,7 +2,7 @@
 import os
 import unittest
 import airflow
-from cob_datapipeline.catalog_move_alma_sftp_bw_to_s3_dag import DAG
+from cob_datapipeline.boundwith_move_alma_sftp_to_s3_dag import DAG
 
 class TestMoveAlmaSFTPBwToS3Dag(unittest.TestCase):
     """Primary Class for Testing the  TUL Cob Move Alma SFTP to S3 Dag."""
@@ -13,7 +13,7 @@ class TestMoveAlmaSFTPBwToS3Dag(unittest.TestCase):
 
     def test_dag_loads(self):
         """Unit test that the DAG identifier is set correctly."""
-        self.assertEqual(DAG.dag_id, "catalog_move_alma_sftp_bw_to_s3")
+        self.assertEqual(DAG.dag_id, "boundwith_move_alma_sftp_to_s3")
 
     def test_dag_interval_is_variable(self):
         """Unit test that the DAG schedule is set by configuration."""

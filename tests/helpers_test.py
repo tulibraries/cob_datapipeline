@@ -18,6 +18,10 @@ class TestDetermineMostRecentDate(unittest.TestCase):
         files_list = ["alma_bibs__1234_test_1", "alma_bibs__1235_test_1", "alma_bibs__1235_test_2", "alma_bibs__12340_test_1"]
         self.assertEqual(helpers.determine_most_recent_date(files_list), 12340)
 
+    def test_determine_most_recent_date_boundwith(self):
+        files_list = ["alma_bibs__boundwith2_1234_test_1", "alma_bibs__boundwith2_1235_test_1", "alma_bibs__boundwith2_1235_test_2", "alma_bibs__boundwith_12340_test_1"]
+        self.assertEqual(helpers.determine_most_recent_date(files_list), 12340)
+
     def test_catalog_safety_check(self):
         airflow.models.Variable.set("CATALOG_PRODUCTION_SOLR_COLLECTION", "FOO")
         airflow.models.Variable.set("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION", "FOO")

@@ -7,7 +7,12 @@ from airflow.models import Variable
 
 def determine_most_recent_date(files_list):
     # Expecting list of filenames in the format alma_bibs__2020050503_18470272620003811_new_1.xml
-    return max([int(f.split("_")[3]) for f in files_list])
+    # OR alma_bibs__boundwith2_2022031420_27396291920003811_new.xml.tar.gz
+    date_position = 3
+    if len(files_list) > 0 and "boundwith" in files_list[0]:
+        date_position = 4
+
+    return max([int(f.split("_")[date_position]) for f in files_list])
 
 
 def catalog_safety_check(**context):

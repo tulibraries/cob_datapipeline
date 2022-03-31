@@ -128,7 +128,7 @@ PREPARE_BOUNDWITHS = PythonOperator(
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/lookup.tsv",
         "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_boundwith_s3_data') }}",
-        "SOURCE_FOLDER": ALMASFTP_S3_PREFIX + "/alma_bibs__boundwith"
+        "SOURCE_FOLDER": ALMASFTP_S3_PREFIX + "/bw/" + ALMASFTP_S3_ORIGINAL_BW_DATA_NAMESPACE + "/alma_bibs__boundwith"
     },
     dag=DAG
 )

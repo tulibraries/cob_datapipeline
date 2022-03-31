@@ -69,7 +69,7 @@
                 <xsl:value-of select="$thesisYear"/>
                 <xsl:text xml:space="preserve">####pau#####obm###000#0#</xsl:text>
                 <xsl:value-of select="$thesisLanguage"/>
-                <xsl:text xml:space="preserve">\d</xsl:text>
+                <xsl:text xml:space="preserve">#d</xsl:text>
             </controlfield>
 
             <!-- Variable Length Fields -->

@@ -27,7 +27,7 @@
                 <xsl:variable name="leader07">m</xsl:variable>
                 <xsl:value-of select="concat('      ',$leader06,$leader07,'         Ki     ')"/>
                 -->
-                <xsl:text xml:space="preserve">00000nam\a2200000Ki\4500</xsl:text>
+                <xsl:text xml:space="preserve">00000nam#a2200000Ki#4500</xsl:text>
             </xsl:element>
 
             <!-- Variables -->
@@ -56,7 +56,7 @@
             -->
             
             <controlfield tag="006">
-                <xsl:text xml:space="preserve">m\\\\\o\\d\\\\\\\\</xsl:text>
+                <xsl:text xml:space="preserve">m#####o##d########</xsl:text>
             </controlfield>
 
             <controlfield tag="007">
@@ -67,7 +67,7 @@
                 <xsl:value-of select="$currentDateTrim"/>
                 <xsl:text xml:space="preserve">s</xsl:text>
                 <xsl:value-of select="$thesisYear"/>
-                <xsl:text xml:space="preserve">\\\\pau\\\\\obm\\\000\0\</xsl:text>
+                <xsl:text xml:space="preserve">####pau#####obm###000#0#</xsl:text>
                 <xsl:value-of select="$thesisLanguage"/>
                 <xsl:text xml:space="preserve">\d</xsl:text>
             </controlfield>

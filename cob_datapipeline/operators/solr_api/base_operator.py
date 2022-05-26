@@ -25,6 +25,7 @@ from airflow.hooks.http_hook import HttpHook
 from airflow.utils.decorators import apply_defaults
 from cob_datapipeline.exceptions import SafetyCheckException
 from cob_datapipeline.models import ListVariable
+from typing import Dict, Optional, Sequence
 
 def get_failed_reason(response):
     """
@@ -88,14 +89,15 @@ class SolrApiBaseOperator(BaseOperator):
     :type on_failure: function(str, response)
     """
 
-    template_fields = ['data', 'name', 'skip_included', 'skip_matching']
+    template_fields: Sequence[str] = ('data', 'name', 'skip_included', 'skip_matching')
 
     @apply_defaults
     def __init__(
             self,
+            *,
             solr_conn_id,
             data,
-            *args,
+            name="",
             log_response=True,
             skip_included=None,
             skip_matching=None,
@@ -104,10 +106,10 @@ class SolrApiBaseOperator(BaseOperator):
             on_failure=None,
             **kwargs):
 
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         self.solr_conn_id = solr_conn_id
         self.log_response = log_response
-
+        self.name = name
         self.skip_included = _safety_check(skip_included)
         self.skip_matching = skip_matching
         self.rescue_failure = rescue_failure

@@ -18,5 +18,4 @@ def task_solrgetnumdocs(dag, alias_name, taskid, conn_id):
               "rows": "0"
              },
         headers={},
-        xcom_push=True,
         dag=dag)

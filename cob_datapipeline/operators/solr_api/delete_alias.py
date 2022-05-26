@@ -156,11 +156,11 @@ class DeleteAliasListVariable(ListVariableMixin, DeleteAliasBatch):
     def __init__(
             self,
             list_variable,
-            *args,
             **kwargs):
 
         aliases = ListVariable.get(list_variable)
         super().__init__(
-            list_variable=list_variable,
             aliases=aliases,
-            *args, **kwargs)
+            **kwargs)
+        
+        self.list_variable=list_variable,

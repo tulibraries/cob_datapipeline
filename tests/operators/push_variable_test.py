@@ -6,6 +6,8 @@ from airflow.models.renderedtifields import RenderedTaskInstanceFields as RTIF
 from cob_datapipeline.operators import PushVariable
 from cob_datapipeline.models import ListVariable
 from tests.helpers import DEFAULT_DATE
+from airflow.utils.state import State
+from airflow import settings
 
 
 class PushVariableTest(unittest.TestCase):
@@ -46,10 +48,17 @@ class PushVariableTest(unittest.TestCase):
         self.assertEqual(ListVariable.get('foo'), [1])
 
     def test_execute_with_existing_templated_value(self):
-        dag = DAG(dag_id='test_dag', run_id="ida")
+        session = settings.Session();
+        dag = DAG(dag_id='test_dag', start_date=DEFAULT_DATE)
         with dag:
+            dr = dag.create_dagrun(
+                    run_id="test_existing_templated_value", state=State.SUCCESS,
+                    execution_date=DEFAULT_DATE, start_date=DEFAULT_DATE,
+                    session=session,
+                    )
+
             task = PushVariable(dag=dag, task_id='test_task', name='foo', value='{{task_instance.task_id}}')
-            task_instance = TI(task=task, run_id="ida")
+            task_instance = TI(task=task, run_id=dr.run_id, state=State.SUCCESS)
             rendered_ti_fields = RTIF(ti=task_instance)
 
             self.assertEqual(rendered_ti_fields.rendered_fields.get('value'), 'test_task')

@@ -5,41 +5,25 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
-apache-airflow = "==1.10.15"
-apache-airflow-backport-providers-amazon = "*"
-apache-airflow-backport-providers-slack = "*"
-apache-airflow-backport-providers-ftp = "*"
-apache-airflow-backport-providers-http = "*"
-apache-airflow-backport-providers-sftp = "*"
-apache-airflow-backport-providers-ssh = "*"
+apache-airflow = "==2.3.0"
 pylint = "*"
-moto = "==2.0.6"
+moto = "*"
 requests-mock = "*"
 paramiko = "*"
 sshtunnel = "*"
 sickle = "*"
-lxml = "==4.7.1"
 tulflow = "==0.8.6"
 boto3 = "*"
+setuptools = "*"
 pexpect = "*"
 pysftp = "*"
-setuptools = "*"
-cryptography = "==3.4.8"
-sqlalchemy = "==1.3.23"
-flask-openid = "==1.3.0"
-flask-sqlalchemy = "==2.4.4"
-jinja2 = "==2.11.3"
-werkzeug = "==0.16.1"
-marshmallow = "==2.21.0"
-wtforms = "==2.3.3"
-markupsafe= "==2.0.1"
 
 # required in circleci context.
 numpy= "*"
 
 
 [packages]
-pytest = "==6.2.5"
+pytest = "*"
 
 [requires]
 python_version = "3"

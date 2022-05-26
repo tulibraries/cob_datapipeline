@@ -46,10 +46,10 @@ class PushVariableTest(unittest.TestCase):
         self.assertEqual(ListVariable.get('foo'), [1])
 
     def test_execute_with_existing_templated_value(self):
-        dag = DAG(dag_id='test_dag', start_date=DEFAULT_DATE)
+        dag = DAG(dag_id='test_dag', run_id="ida")
         with dag:
             task = PushVariable(dag=dag, task_id='test_task', name='foo', value='{{task_instance.task_id}}')
-            task_instance = TI(task=task, execution_date=DEFAULT_DATE)
+            task_instance = TI(task=task, run_id="ida")
             rendered_ti_fields = RTIF(ti=task_instance)
 
             self.assertEqual(rendered_ti_fields.rendered_fields.get('value'), 'test_task')

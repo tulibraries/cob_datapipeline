@@ -23,7 +23,7 @@ This module holds the ListVariable class and it's methods.
 import logging
 
 from json.decoder import JSONDecodeError
-from airflow.utils.db import provide_session
+from airflow.utils.session import provide_session
 from airflow.models import Variable
 
 log = logging.getLogger(__name__)
@@ -38,18 +38,15 @@ class ListVariable(Variable):
     __NO_DEFAULT_SENTINEL = object()
 
     @classmethod
-    @provide_session
     def get(cls,
             key,  # type: str
             default_var=__NO_DEFAULT_SENTINEL,  # type: Any
-            deserialize_json=False,  # type: bool
-            session=None):
+            deserialize_json=False):
         try:
             list_var = super().get(
                 key,
                 default_var=[],
-                deserialize_json=True,
-                session=session)
+                deserialize_json=True)
 
         except JSONDecodeError:
             list_var = super().get(

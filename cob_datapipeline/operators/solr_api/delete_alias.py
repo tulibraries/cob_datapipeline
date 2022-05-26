@@ -66,10 +66,10 @@ class DeleteAlias(SolrApiBaseOperator):
     template_fields = ['data', 'name']
 
     @apply_defaults
-    def __init__(self, name, *args, **kwargs):
+    def __init__(self, name, **kwargs):
 
         data = {'action': 'DELETEALIAS', 'name': name}
-        super().__init__(data=data, *args, **kwargs)
+        super().__init__(data=data, **kwargs)
 
 
 class DeleteAliasBatch(BatchMixin, DeleteAlias):
@@ -108,10 +108,13 @@ class DeleteAliasBatch(BatchMixin, DeleteAlias):
     @apply_defaults
     def __init__(
             self,
-            aliases,
-            *args, **kwargs):
+            *,
+            aliases: str,
+            list_variable: int = 0,
+            **kwargs):
 
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
+        self.list_variable = list_variable
         self.names = aliases
 
 class DeleteAliasListVariable(ListVariableMixin, DeleteAliasBatch):
@@ -155,12 +158,9 @@ class DeleteAliasListVariable(ListVariableMixin, DeleteAliasBatch):
     @apply_defaults
     def __init__(
             self,
+            *,
             list_variable,
             **kwargs):
 
         aliases = ListVariable.get(list_variable)
-        super().__init__(
-            aliases=aliases,
-            **kwargs)
-        
-        self.list_variable=list_variable,
+        super().__init__(aliases=aliases, list_variable=list_variable, **kwargs)

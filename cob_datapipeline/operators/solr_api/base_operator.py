@@ -189,15 +189,15 @@ class BatchMixin(BaseOperator):
     @apply_defaults
     def __init__(
             self,
-            *args,
+            *,
             name=None,
             skip_from_last=1,
             rescue_failure=True, **kwargs):
 
-        super().__init__(
-            rescue_failure=rescue_failure,
-            name=name, *args, **kwargs)
+        super().__init__(**kwargs)
         self.skip_from_last = skip_from_last
+        self.rescue_failure=rescue_failure,
+        self.name = name
 
     def execute(self, context=None):
         count_to_last = len(self.names)
@@ -223,18 +223,15 @@ class ListVariableMixin(BaseOperator):
     @apply_defaults
     def __init__(
             self,
+            *,
             list_variable,
-            *args,
             rescue_failure=True,
             ignore_matching_failtures=None,
             **kwargs):
 
-        super().__init__(
-            list_variable=list_variable,
-            rescue_failure=rescue_failure,
-            *args, **kwargs)
-
+        super().__init__(**kwargs)
         self.list_variable = list_variable
+        self.rescue_failure = rescue_failure
         self.ignore_matching_failtures = ignore_matching_failtures
 
     def execute(self, context=None):

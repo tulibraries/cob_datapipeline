@@ -66,7 +66,7 @@ class DeleteAlias(SolrApiBaseOperator):
     template_fields = ['data', 'name']
 
     @apply_defaults
-    def __init__(self, name, **kwargs):
+    def __init__(self, name: str, **kwargs):
 
         data = {'action': 'DELETEALIAS', 'name': name}
         super().__init__(data=data, **kwargs)
@@ -92,7 +92,7 @@ class DeleteAliasBatch(BatchMixin, DeleteAlias):
     :type skip_matching: str
 
     :param skip_from_last: Do not iterate past this count from last (optional).
-    :type list_variable: int
+    :type skip_from_last: int
 
     :param rescue_failure: Continue if any collection alias deletion fails (True by default).
     :type rescue_failure: bool
@@ -109,12 +109,10 @@ class DeleteAliasBatch(BatchMixin, DeleteAlias):
     def __init__(
             self,
             *,
-            aliases: str,
-            list_variable: int = 0,
+            aliases: list[str],
             **kwargs):
 
         super().__init__(**kwargs)
-        self.list_variable = list_variable
         self.names = aliases
 
 class DeleteAliasListVariable(ListVariableMixin, DeleteAliasBatch):
@@ -159,7 +157,7 @@ class DeleteAliasListVariable(ListVariableMixin, DeleteAliasBatch):
     def __init__(
             self,
             *,
-            list_variable,
+            list_variable: str,
             **kwargs):
 
         aliases = ListVariable.get(list_variable)

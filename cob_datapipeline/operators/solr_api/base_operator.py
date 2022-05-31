@@ -194,7 +194,7 @@ class BatchMixin(BaseOperator):
             skip_from_last=1,
             rescue_failure=True, **kwargs):
 
-        super().__init__(**kwargs)
+        super().__init__(name=name, **kwargs)
         self.skip_from_last = skip_from_last
         self.rescue_failure=rescue_failure,
         self.name = name

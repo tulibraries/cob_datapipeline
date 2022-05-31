@@ -5,10 +5,10 @@ from tulflow import harvest, tasks
 import airflow
 from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
-from airflow.hooks.base_hook import BaseHook
+from airflow.hooks.base  import BaseHook
 from airflow.models import Variable
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.bash import BashOperator
+from airflow.operators.python  import PythonOperator
 from cob_datapipeline.tasks.xml_parse import prepare_oai_boundwiths, update_variables
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.tasks.task_slack_posts import catalog_slackpostonsuccess

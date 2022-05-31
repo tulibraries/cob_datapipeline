@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 import os
 from tulflow import harvest, tasks
 from cob_datapipeline import helpers
-from airflow.hooks.base_hook import BaseHook
+from airflow.hooks.base import BaseHook
 from airflow.models import Variable
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
-from airflow.providers.amazon.aws.operators.s3_list import S3ListOperator
+from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
+from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from cob_datapipeline.operators.batch_s3_to_sftp_operator import BatchS3ToSFTPOperator
 import airflow
 

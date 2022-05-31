@@ -106,7 +106,6 @@ GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
 
 BW_OAI_HARVEST = PythonOperator(
     task_id='bw_oai_harvest',
-    provide_context=True,
     python_callable=harvest.oai_to_s3,
     op_kwargs={
         "access_id": AIRFLOW_S3.login,
@@ -134,7 +133,6 @@ LIST_CATALOG_BW_S3_DATA = S3ListOperator(
 
 PREPARE_BOUNDWITHS = PythonOperator(
     task_id='prepare_boundwiths',
-    provide_context=True,
     python_callable=prepare_oai_boundwiths,
     op_kwargs={
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
@@ -149,7 +147,6 @@ PREPARE_BOUNDWITHS = PythonOperator(
 
 OAI_HARVEST = PythonOperator(
     task_id='oai_harvest',
-    provide_context=True,
     python_callable=harvest.oai_to_s3,
     op_kwargs={
         "access_id": AIRFLOW_S3.login,
@@ -224,7 +221,6 @@ GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
 
 UPDATE_DATE_VARIABLES = PythonOperator(
     task_id="update_date_variables",
-    provide_context=True,
     python_callable=update_variables,
     op_kwargs={
         "UPDATE": {
@@ -238,7 +234,6 @@ UPDATE_DATE_VARIABLES = PythonOperator(
 POST_SLACK = PythonOperator(
     task_id="slack_post_succ",
     python_callable=catalog_slackpostonsuccess,
-    provide_context=True,
     dag=DAG
 )
 

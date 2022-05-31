@@ -20,7 +20,6 @@
 This module holds classes associated to the deletion of Solr collection alias.
 """
 
-from airflow.utils.decorators import apply_defaults
 from cob_datapipeline.models import ListVariable
 from cob_datapipeline.operators import SolrApiBaseOperator,\
         BatchMixin,\
@@ -65,7 +64,6 @@ class DeleteAlias(SolrApiBaseOperator):
     """
     template_fields = ['data', 'name']
 
-    @apply_defaults
     def __init__(self, name: str, **kwargs):
 
         data = {'action': 'DELETEALIAS', 'name': name}
@@ -105,7 +103,6 @@ class DeleteAliasBatch(BatchMixin, DeleteAlias):
     """
     template_fields = ['names']
 
-    @apply_defaults
     def __init__(
             self,
             *,
@@ -154,7 +151,6 @@ class DeleteAliasListVariable(ListVariableMixin, DeleteAliasBatch):
     """
     template_fields = ['list_variable']
 
-    @apply_defaults
     def __init__(
             self,
             *,

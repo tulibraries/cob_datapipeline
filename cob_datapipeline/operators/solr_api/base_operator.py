@@ -23,7 +23,6 @@ from re import match
 from typing import Dict, Optional, Sequence
 from airflow.models import BaseOperator
 from airflow.providers.http.hooks.http import HttpHook
-from airflow.utils.decorators import apply_defaults
 from cob_datapipeline.exceptions import SafetyCheckException
 from cob_datapipeline.models import ListVariable
 
@@ -91,7 +90,6 @@ class SolrApiBaseOperator(BaseOperator):
 
     template_fields: Sequence[str] = ('data', 'name', 'skip_included', 'skip_matching')
 
-    @apply_defaults
     def __init__(
             self,
             *,
@@ -186,7 +184,6 @@ class BatchMixin(BaseOperator):
     that the attribute self.names has been configured by the class that
     incorporates it.
     """
-    @apply_defaults
     def __init__(
             self,
             *,
@@ -220,7 +217,6 @@ class ListVariableMixin(BaseOperator):
     in place of a list of things and then to update the list variable once all
     the items have been processed.
     """
-    @apply_defaults
     def __init__(
             self,
             *,

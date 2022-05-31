@@ -143,7 +143,6 @@ DELETE_COLLECTIONS = DeleteCollectionListVariable(
 POST_SLACK = PythonOperator(
     task_id='slack_post_succ',
     python_callable=az_slackpostonsuccess,
-    provide_context=True,
     dag=DAG
 )
 

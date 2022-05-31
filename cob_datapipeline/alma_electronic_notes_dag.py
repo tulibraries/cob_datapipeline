@@ -5,8 +5,7 @@ from tulflow import tasks
 import airflow
 from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.bash import BashOperator
 from airflow.providers.amazon.aws.transfers.s3_to_sftp import S3ToSFTPOperator
 from airflow.providers.ssh.operators.ssh import SSHOperator
 from cob_datapipeline.tasks.task_slack_posts import notes_slackpostonsuccess
@@ -87,7 +86,7 @@ for note_type in NOTE_TYPES:
     task_id='s3_to_server_' + note_type,
     sftp_conn_id="tul_cob",
     sftp_path="/tmp/" + note_type + "_notes.json",
-    s3_conn_id="AIRFLOW_S3",
+    aws_conn_id="AIRFLOW_S3",
     s3_bucket=AIRFLOW_DATA_BUCKET,
     s3_key="electronic-notes/{{ ti.xcom_pull(task_ids='set_datetime') }}/" + note_type + "_notes.json",
     dag=DAG

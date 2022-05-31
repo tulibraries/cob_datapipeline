@@ -49,7 +49,6 @@ def calculate_list_of_files_to_move(**context):
 GET_LIST_OF_FILES_TO_TRANSFER = PythonOperator(
     task_id="get_list_of_alma_sftp_files_to_transer",
     python_callable=calculate_list_of_files_to_move,
-    provide_context=True,
     dag=DAG
 )
 
@@ -62,7 +61,6 @@ MOVE_FILES_TO_S3 = BatchSFTPToS3Operator(
     sftp_conn_id="ALMASFTP",
     s3_conn_id=S3_CONN_ID,
     dag=DAG,
-    provide_context=True,
 )
 
 
@@ -95,13 +93,11 @@ def archive_files_in_sftp(**context):
 ARCHIVE_FILES_IN_SFTP = PythonOperator(
     task_id="archive_files_in_sftp",
     python_callable=archive_files_in_sftp,
-    provide_context=True,
     dag=DAG
 )
 
 UPDATE_VARIABLES = PythonOperator(
     task_id="update_variables",
-    provide_context=True,
     python_callable=update_variables,
     op_kwargs={
         "UPDATE": {
@@ -124,7 +120,6 @@ def slackpostonsuccess(**context):
 
 SLACK_POST_SUCCESS = PythonOperator(
     task_id="success_slack_trigger",
-    provide_context=True,
     python_callable=slackpostonsuccess,
     dag=DAG
 )

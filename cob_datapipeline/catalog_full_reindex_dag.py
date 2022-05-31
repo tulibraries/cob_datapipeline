@@ -120,7 +120,6 @@ LIST_BOUNDWITH_S3_DATA = S3ListOperator(
 
 PREPARE_BOUNDWITHS = PythonOperator(
     task_id="prepare_boundwiths",
-    provide_context=True,
     python_callable=prepare_boundwiths,
     op_kwargs={
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
@@ -152,7 +151,6 @@ PREPARE_ALMA_DATA = PythonOperator(
 CREATE_COLLECTION = PythonOperator(
     task_id="create_collection",
     python_callable=helpers.catalog_create_missing_collection,
-    provide_context=True,
     dag=DAG,
     op_kwargs={
         "conn": SOLR_CLOUD,
@@ -212,7 +210,6 @@ SOLR_COMMIT = SimpleHttpOperator(
 
 UPDATE_DATE_VARIABLES = PythonOperator(
     task_id="update_variables",
-    provide_context=True,
     python_callable=update_variables,
     op_kwargs={
         "UPDATE": {
@@ -240,7 +237,6 @@ GET_NUM_SOLR_DOCS_CURRENT_PROD = task_solrgetnumdocs(
 POST_SLACK = PythonOperator(
     task_id="slack_post_succ",
     python_callable=catalog_slackpostonsuccess,
-    provide_context=True,
     dag=DAG
 )
 

@@ -22,7 +22,7 @@ from json import JSONDecodeError
 from re import match
 from typing import Dict, Optional, Sequence
 from airflow.models import BaseOperator
-from airflow.hooks.http_hook import HttpHook
+from airflow.providers.http.hooks.http import HttpHook
 from airflow.utils.decorators import apply_defaults
 from cob_datapipeline.exceptions import SafetyCheckException
 from cob_datapipeline.models import ListVariable

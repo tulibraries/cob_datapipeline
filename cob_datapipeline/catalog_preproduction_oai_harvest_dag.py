@@ -4,7 +4,7 @@ import os
 from tulflow import harvest, tasks
 import airflow
 from airflow.providers.http.operators.http import SimpleHttpOperator
-from airflow.providers.amazon.aws.operators.s3_list import S3ListOperator
+from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from airflow.hooks.base_hook import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash_operator import BashOperator

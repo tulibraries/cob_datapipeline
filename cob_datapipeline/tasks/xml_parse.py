@@ -8,7 +8,7 @@ import re
 from lxml import etree
 import pandas
 from tulflow import process
-from airflow.hooks.http_hook import HttpHook
+from airflow.providers.http.hooks.http import HttpHook
 from airflow.models import Variable
 
 NS = {

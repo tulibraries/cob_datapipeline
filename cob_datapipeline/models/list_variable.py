@@ -68,6 +68,7 @@ class ListVariable(Variable):
             description: Optional[str] = None,
             serialize_json: bool = True,
             session=None):
+        # pylint: disable=too-many-arguments
         super().set(
             key,
             value,
@@ -82,6 +83,7 @@ class ListVariable(Variable):
              value,
              session=None,
              skip_blank=False,
+             description: Optional[str] = None,
              unique=False):
         # pylint: disable=unused-argument,too-many-arguments
         """

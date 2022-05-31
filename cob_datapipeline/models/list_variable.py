@@ -25,6 +25,7 @@ import logging
 from json.decoder import JSONDecodeError
 from airflow.utils.session import provide_session
 from airflow.models import Variable
+from typing import Any, Optional
 
 log = logging.getLogger(__name__)
 
@@ -39,9 +40,9 @@ class ListVariable(Variable):
 
     @classmethod
     def get(cls,
-            key,  # type: str
-            default_var=__NO_DEFAULT_SENTINEL,  # type: Any
-            deserialize_json=False):
+            key: str,
+            default_var: Any =__NO_DEFAULT_SENTINEL,
+            deserialize_json: bool = False):
         try:
             list_var = super().get(
                 key,
@@ -52,8 +53,7 @@ class ListVariable(Variable):
             list_var = super().get(
                 key,
                 default_var=default_var,
-                deserialize_json=deserialize_json,
-                session=session)
+                deserialize_json=deserialize_json)
 
         if list_var  in ['', None, 'None']:
             return []
@@ -64,13 +64,15 @@ class ListVariable(Variable):
     @provide_session
     def set(cls,
             key,
-            value,  # type: Any
-            serialize_json=True,  # type: bool
+            value: Any,  # type: Any
+            description: Optional[str] = None,
+            serialize_json: bool = True,
             session=None):
         super().set(
             key,
             value,
             serialize_json=serialize_json,
+            description=description,
             session=session)
 
     @classmethod

@@ -23,9 +23,9 @@ This module holds the ListVariable class and it's methods.
 import logging
 
 from json.decoder import JSONDecodeError
+from typing import Any, Optional
 from airflow.utils.session import provide_session
 from airflow.models import Variable
-from typing import Any, Optional
 
 log = logging.getLogger(__name__)
 

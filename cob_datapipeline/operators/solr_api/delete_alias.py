@@ -116,6 +116,7 @@ class DeleteAliasBatch(BatchMixin, DeleteAlias):
         self.names = aliases
 
 class DeleteAliasListVariable(ListVariableMixin, DeleteAliasBatch):
+    # pylint: disable=too-many-ancestors
     """
     This operator is used to iterate over a collection alias saved in a list variable.
 

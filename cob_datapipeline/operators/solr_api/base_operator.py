@@ -20,12 +20,12 @@ This module holds classes associated to the Solr Collections API
 
 from json import JSONDecodeError
 from re import match
+from typing import Dict, Optional, Sequence
 from airflow.models import BaseOperator
 from airflow.hooks.http_hook import HttpHook
 from airflow.utils.decorators import apply_defaults
 from cob_datapipeline.exceptions import SafetyCheckException
 from cob_datapipeline.models import ListVariable
-from typing import Dict, Optional, Sequence
 
 def get_failed_reason(response):
     """
@@ -95,15 +95,15 @@ class SolrApiBaseOperator(BaseOperator):
     def __init__(
             self,
             *,
-            solr_conn_id,
-            data,
+            solr_conn_id: str,
+            data: Dict,
             name="",
-            log_response=True,
-            skip_included=None,
-            skip_matching=None,
+            log_response: bool = True,
+            skip_included: Sequence[str] = None,
+            skip_matching: Sequence[str] = None,
             rescue_failure=False,
-            on_success=None,
-            on_failure=None,
+            on_success: bool = None,
+            on_failure: Optional = None,
             **kwargs):
 
         super().__init__(**kwargs)
@@ -190,13 +190,13 @@ class BatchMixin(BaseOperator):
     def __init__(
             self,
             *,
-            name=None,
-            skip_from_last=1,
-            rescue_failure=True, **kwargs):
+            name: str = None,
+            skip_from_last: int = 1,
+            rescue_failure: bool = True, **kwargs):
 
         super().__init__(name=name, **kwargs)
         self.skip_from_last = skip_from_last
-        self.rescue_failure=rescue_failure,
+        self.rescue_failure=rescue_failure
         self.name = name
 
     def execute(self, context=None):

@@ -115,6 +115,7 @@ class DeleteCollectionBatch(BatchMixin, DeleteCollection):
 
 
 class DeleteCollectionListVariable(ListVariableMixin, DeleteCollectionBatch):
+    # pylint: disable=too-many-ancestors
     """
     This operator is used to iterate over a collection saved in a list variable.
 

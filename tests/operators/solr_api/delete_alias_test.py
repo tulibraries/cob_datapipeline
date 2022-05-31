@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring,line-too-long
 
+import datetime
 import unittest
 from unittest.mock import patch
 import requests_mock
@@ -95,9 +96,11 @@ class DeleteAliasListVariableTest(unittest.TestCase):
     def test_execute_with_existing_templated_value(self):
         session = settings.Session()
         dag = DAG(dag_id='test_dag_2', start_date=DEFAULT_DATE)
+        data_interval= (DEFAULT_DATE, DEFAULT_DATE + datetime.timedelta(days=1))
         with dag:
             dag_run = dag.create_dagrun(
                     run_id="test_execute_with_existing_templated_value", state=State.SUCCESS,
+                    data_interval=data_interval,
                     execution_date=DEFAULT_DATE, start_date=DEFAULT_DATE,
                     session=session,
                     )

@@ -6,6 +6,7 @@ import airflow
 from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
 from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
 from airflow.providers.amazon.aws.transfers.s3_to_sftp import S3ToSFTPOperator
 from airflow.providers.ssh.operators.ssh import SSHOperator
 from cob_datapipeline.tasks.task_slack_posts import notes_slackpostonsuccess
@@ -109,7 +110,6 @@ RELOAD_ELECTRONIC_NOTES = SSHOperator(
 SLACK_POST_SUCCESS = PythonOperator(
     task_id="slack_post_success",
     python_callable=notes_slackpostonsuccess,
-    provide_context=True,
     dag=DAG
 )
 

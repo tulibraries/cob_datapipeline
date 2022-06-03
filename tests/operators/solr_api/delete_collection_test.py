@@ -1,5 +1,6 @@
 # pylint: disable=missing-docstring,line-too-long
 
+import datetime
 import unittest
 from unittest.mock import patch
 import logging
@@ -7,9 +8,11 @@ import logging
 import requests
 import requests_mock
 
+from airflow import settings
 from airflow.models import DAG
 from airflow.models.taskinstance import TaskInstance as TI
 from airflow.models.renderedtifields import RenderedTaskInstanceFields as RTIF
+from airflow.utils.state import State
 
 from cob_datapipeline.models import ListVariable
 from cob_datapipeline.operators import DeleteCollection,\
@@ -440,14 +443,22 @@ class DeleteCollectionListVariableTest(unittest.TestCase):
             self.assertEqual(ListVariable.get('foo'), [])
 
     def test_execute_with_existing_templated_value(self):
-        dag = DAG(dag_id='test_dag_2', start_date=DEFAULT_DATE)
+        session = settings.Session()
+        dag = DAG(dag_id='test_dag_3', start_date=DEFAULT_DATE)
+        data_interval = (DEFAULT_DATE, DEFAULT_DATE + datetime.timedelta(days=1))
         with dag:
+            dag_run = dag.create_dagrun(
+                    run_id="test_execute_with_existing_templated_value", state=State.SUCCESS,
+                    data_interval=data_interval,
+                    execution_date=DEFAULT_DATE, start_date=DEFAULT_DATE,
+                    session=session,
+                    )
             task = DeleteCollectionListVariable(
                 task_id='test_task',
                 list_variable='{{task_instance.task_id}}',
                 solr_conn_id='solr_conn_id',
                 dag=dag)
-            task_instance = TI(task=task, execution_date=DEFAULT_DATE)
+            task_instance = TI(task=task, run_id=dag_run.run_id, state=State.SUCCESS)
             rendered_ti_fields = RTIF(ti=task_instance)
 
             self.assertEqual(rendered_ti_fields.rendered_fields.get('list_variable'), 'test_task')

@@ -20,7 +20,6 @@
 This module holds classes associated to the deletion of Solr collection alias.
 """
 
-from airflow.utils.decorators import apply_defaults
 from cob_datapipeline.models import ListVariable
 from cob_datapipeline.operators import SolrApiBaseOperator,\
         BatchMixin,\
@@ -65,11 +64,10 @@ class DeleteAlias(SolrApiBaseOperator):
     """
     template_fields = ['data', 'name']
 
-    @apply_defaults
-    def __init__(self, name, *args, **kwargs):
+    def __init__(self, name: str, **kwargs):
 
         data = {'action': 'DELETEALIAS', 'name': name}
-        super().__init__(data=data, *args, **kwargs)
+        super().__init__(data=data, **kwargs)
 
 
 class DeleteAliasBatch(BatchMixin, DeleteAlias):
@@ -92,7 +90,7 @@ class DeleteAliasBatch(BatchMixin, DeleteAlias):
     :type skip_matching: str
 
     :param skip_from_last: Do not iterate past this count from last (optional).
-    :type list_variable: int
+    :type skip_from_last: int
 
     :param rescue_failure: Continue if any collection alias deletion fails (True by default).
     :type rescue_failure: bool
@@ -105,16 +103,17 @@ class DeleteAliasBatch(BatchMixin, DeleteAlias):
     """
     template_fields = ['names']
 
-    @apply_defaults
     def __init__(
             self,
-            aliases,
-            *args, **kwargs):
+            *,
+            aliases: list[str],
+            **kwargs):
 
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         self.names = aliases
 
 class DeleteAliasListVariable(ListVariableMixin, DeleteAliasBatch):
+    # pylint: disable=too-many-ancestors
     """
     This operator is used to iterate over a collection alias saved in a list variable.
 
@@ -152,15 +151,11 @@ class DeleteAliasListVariable(ListVariableMixin, DeleteAliasBatch):
     """
     template_fields = ['list_variable']
 
-    @apply_defaults
     def __init__(
             self,
-            list_variable,
-            *args,
+            *,
+            list_variable: str,
             **kwargs):
 
         aliases = ListVariable.get(list_variable)
-        super().__init__(
-            list_variable=list_variable,
-            aliases=aliases,
-            *args, **kwargs)
+        super().__init__(aliases=aliases, list_variable=list_variable, **kwargs)

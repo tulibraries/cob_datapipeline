@@ -4,8 +4,8 @@ import os
 import airflow
 from airflow.models import Variable
 from airflow.hooks.base_hook import BaseHook
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
 from cob_datapipeline.tasks.task_slack_posts import az_slackpostonsuccess
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.operators import\
@@ -143,7 +143,6 @@ DELETE_COLLECTIONS = DeleteCollectionListVariable(
 POST_SLACK = PythonOperator(
     task_id="slack_post_succ",
     python_callable=az_slackpostonsuccess,
-    provide_context=True,
     dag=DAG
 )
 

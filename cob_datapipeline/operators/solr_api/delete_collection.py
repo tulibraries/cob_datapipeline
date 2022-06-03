@@ -20,7 +20,6 @@
 This module holds classes associated to the deletion of Solr collections.
 """
 
-from airflow.utils.decorators import apply_defaults
 from cob_datapipeline.models import ListVariable
 from cob_datapipeline.operators import SolrApiBaseOperator,\
         BatchMixin,\
@@ -64,7 +63,6 @@ class DeleteCollection(SolrApiBaseOperator):
     """
     template_fields = ['data', 'name']
 
-    @apply_defaults
     def __init__(self, name, *args, **kwargs):
 
         data = {'action': 'DELETE', 'name': name}
@@ -104,7 +102,6 @@ class DeleteCollectionBatch(BatchMixin, DeleteCollection):
     """
     template_fields = ['names']
 
-    @apply_defaults
     def __init__(
             self,
             collections,
@@ -115,6 +112,7 @@ class DeleteCollectionBatch(BatchMixin, DeleteCollection):
 
 
 class DeleteCollectionListVariable(ListVariableMixin, DeleteCollectionBatch):
+    # pylint: disable=too-many-ancestors
     """
     This operator is used to iterate over a collection saved in a list variable.
 
@@ -152,7 +150,6 @@ class DeleteCollectionListVariable(ListVariableMixin, DeleteCollectionBatch):
     """
     template_fields = ['list_variable']
 
-    @apply_defaults
     def __init__(
             self,
             list_variable,

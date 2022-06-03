@@ -3,11 +3,11 @@ from datetime import datetime, timedelta
 import os
 from tulflow import harvest, tasks
 from cob_datapipeline import helpers
-from airflow.hooks.base_hook import BaseHook
+from airflow.hooks.base import BaseHook
 from airflow.models import Variable
-from airflow.operators.bash_operator import BashOperator
-from airflow.operators.python_operator import PythonOperator
-from airflow.providers.amazon.aws.operators.s3_list import S3ListOperator
+from airflow.operators.bash import BashOperator
+from airflow.operators.python import PythonOperator
+from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from cob_datapipeline.operators.batch_s3_to_sftp_operator import BatchS3ToSFTPOperator
 import airflow
 
@@ -62,7 +62,6 @@ Tasks with custom logic are relegated to individual Python files.
 
 OAI_HARVEST = PythonOperator(
     task_id='oai_harvest',
-    provide_context=True,
     python_callable=harvest.oai_to_s3,
     op_kwargs={
         "access_id": AIRFLOW_S3.login,
@@ -81,7 +80,6 @@ OAI_HARVEST = PythonOperator(
 
 CLEANUP_DATA = PythonOperator(
     task_id='cleanup_data',
-    provide_context=True,
     python_callable=helpers.cleanup_metadata,
     op_kwargs={
         "source_prefix": DAG.dag_id + "/" + S3_NAME_SPACE + "/new-updated",
@@ -123,7 +121,6 @@ LIST_S3_FILES = S3ListOperator(
 
 S3_TO_SFTP = BatchS3ToSFTPOperator(
     task_id="s3_to_sftp",
-    provide_context=True,
     sftp_conn_id="DSPACESFTP",
     xcom_id="list_s3_files",
     sftp_base_path="production/",

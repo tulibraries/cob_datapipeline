@@ -20,9 +20,9 @@ This module holds classes associated to the Solr Collections API
 
 from json import JSONDecodeError
 from re import match
+from typing import Dict, Optional, Sequence
 from airflow.models import BaseOperator
-from airflow.hooks.http_hook import HttpHook
-from airflow.utils.decorators import apply_defaults
+from airflow.providers.http.hooks.http import HttpHook
 from cob_datapipeline.exceptions import SafetyCheckException
 from cob_datapipeline.models import ListVariable
 
@@ -88,26 +88,26 @@ class SolrApiBaseOperator(BaseOperator):
     :type on_failure: function(str, response)
     """
 
-    template_fields = ['data', 'name', 'skip_included', 'skip_matching']
+    template_fields: Sequence[str] = ('data', 'name', 'skip_included', 'skip_matching')
 
-    @apply_defaults
     def __init__(
             self,
-            solr_conn_id,
-            data,
-            *args,
-            log_response=True,
-            skip_included=None,
-            skip_matching=None,
+            *,
+            solr_conn_id: str,
+            data: Dict,
+            name="",
+            log_response: bool = True,
+            skip_included: Sequence[str] = None,
+            skip_matching: Sequence[str] = None,
             rescue_failure=False,
-            on_success=None,
-            on_failure=None,
+            on_success: bool = None,
+            on_failure: Optional = None,
             **kwargs):
 
-        super().__init__(*args, **kwargs)
+        super().__init__(**kwargs)
         self.solr_conn_id = solr_conn_id
         self.log_response = log_response
-
+        self.name = name
         self.skip_included = _safety_check(skip_included)
         self.skip_matching = skip_matching
         self.rescue_failure = rescue_failure
@@ -184,18 +184,17 @@ class BatchMixin(BaseOperator):
     that the attribute self.names has been configured by the class that
     incorporates it.
     """
-    @apply_defaults
     def __init__(
             self,
-            *args,
-            name=None,
-            skip_from_last=1,
-            rescue_failure=True, **kwargs):
+            *,
+            name: str = None,
+            skip_from_last: int = 1,
+            rescue_failure: bool = True, **kwargs):
 
-        super().__init__(
-            rescue_failure=rescue_failure,
-            name=name, *args, **kwargs)
+        super().__init__(name=name, **kwargs)
         self.skip_from_last = skip_from_last
+        self.rescue_failure=rescue_failure
+        self.name = name
 
     def execute(self, context=None):
         count_to_last = len(self.names)
@@ -218,21 +217,17 @@ class ListVariableMixin(BaseOperator):
     in place of a list of things and then to update the list variable once all
     the items have been processed.
     """
-    @apply_defaults
     def __init__(
             self,
+            *,
             list_variable,
-            *args,
             rescue_failure=True,
             ignore_matching_failtures=None,
             **kwargs):
 
-        super().__init__(
-            list_variable=list_variable,
-            rescue_failure=rescue_failure,
-            *args, **kwargs)
-
+        super().__init__(**kwargs)
         self.list_variable = list_variable
+        self.rescue_failure = rescue_failure
         self.ignore_matching_failtures = ignore_matching_failtures
 
     def execute(self, context=None):

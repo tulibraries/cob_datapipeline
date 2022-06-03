@@ -21,7 +21,6 @@
 This module contains the PushVariable airflow operator.
 """
 from airflow.models import BaseOperator
-from airflow.utils.decorators import apply_defaults
 from cob_datapipeline.models import ListVariable
 
 class PushVariable(BaseOperator):
@@ -49,7 +48,6 @@ class PushVariable(BaseOperator):
 
     template_fields = ['value']
 
-    @apply_defaults
     def __init__(
             self,
             name,

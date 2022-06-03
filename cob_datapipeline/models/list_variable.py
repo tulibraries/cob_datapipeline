@@ -23,7 +23,8 @@ This module holds the ListVariable class and it's methods.
 import logging
 
 from json.decoder import JSONDecodeError
-from airflow.utils.db import provide_session
+from typing import Any, Optional
+from airflow.utils.session import provide_session
 from airflow.models import Variable
 
 log = logging.getLogger(__name__)
@@ -38,25 +39,21 @@ class ListVariable(Variable):
     __NO_DEFAULT_SENTINEL = object()
 
     @classmethod
-    @provide_session
     def get(cls,
-            key,  # type: str
-            default_var=__NO_DEFAULT_SENTINEL,  # type: Any
-            deserialize_json=False,  # type: bool
-            session=None):
+            key: str,
+            default_var: Any =__NO_DEFAULT_SENTINEL,
+            deserialize_json: bool = False):
         try:
             list_var = super().get(
                 key,
                 default_var=[],
-                deserialize_json=True,
-                session=session)
+                deserialize_json=True)
 
         except JSONDecodeError:
             list_var = super().get(
                 key,
                 default_var=default_var,
-                deserialize_json=deserialize_json,
-                session=session)
+                deserialize_json=deserialize_json)
 
         if list_var  in ['', None, 'None']:
             return []
@@ -67,13 +64,16 @@ class ListVariable(Variable):
     @provide_session
     def set(cls,
             key,
-            value,  # type: Any
-            serialize_json=True,  # type: bool
+            value: Any,  # type: Any
+            description: Optional[str] = None,
+            serialize_json: bool = True,
             session=None):
+        # pylint: disable=too-many-arguments
         super().set(
             key,
             value,
             serialize_json=serialize_json,
+            description=description,
             session=session)
 
     @classmethod
@@ -83,6 +83,7 @@ class ListVariable(Variable):
              value,
              session=None,
              skip_blank=False,
+             description: Optional[str] = None,
              unique=False):
         # pylint: disable=unused-argument,too-many-arguments
         """

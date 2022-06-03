@@ -1,5 +1,4 @@
 from airflow.providers.amazon.aws.transfers.sftp_to_s3 import SFTPToS3Operator
-from airflow.utils.decorators import apply_defaults
 
 
 class BatchSFTPToS3Operator(SFTPToS3Operator):
@@ -27,7 +26,6 @@ class BatchSFTPToS3Operator(SFTPToS3Operator):
 
     template_fields = ('s3_prefix','s3_key', 'sftp_path')
 
-    @apply_defaults
     def __init__(self,
                  s3_bucket,
                  s3_prefix,
@@ -35,7 +33,6 @@ class BatchSFTPToS3Operator(SFTPToS3Operator):
                  xcom_id="",
                  sftp_conn_id='ssh_default',
                  s3_conn_id='aws_default',
-                 provide_context=True,
                  **kwargs):
         super(BatchSFTPToS3Operator, self).__init__(s3_bucket=s3_bucket, s3_key=None, sftp_path=None, **kwargs)
         self.sftp_conn_id = sftp_conn_id

@@ -95,8 +95,7 @@ VERIFY_PROD_COLLECTION = SimpleHttpOperator(
 
 SET_S3_NAMESPACE = PythonOperator(
     task_id="set_s3_namespace",
-    python_callable=datetime.now().strftime,
-    op_args=["%Y-%m-%d_%H-%M-%S"],
+    python_callable=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
     dag=DAG
 )
 

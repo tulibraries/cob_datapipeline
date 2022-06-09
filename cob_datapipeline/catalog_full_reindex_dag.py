@@ -2,10 +2,10 @@
 from datetime import datetime, timedelta
 from tulflow import tasks
 import airflow
-from airflow.hooks.base_hook import BaseHook
+from airflow.hooks.base import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
 from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from cob_datapipeline.tasks.xml_parse import prepare_boundwiths, prepare_alma_data, update_variables
@@ -93,9 +93,9 @@ VERIFY_PROD_COLLECTION = SimpleHttpOperator(
     dag=DAG,
 )
 
-SET_S3_NAMESPACE = PythonOperator(
+SET_S3_NAMESPACE = BashOperator(
     task_id="set_s3_namespace",
-    python_callable=datetime.now().strftime("%Y-%m-%d_%H-%M-%S"),
+    bash_command='echo' + '{{ ds }}',
     dag=DAG
 )
 

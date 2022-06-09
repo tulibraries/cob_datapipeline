@@ -2,10 +2,11 @@
 from datetime import datetime, timedelta
 from tulflow import tasks
 import airflow
-from airflow.hooks.base_hook import BaseHook
+import pendulum
+from airflow.hooks.base import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
-from airflow.operators.python_operator import PythonOperator
+from airflow.operators.python import PythonOperator
 from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from cob_datapipeline.tasks.xml_parse import prepare_boundwiths, prepare_alma_data, update_variables
@@ -57,7 +58,7 @@ CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE = (datetime.strptime(ALMASFTP_S3_ORIGIN
 DEFAULT_ARGS = {
     "owner": "cob",
     "depends_on_past": False,
-    "start_date": datetime(2018, 12, 13),
+    "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
     "on_failure_callback": tasks.execute_slackpostonfail,
     "retries": 0,
     "retry_delay": timedelta(minutes=10),
@@ -93,10 +94,9 @@ VERIFY_PROD_COLLECTION = SimpleHttpOperator(
     dag=DAG,
 )
 
-SET_S3_NAMESPACE = PythonOperator(
+SET_S3_NAMESPACE = BashOperator(
     task_id="set_s3_namespace",
-    python_callable=datetime.now().strftime,
-    op_args=["%Y-%m-%d_%H-%M-%S"],
+    bash_command='echo ' + "{{ data_interval_start.strftime('%Y-%m-%d_%H-%M-%S') }}",
     dag=DAG
 )
 

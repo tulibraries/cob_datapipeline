@@ -57,7 +57,7 @@ CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE = (datetime.strptime(ALMASFTP_S3_ORIGIN
 DEFAULT_ARGS = {
     "owner": "cob",
     "depends_on_past": False,
-    "start_date": datetime(2018, 12, 13),
+    "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
     "on_failure_callback": tasks.execute_slackpostonfail,
     "retries": 0,
     "retry_delay": timedelta(minutes=10),
@@ -95,7 +95,7 @@ VERIFY_PROD_COLLECTION = SimpleHttpOperator(
 
 SET_S3_NAMESPACE = BashOperator(
     task_id="set_s3_namespace",
-    bash_command='echo' + '{{ ds }}',
+    bash_command='echo ' + '{{ ts }}',
     dag=DAG
 )
 

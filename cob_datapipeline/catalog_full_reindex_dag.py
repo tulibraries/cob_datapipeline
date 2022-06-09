@@ -96,7 +96,7 @@ VERIFY_PROD_COLLECTION = SimpleHttpOperator(
 
 SET_S3_NAMESPACE = BashOperator(
     task_id="set_s3_namespace",
-    bash_command='echo ' + '{{ data_interval_start }}',
+    bash_command='echo ' + "{{ data_interval_start.strftime('%Y-%m-%d_%H-%M-%S') }}",
     dag=DAG
 )
 

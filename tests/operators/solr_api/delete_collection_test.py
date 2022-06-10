@@ -38,7 +38,7 @@ class DeleteCollectionTest(unittest.TestCase):
             reason='OK')
 
         with self.assertLogs('airflow.task.operators') as log, patch(
-                'airflow.hooks.base_hook.BaseHook.get_connection',
+                'airflow.hooks.base.BaseHook.get_connection',
                 side_effect=get_connection):
             DeleteCollection(
                 task_id='test_task',
@@ -60,7 +60,7 @@ class DeleteCollectionTest(unittest.TestCase):
             text='{"status":{"status": 200}}',
             reason='OK')
         with self.assertLogs('airflow.task.operators') as log, patch(
-                'airflow.hooks.base_hook.BaseHook.get_connection',
+                'airflow.hooks.base.BaseHook.get_connection',
                 side_effect=get_connection):
             task = DeleteCollection(
                 task_id='test_task',
@@ -79,7 +79,7 @@ class DeleteCollectionTest(unittest.TestCase):
             text='{"status":{"status": 200}}',
             reason='OK')
         with self.assertLogs() as log, patch(
-                'airflow.hooks.base_hook.BaseHook.get_connection',
+                'airflow.hooks.base.BaseHook.get_connection',
                 side_effect=get_connection
                 ):
 
@@ -102,7 +102,7 @@ class DeleteCollectionTest(unittest.TestCase):
             text='{"status":{"status": 400}}',
             reason='FooBar')
         with patch(
-                'airflow.hooks.base_hook.BaseHook.get_connection',
+                'airflow.hooks.base.BaseHook.get_connection',
                 side_effect=get_connection
                 ), self.assertRaises(requests.exceptions.HTTPError):
             task = DeleteCollection(
@@ -121,7 +121,7 @@ class DeleteCollectionTest(unittest.TestCase):
             text='{"status":{"status": 400}}',
             reason='FAILED')
         with self.assertLogs() as log, patch(
-                'airflow.hooks.base_hook.BaseHook.get_connection',
+                'airflow.hooks.base.BaseHook.get_connection',
                 side_effect=get_connection
                 ):
 
@@ -137,7 +137,7 @@ class DeleteCollectionTest(unittest.TestCase):
 
     def test_execute_skip_included(self):
         with self.assertLogs('airflow.task.operators') as log, patch(
-                'airflow.hooks.base_hook.BaseHook.get_connection',
+                'airflow.hooks.base.BaseHook.get_connection',
                 side_effect=get_connection
                 ):
             task = DeleteCollection(
@@ -157,7 +157,7 @@ class DeleteCollectionTest(unittest.TestCase):
 
     def test_execute_skip_matching(self):
         with self.assertLogs('airflow.task.operators') as log, patch(
-                'airflow.hooks.base_hook.BaseHook.get_connection',
+                'airflow.hooks.base.BaseHook.get_connection',
                 side_effect=get_connection
                 ):
             task = DeleteCollection(
@@ -205,7 +205,7 @@ class DeleteCollectionBatchTest(unittest.TestCase):
             reason='OK')
 
         with self.assertLogs('airflow.task.operators') as log, patch(
-                'airflow.hooks.base_hook.BaseHook.get_connection',
+                'airflow.hooks.base.BaseHook.get_connection',
                 side_effect=get_connection):
             collections = ['foo', 'bar']
             DeleteCollectionBatch(
@@ -235,7 +235,7 @@ class DeleteCollectionBatchTest(unittest.TestCase):
             reason='OK')
 
         with self.assertLogs('airflow.task.operators') as log, patch(
-                'airflow.hooks.base_hook.BaseHook.get_connection',
+                'airflow.hooks.base.BaseHook.get_connection',
                 side_effect=get_connection):
             collections = ['foo', 'bar']
             DeleteCollectionBatch(
@@ -265,7 +265,7 @@ class DeleteCollectionBatchTest(unittest.TestCase):
             reason='OK')
 
         with self.assertLogs('airflow.task.operators') as log, patch(
-                'airflow.hooks.base_hook.BaseHook.get_connection',
+                'airflow.hooks.base.BaseHook.get_connection',
                 side_effect=get_connection):
             collections = ['foo', 'bar']
             DeleteCollectionBatch(
@@ -299,7 +299,7 @@ class DeleteCollectionBatchTest(unittest.TestCase):
             reason='OK')
 
         with self.assertLogs('airflow.task.operators') as log, patch(
-                'airflow.hooks.base_hook.BaseHook.get_connection',
+                'airflow.hooks.base.BaseHook.get_connection',
                 side_effect=get_connection):
             collections = ['foo', 'bar']
             task = DeleteCollectionBatch(
@@ -349,7 +349,7 @@ class DeleteCollectionListVariableTest(unittest.TestCase):
             reason='OK')
 
         with self.assertLogs('airflow.task.operators') as log, patch(
-                'airflow.hooks.base_hook.BaseHook.get_connection',
+                'airflow.hooks.base.BaseHook.get_connection',
                 side_effect=get_connection):
             collections = ['foo', 'bar']
             ListVariable.set('foo', collections)
@@ -429,7 +429,7 @@ class DeleteCollectionListVariableTest(unittest.TestCase):
             reason='Bad Request')
 
 
-        with patch('airflow.hooks.base_hook.BaseHook.get_connection',
+        with patch('airflow.hooks.base.BaseHook.get_connection',
                    side_effect=get_connection):
             collections = ['foo']
             ListVariable.set('foo', collections)

@@ -8,7 +8,7 @@ from lxml import etree
 from moto import mock_s3
 import requests_mock
 import airflow
-from airflow.hooks.base_hook import BaseHook
+from airflow.hooks.base import BaseHook
 from cob_datapipeline import helpers
 
 class TestDetermineMostRecentDate(unittest.TestCase):

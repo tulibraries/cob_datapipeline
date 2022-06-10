@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import os
 import airflow
 from airflow.models import Variable
-from airflow.hooks.base_hook import BaseHook
+from airflow.hooks.base import BaseHook
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from cob_datapipeline.tasks.task_slack_posts import az_slackpostonsuccess

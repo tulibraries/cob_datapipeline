@@ -1,4 +1,4 @@
-from airflow.operators.http_operator import SimpleHttpOperator
+from airflow.providers.http.operators.http import SimpleHttpOperator
 
 def task_solrgetnumdocs(dag, alias_name, taskid, conn_id):
     """Task to get the number of solr documents"""

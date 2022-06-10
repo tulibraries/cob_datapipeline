@@ -1,6 +1,6 @@
 """Airflow Task to Post other Task Success / Failure on Slack."""
 import json
-from airflow.hooks.base_hook import BaseHook
+from airflow.hooks.base import BaseHook
 from airflow.models import Variable
 from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.providers.slack.operators.slack_webhook import SlackWebhookOperator

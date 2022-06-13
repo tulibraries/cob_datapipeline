@@ -8,6 +8,8 @@
   "ALMASFTP_PASSWD": "password",
   "ALMASFTP_PORT": 9229,
   "ALMASFTP_S3_PREFIX": "almasftp",
+  "ALMASFTP_S3_ORIGINAL_BW_DATA_NAMESPACE": "2022060702",
+  "ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE": "2022060702",
   "ALMASFTP_USER": "almasftp",
   "ALMA_API_KEY": "kittens",
   "AZ_PROD_BRANCH": "main",
@@ -15,33 +17,57 @@
   "AZ_CLIENT_ID": "123",
   "AZ_CLIENT_SECRET": "test",
   "AZ_INDEX_SCHEDULE_INTERVAL": "@daily",
+  "AZ_SOLR_CONFIG_QA": {
+    "configset": "tul_cob-az-0",
+    "replication_factor": 4
+  },
   "AZ_SOLR_CONFIG": {
     "configset": "tul_cob-az-0",
     "replication_factor": 4
   },
   "CATALOG_OAI_CONFIG": {
     "endpoint": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request",
-    "included_sets": ["blacklight-bw"],
+    "included_sets": [
+      "blacklight-bw"
+    ],
     "md_prefix": "marc21"
   },
   "CATALOG_OAI_BW_CONFIG": {
     "endpoint": "https://temple.alma.exlibrisgroup.com/view/oai/01TULI_INST/request",
-    "included_sets": ["blacklight"],
+    "included_sets": [
+      "blacklight"
+    ],
     "md_prefix": "marc21"
   },
   "CATALOG_OAI_PUBLISH_INTERVAL": 6,
+  "CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE": "2019-10-15T12:29:58Z",
+  "CATALOG_PRE_PRODUCTION_LAST_HARVEST_FROM_DATE": "2019-10-15T12:29:58Z",
+  "CATALOG_PRE_PRODUCTION_SOLR_COLLECTION": "None",
+  "CATALOG_PRE_PRODUCTION_SOLR_CONFIG": {
+    "configset": "tul_cob-catalog-5.5.5",
+    "replication_factor": 4
+  },
   "CATALOG_PROD_BRANCH": "main",
   "CATALOG_PROD_HARVEST_FROM_DATE": "2019-10-15T12:29:58Z",
+  "CATALOG_PROD_LAST_HARVEST_FROM_DATE": "2019-10-15T12:29:58Z",
   "CATALOG_PROD_LATEST_RELEASE": false,
+  "CATALOG_PRODUCTION_SOLR_COLLECTION": "tul_cob-catalog-5.5.5.v0.8.8-2022-04-15_20-42-08",
   "CATALOG_QA_BRANCH": "main",
-  "CATALOG_QA_LATEST_RELEASE": "False",
+  "CATALOG_QA_LATEST_RELEASE": false,
+  "DSPACE_HARVEST_FROM_DATE": "None",
   "DSPACE_OAI_CONFIG": {
     "endpoint": "https://scholarshare.temple.edu/oai/request",
     "md_prefix": "xoai",
-    "included_sets": ["col_20.500.12613_11"]
+    "included_sets": [
+      "col_20.500.12613_11"
+    ]
   },
+  "PRE_PRODUCTION_COB_INDEX_VERSION": "v0.8.8",
+  "PROD_COB_INDEX_VERSION": "v0.8.8",
   "WEB_CONTENT_BASIC_AUTH_USER": "test",
   "WEB_CONTENT_BASIC_AUTH_PASSWORD": "test",
+  "WEB_CONTENT_QA_BASIC_AUTH_USER": "test",
+  "WEB_CONTENT_QA_BASIC_AUTH_PASSWORD": "test",
   "WEB_CONTENT_PROD_BASE_URL": "https://library.temple.edu",
   "WEB_CONTENT_PROD_BRANCH": "main",
   "WEB_CONTENT_QA_BASE_URL": "https://web.tul-infra.page",
@@ -53,5 +79,5 @@
     "replication_factor": 4
   },
   "almaoai_last_num_oai_delete_recs": 1349,
-  "almaoai_last_num_oai_update_recs": 34655,
+  "almaoai_last_num_oai_update_recs": 34655
 }

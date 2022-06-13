@@ -13,3 +13,4 @@ __pycache__/
 deploy.zip
 dags
 data
+.vscode

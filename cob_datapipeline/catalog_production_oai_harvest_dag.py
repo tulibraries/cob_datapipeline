@@ -27,8 +27,8 @@ AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 CATALOG_OAI_PUBLISH_INTERVAL = Variable.get("CATALOG_OAI_PUBLISH_INTERVAL")
 CATALOG_HARVEST_FROM_DATE = Variable.get("CATALOG_PROD_HARVEST_FROM_DATE")
 CATALOG_LAST_HARVEST_FROM_DATE = Variable.get("CATALOG_PROD_LAST_HARVEST_FROM_DATE")
-S3_NAME_SPACE = '{{ execution_date.strftime("%Y-%m-%d_%H-%M-%S") }}'
-DEFAULT_HARVEST_UNTIL_DATE = '{{ execution_date.strftime("%Y-%m-%dT%H:%M:%SZ") }}'
+S3_NAME_SPACE = '{{ data_interval_start.strftime("%Y-%m-%d_%H-%M-%S") }}'
+DEFAULT_HARVEST_UNTIL_DATE = '{{ data_interval_start.strftime("%Y-%m-%dT%H:%M:%SZ") }}'
 CATALOG_HARVEST_UNTIL_DATE = Variable.get("CATALOG_PROD_HARVEST_UNTIL_DATE", default_var=DEFAULT_HARVEST_UNTIL_DATE)
 
 # Alma OAI Harvest Variables (besides Dates)

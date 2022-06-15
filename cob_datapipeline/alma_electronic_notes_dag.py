@@ -56,10 +56,9 @@ Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """
 
-SET_DATETIME = PythonOperator(
+SET_DATETIME = BashOperator(
     task_id="set_datetime",
-    python_callable=datetime.now().strftime,
-    op_args=["%Y-%m-%d_%H-%M-%S"],
+    bash_command='echo ' + "{{ data_interval_start.strftime('%Y-%m-%d_%H-%M-%S') }}",
     dag=DAG
 )
 

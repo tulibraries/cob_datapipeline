@@ -16,7 +16,7 @@ def slackpostonsuccess(**context):
     ti = context.get('task_instance')
     logurl = ti.log_url
     dagid = ti.dag_id
-    date = context.get('execution_date')
+    date = context.get('data_interval_start')
     response_pre = ti.xcom_pull(task_ids='get_num_solr_docs_pre')
     ndocs_pre = json.loads(response_pre)["response"]["numFound"]
     response_post = ti.xcom_pull(task_ids='get_num_solr_docs_post')
@@ -43,7 +43,7 @@ def az_slackpostonsuccess(dag, **context):
     ti = context.get('task_instance')
     logurl = ti.log_url
     dagid = ti.dag_id
-    date = context.get('execution_date')
+    date = context.get('data_interval_start')
     response_pre = ti.xcom_pull(task_ids='get_num_solr_docs_pre')
     ndocs_pre = json.loads(response_pre)["response"]["numFound"]
     response_post = ti.xcom_pull(task_ids='get_num_solr_docs_post')
@@ -75,7 +75,7 @@ def full_reindex_slack_post_on_success(**context):
     ti = context.get('task_instance')
     logurl = ti.log_url
     dagid = ti.dag_id
-    date = context.get('execution_date')
+    date = context.get('data_interval_start')
     response_pre = ti.xcom_pull(task_ids='get_num_solr_docs_pre')
     ndocs_pre = json.loads(response_pre)["response"]["numFound"]
     response_post = ti.xcom_pull(task_ids='get_num_solr_docs_post')

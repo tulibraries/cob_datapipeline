@@ -62,10 +62,9 @@ Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """
 
-SET_COLLECTION_NAME = PythonOperator(
-    task_id='set_collection_name',
-    python_callable=datetime.now().strftime,
-    op_args=["%Y-%m-%d_%H-%M-%S"],
+SET_COLLECTION_NAME = BashOperator(
+    task_id="set_collection_name",
+    bash_command='echo ' + "{{ data_interval_start.strftime('%Y-%m-%d_%H-%M-%S') }}",
     dag=DAG
 )
 

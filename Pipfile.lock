@@ -123,11 +123,11 @@
         },
         "apache-airflow-providers-ftp": {
             "hashes": [
-                "sha256:1d61306597ac234f7e724bf42e10f084b04756ddf3e1cdcdf5af44b5ede5ff01",
-                "sha256:ed6079c23945717a2c98204857c2b23ea843f1c3e983cf3bd076f184f5365fea"
+                "sha256:6b8bae4fae47c03974e467fc0b8cafd0c29418d710b2b7b32f1c11a543892168",
+                "sha256:95c442cea30e78a6d8e29a805808d52f451acd2074deb5cf077881a1818187ba"
             ],
             "index": "pypi",
-            "version": "==3.0.0"
+            "version": "==3.1.0"
         },
         "apache-airflow-providers-http": {
             "hashes": [

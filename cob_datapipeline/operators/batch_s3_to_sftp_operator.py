@@ -9,9 +9,9 @@ class BatchS3ToSFTPOperator(S3ToSFTPOperator):
     :type sftp_conn_id: str
     :param sftp_base_path: The sftp remote path where the batch of files can be found.
     :type sftp_path: str
-    :param s3_conn_id: The s3 connection id. The name or identifier for
+    :param aws_conn_id: The s3 connection id. The name or identifier for
         establishing a connection to S3
-    :type s3_conn_id: str
+    :type aws_conn_id: str
     :param s3_bucket: The targeted s3 bucket. This is the S3 bucket to where
         the file is uploaded.
     :type s3_bucket: str
@@ -31,8 +31,7 @@ class BatchS3ToSFTPOperator(S3ToSFTPOperator):
                  sftp_base_path="./",
                  xcom_id="",
                  sftp_conn_id='ssh_default',
-                 s3_conn_id='aws_default',
-                 provide_context=True,
+                 aws_conn_id='aws_default',
                  **kwargs):
         super(BatchS3ToSFTPOperator, self).__init__(s3_bucket=s3_bucket,
                                                     s3_key=None,
@@ -43,7 +42,7 @@ class BatchS3ToSFTPOperator(S3ToSFTPOperator):
         self.sftp_base_path = sftp_base_path
         self.s3_bucket = s3_bucket
         self.s3_prefix = s3_prefix
-        self.s3_conn_id = s3_conn_id
+        self.aws_conn_id = aws_conn_id
 
     def execute(self, context):
         """Method to move each file to sftp server"""

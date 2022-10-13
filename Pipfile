@@ -5,7 +5,7 @@ verify_ssl = true
 
 [dev-packages]
 pytest = "*"
-apache-airflow = "==2.4.0"
+apache-airflow = "==2.4.1"
 apache-airflow-providers-slack = "*"
 apache-airflow-providers-amazon = "*"
 apache-airflow-providers-ftp = "*"

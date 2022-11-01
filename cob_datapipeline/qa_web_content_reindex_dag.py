@@ -69,7 +69,7 @@ Tasks with custom logic are relegated to individual Python files.
 
 SET_COLLECTION_NAME = BashOperator(
     task_id="set_collection_name",
-    bash_command='echo ' + "{{ data_interval_start.strftime('%Y-%m-%d_%H-%M-%S') }}",
+    bash_command='echo ' + pendulum.now().format('YYYY-MM-DD_HH-mm-ss'),
     dag=DAG
 )
 

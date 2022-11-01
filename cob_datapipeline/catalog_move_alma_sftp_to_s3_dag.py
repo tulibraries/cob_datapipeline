@@ -1,6 +1,7 @@
 """Airflow DAG to move alma FTP files to S3 and then archive those files into ./backup folder."""
 from datetime import datetime, timedelta
 import logging
+import pendulum
 from tulflow import tasks
 import airflow
 from airflow.models import Variable
@@ -18,7 +19,7 @@ S3_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
 DEFAULT_ARGS = {
     "owner": "airflow",
     "depends_on_past": False,
-    "start_date": datetime(2019, 5, 28),
+    "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
     "email_on_failure": False,
     "email_on_retry": False,
     "on_failure_callback": tasks.execute_slackpostonfail,

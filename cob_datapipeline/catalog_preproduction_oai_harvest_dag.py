@@ -1,6 +1,7 @@
 """Airflow DAG to perform a partial index of tul_cob catalog from OAI into Pre Production Solr Collection."""
 from datetime import datetime, timedelta
 import os
+import pendulum
 from tulflow import harvest, tasks
 import airflow
 from airflow.providers.http.operators.http import SimpleHttpOperator
@@ -69,7 +70,7 @@ AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
 DEFAULT_ARGS = {
     "owner": "cob",
     "depends_on_past": False,
-    "start_date": datetime(2018, 12, 13, 3),
+    "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
     "on_failure_callback": tasks.execute_slackpostonfail,
     "retries": 0,
     "retry_delay": timedelta(minutes=10)

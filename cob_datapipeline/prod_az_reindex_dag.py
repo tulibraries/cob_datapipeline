@@ -2,6 +2,7 @@
 from datetime import datetime, timedelta
 import airflow
 import os
+import pendulum
 from airflow.models import Variable
 from airflow.hooks.base import BaseHook
 from airflow.operators.bash import BashOperator
@@ -40,7 +41,7 @@ AZ_BRANCH = Variable.get("AZ_PROD_BRANCH")
 DEFAULT_ARGS = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2019, 5, 28),
+    'start_date': pendulum.datetime(2018, 12, 13, tz="UTC"),
     'email_on_failure': False,
     'email_on_retry': False,
     'on_failure_callback': tasks.execute_slackpostonfail,

@@ -1,5 +1,6 @@
 """Airflow DAG to harvest alma electronic notes"""
 from datetime import datetime, timedelta
+import pendulum
 import os
 from tulflow import tasks
 import airflow
@@ -35,7 +36,7 @@ DEFAULT_ARGS = {
     "depends_on_past": False,
     "email_on_failure": False,
     "email_on_retry": False,
-    'start_date': datetime(2019, 5, 28),
+    'start_date': pendulum.datetime(2018, 12, 13, tz="UTC"),
     "on_failure_callback": tasks.execute_slackpostonfail,
     "retries": 2,
     "retry_delay": timedelta(minutes=5),

@@ -1,6 +1,7 @@
 """Airflow DAG to harvest DSpace electronic theses and dissertations"""
 from datetime import datetime, timedelta
 import os
+import pendulum
 from tulflow import harvest, tasks
 from cob_datapipeline import helpers
 from airflow.hooks.base import BaseHook
@@ -38,7 +39,7 @@ DSPACE_OAI_INCLUDED_SETS = DSPACE_OAI_CONFIG.get("included_sets")
 DEFAULT_ARGS = {
     'owner': 'cob',
     'depends_on_past': False,
-    'start_date': datetime(2019, 5, 28),
+    'start_date': pendulum.datetime(2018, 12, 13, tz="UTC"),
     'email_on_failure': False,
     'email_on_retry': False,
     'on_failure_callback': tasks.execute_slackpostonfail,

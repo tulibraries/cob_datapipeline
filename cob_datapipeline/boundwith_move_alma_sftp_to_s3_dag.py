@@ -80,9 +80,11 @@ def archive_files_in_sftp(**context):
     archive_path = "bw-archive"
 
     if archive_path not in sftp_conn.list_directory("./"):
-        sftp_conn.create_directory(path=f"./{archive_path}")
+        # Revert when we upgrade to airflow version to includes this update:
+        # https://github.com/apache/airflow/commit/90ebbd7968d0a53fbc3158d1d322b32cef117f90
+        sftp_conn.create_directory(path=f"./{archive_path}", mode=int("777", 8))
     elif str(most_recent_date) not in sftp_conn.list_directory(f"./{archive_path}"):
-        sftp_conn.create_directory(f"./{archive_path}/{most_recent_date}")
+        sftp_conn.create_directory(f"./{archive_path}/{most_recent_date}", mode=int("777", 8))
 
     count = 0
     for filename in list_of_files:

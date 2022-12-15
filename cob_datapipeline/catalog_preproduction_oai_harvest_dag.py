@@ -81,7 +81,7 @@ DAG = airflow.DAG(
     catchup=False,
     default_args=DEFAULT_ARGS,
     max_active_runs=1,
-    schedule_interval=timedelta(hours=int(CATALOG_OAI_PUBLISH_INTERVAL))
+    schedule=timedelta(hours=int(CATALOG_OAI_PUBLISH_INTERVAL))
 )
 
 """

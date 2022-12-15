@@ -57,7 +57,7 @@ DAG = airflow.DAG(
     default_args=DEFAULT_ARGS,
     catchup=False,
     max_active_runs=1,
-    schedule_interval=SCHEDULE_INTERVAL
+    schedule=SCHEDULE_INTERVAL
 )
 
 """

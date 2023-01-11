@@ -30,7 +30,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - "2f:37:66:17:11:ae:f9:0f:9e:52:98:41:fe:d0:0c:78"
+            - "f7:95:df:23:81:5e:03:3e:73:0f:de:6f:1d:47:be:96"
       - run:
           name: 'Run Ansible Airflow Playbook for QA'
           command: |
@@ -54,7 +54,7 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints:
-            - "2f:37:66:17:11:ae:f9:0f:9e:52:98:41:fe:d0:0c:78"
+            - "f7:95:df:23:81:5e:03:3e:73:0f:de:6f:1d:47:be:96"
       - run:
           name: 'Run Ansible Airflow Playbook for Prod'
           command: |

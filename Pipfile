@@ -26,7 +26,11 @@ pexpect = "*"
 pysftp = "*"
 
 # required in circleci context.
-numpy= "*"
+numpy = "*"
+pandas = "*"
+
+# required for dependabot PRs
+wrapt = "*"
 
 
 [packages]

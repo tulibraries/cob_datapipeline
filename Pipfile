@@ -27,6 +27,7 @@ pysftp = "*"
 
 # required in circleci context.
 numpy = "*"
+pandas = "*"
 
 [packages]
 pytest = "*"

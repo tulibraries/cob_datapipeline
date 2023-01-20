@@ -27,6 +27,7 @@ pysftp = "*"
 
 # required in circleci context.
 numpy = "*"
+pandas = "*"
 
 # required for dependabot PRs
 wrapt = "*"

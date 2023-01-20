@@ -27,15 +27,9 @@ pysftp = "*"
 
 # required in circleci context.
 numpy = "*"
-pandas = "*"
-
-# required for dependabot PRs
-wrapt = "*"
-# This was added to python in version 3.11, but need this until we update
-tomli = "*"
 
 [packages]
 pytest = "*"
 
 [requires]
-python_version = "3"
+python_version = "3.9"

@@ -100,11 +100,11 @@
         },
         "apache-airflow-providers-amazon": {
             "hashes": [
-                "sha256:80eb7fbd7dc6b15fdf3b5a440f551a2fb03dfd658ce7a2a3b910b7b9d9b30fd2",
-                "sha256:dc85fbf617c2b0deafd8be8e308632ba7355ee3a4a1833ae91fd4c7367f5873c"
+                "sha256:c7ccccd3b338848163aefc1fef9c5650f3987244d0ae9c1e7b3b83821106a3f2",
+                "sha256:c86f6db28025858533e048e71c96c38a2670dcb75a32dc41ab984013bcbdc540"
             ],
             "index": "pypi",
-            "version": "==7.1.0"
+            "version": "==7.2.0"
         },
         "apache-airflow-providers-common-sql": {
             "hashes": [

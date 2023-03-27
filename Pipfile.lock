@@ -265,11 +265,11 @@
         },
         "apache-airflow-providers-ssh": {
             "hashes": [
-                "sha256:1efb20f837f730630157ad9a6ccde4e3d7975292dbfc3bb3f91a4b290904e1f8",
-                "sha256:d5045ac849db82be585ca191cd84daf8f69886b826f5b1ad04c77dba3e090523"
+                "sha256:0e28ba4f9d2914b6adedd8a4dd7e1e188ceed5d94ff508ef2e39a16590c4b3db",
+                "sha256:f621712cbd43431e4d046715b2ec0bcae63bd70e161ba316a9d62f55ab3e1a2d"
             ],
             "index": "pypi",
-            "version": "==3.4.0"
+            "version": "==3.5.0"
         },
         "apispec": {
             "extras": [
@@ -1012,7 +1012,7 @@
                 "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504",
                 "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"
             ],
-            "markers": "python_full_version >= '3.8.0'",
+            "markers": "python_version >= '3.8'",
             "version": "==5.12.0"
         },
         "itsdangerous": {

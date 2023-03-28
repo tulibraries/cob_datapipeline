@@ -390,11 +390,11 @@
         },
         "botocore": {
             "hashes": [
-                "sha256:15c205e4578253da1e8cc247b9d4755042f5f873f68ac6e5fed48f4bd6f008c6",
-                "sha256:d1770b4fe5531870af7a81e9897b2092d2f89e4ba8cb7abbbaf3ab952f6b8a6f"
+                "sha256:d5c4c5bbbbf0ec62a4235ccac1b9bbb579558f7bb3231d7fb6054e1f64d3a623",
+                "sha256:ff6585df3dcef2057be5e54b45d254608d3769d726ea4ccd4e17f77825e5b13d"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==1.29.99"
+            "version": "==1.29.100"
         },
         "cachelib": {
             "hashes": [
@@ -1328,11 +1328,11 @@
         },
         "moto": {
             "hashes": [
-                "sha256:363577f7a0cdf639852420f6ba5caa9aa3c90a688feae6315f8ee4bf324b8c27",
-                "sha256:63542b7b9f307b00fae460b42d15cf9346de3ad3b1287fba38fc68f3c05e4da4"
+                "sha256:cfe398a1f6e317d061c47c3d2dd8c6893f3eb49154984a7cbb8bcd4ba517d67d",
+                "sha256:fdcc2731212ca050a28b2bc83e87628294bcbd55cb4f4c4692f972023fb1e7e6"
             ],
             "index": "pypi",
-            "version": "==4.1.5"
+            "version": "==4.1.6"
         },
         "multidict": {
             "hashes": [

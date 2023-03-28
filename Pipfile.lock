@@ -680,7 +680,7 @@
                 "sha256:a07ffd2351b8c678dfc4a856a3005f8067aea51d6ba6c700796a4d9e280f39f0",
                 "sha256:e5db55f3687856d8fbdab002ed78544e1c4559a130302693d839dfe8f93f2373"
             ],
-            "markers": "python_version < '3.11'",
+            "markers": "python_version >= '3.7'",
             "version": "==0.3.6"
         },
         "dnspython": {
@@ -1008,7 +1008,7 @@
                 "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504",
                 "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"
             ],
-            "markers": "python_version >= '3.8'",
+            "markers": "python_full_version >= '3.8.0'",
             "version": "==5.12.0"
         },
         "itsdangerous": {
@@ -1959,11 +1959,11 @@
         },
         "setuptools": {
             "hashes": [
-                "sha256:2ee892cd5f29f3373097f5a814697e397cf3ce313616df0af11231e2ad118077",
-                "sha256:b78aaa36f6b90a074c1fa651168723acbf45d14cb1196b6f02c0fd07f17623b2"
+                "sha256:257de92a9d50a60b8e22abfcbb771571fde0dbf3ec234463212027a4eeecbe9a",
+                "sha256:e728ca814a823bf7bf60162daf9db95b93d532948c4c0bea762ce62f60189078"
             ],
             "index": "pypi",
-            "version": "==67.6.0"
+            "version": "==67.6.1"
         },
         "sickle": {
             "hashes": [
@@ -2062,11 +2062,11 @@
         },
         "sqlalchemy-redshift": {
             "hashes": [
-                "sha256:06d1d208a5a0ff7be6b8f346ba0ef30450f6d59190b2ba5316349a507c6f36d9",
-                "sha256:21635da4e6f6b0b516a923ec02508cff409ce0d757e63a1e4fff39265d0b3208"
+                "sha256:f7dcde077516e40822f3797c27e8be21be8d7763d5267123d9ee9a452d2e3f27",
+                "sha256:fd2d70f138c4be1ad38f5445b6327b52918616d7d937f89c9c4db4ceecd09a11"
             ],
             "markers": "python_version >= '3.4'",
-            "version": "==0.8.12"
+            "version": "==0.8.13"
         },
         "sqlalchemy-utils": {
             "hashes": [
@@ -2167,7 +2167,7 @@
                 "sha256:5cb5f4a79139d699607b3ef622a1dedafa84e115ab0024e0d9c044a9479ca7cb",
                 "sha256:fb33085c39dd998ac16d1431ebc293a8b3eedd00fd4a32de0ff79002c19511b4"
             ],
-            "markers": "python_version < '3.10'",
+            "markers": "python_version >= '3.7'",
             "version": "==4.5.0"
         },
         "uc-micro-py": {

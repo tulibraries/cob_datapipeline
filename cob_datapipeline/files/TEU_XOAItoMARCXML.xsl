@@ -430,6 +430,12 @@
                     <xsl:with-param name="type" select="'committee member'" />
                 </xsl:call-template>
             </xsl:for-each>
+            
+            <!-- Collection Name -->
+            
+            <datafield tag="973" ind1="0" ind2="8">
+                <subfield code="t">Temple University Theses and Dissertations</subfield>
+            </datafield>
 
             <!-- URL -->            
 

@@ -1320,11 +1320,11 @@
         },
         "moto": {
             "hashes": [
-                "sha256:56de986179f79920f59243bc532e03a7039d24a5ee5aec2eb3b666dcd23d6262",
-                "sha256:fb9a7615f744da4ea7f154ff8e79782b19781344a6356ca4c0d6217c1237d379"
+                "sha256:c3ecc2dda1a7b3a3c46655490bc6a4660b7bb47e31eaed7bbd54adeb01f8471f",
+                "sha256:df5b52eff70bf125ee03ea72c4e01f2daff243796f984a534c3dee92a0b93522"
             ],
             "index": "pypi",
-            "version": "==4.1.7"
+            "version": "==4.1.8"
         },
         "multidict": {
             "hashes": [
@@ -1555,11 +1555,11 @@
         },
         "platformdirs": {
             "hashes": [
-                "sha256:01437886022decaf285d8972f9526397bfae2ac55480ed372ed6d9eca048870a",
-                "sha256:a5e1536e5ea4b1c238a1364da17ff2993d5bd28e15600c2c8224008aff6bbcad"
+                "sha256:47692bc24c1958e8b0f13dd727307cff1db103fca36399f457da8e05f222fdc4",
+                "sha256:7954a68d0ba23558d753f73437c55f89027cf8f5108c19844d4b82e5af396335"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==3.4.0"
+            "version": "==3.5.0"
         },
         "pluggy": {
             "hashes": [
@@ -1837,11 +1837,11 @@
         },
         "rich": {
             "hashes": [
-                "sha256:22b74cae0278fd5086ff44144d3813be1cedc9115bdfabbfefd86400cb88b20a",
-                "sha256:b5d573e13605423ec80bdd0cd5f8541f7844a0e71a13f74cf454ccb2f490708b"
+                "sha256:2d11b9b8dd03868f09b4fffadc84a6a8cda574e40dc90821bd845720ebb8e89c",
+                "sha256:69cdf53799e63f38b95b9bf9c875f8c90e78dd62b2f00c13a911c7a3b9fa4704"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==13.3.4"
+            "version": "==13.3.5"
         },
         "s3transfer": {
             "hashes": [
@@ -2061,7 +2061,7 @@
                 "sha256:5430a4fe2ac7d0f93e66f1efc6e1338a41884b7ddf2a350cedd20ccc4d9d28f3",
                 "sha256:d446183e84b8349fa3061f0fe7f06ca94ba65b426946ffebe6e3e8295332420c"
             ],
-            "index": "pypi",
+            "markers": "python_version >= '3.5'",
             "version": "==0.4.4"
         },
         "sshtunnel": {

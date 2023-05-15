@@ -70,7 +70,7 @@ def pytest_sessionstart():
     Variable.set("WEB_CONTENT_CONFIGSET", "tul_cob-web-1")
     Variable.set("WEB_CONTENT_CORE", "WEB_CONTENT_CORE")
     Variable.set("WEB_CONTENT_SOLR_CONFIG", {"configset": "tul_cob-web-2", "replication_factor": 4}, serialize_json=True)
-    Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "WEB_CONTENT_SCHEDULE_INTERVAL")
+    Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "@weekly")
     Variable.set("CATALOG_OAI_PUBLISH_INTERVAL", 0)
     Variable.set("CATALOG_PROD_HARVEST_FROM_DATE", "CATALOG_PROD_HARVEST_FROM_DATE")
     Variable.set("CATALOG_HARVEST_UNTIL_DATE", "2020-01-01T00:00:00Z")

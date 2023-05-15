@@ -2,6 +2,7 @@
 import os
 import unittest
 import airflow
+import pendulum
 from cob_datapipeline.prod_web_content_reindex_dag import DAG
 
 class TestProdWebContentReindexDag(unittest.TestCase):
@@ -17,7 +18,7 @@ class TestProdWebContentReindexDag(unittest.TestCase):
 
     def test_dag_interval_is_variable(self):
         """Unit test that the DAG schedule is set by configuration"""
-        self.assertEqual(DAG.schedule_interval, "WEB_CONTENT_SCHEDULE_INTERVAL")
+        self.assertEqual(DAG.schedule_interval, "@weekly")
 
     def test_dag_tasks_present(self):
         """Unit test that the DAG instance contains the expected tasks."""

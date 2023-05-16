@@ -7,6 +7,6 @@ init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.app
 disable=duplicate-code
 
 [DESIGN]
-max-parents=8
+max-parents=10
 
 

@@ -47,7 +47,7 @@ DAG = airflow.DAG(
     default_args=DEFAULT_ARGS,
     catchup=False,
     max_active_runs=1,
-    schedule="@weekly"
+    schedule="@daily"
 )
 
 """

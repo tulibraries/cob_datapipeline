@@ -241,11 +241,11 @@
         },
         "apache-airflow-providers-slack": {
             "hashes": [
-                "sha256:16c7a67f43bae5cfd6d938eb8697a3d44392e26cce9c06cfc82af1c3ba8d5762",
-                "sha256:e7e12ac3db8f4f1a5d85a2fc1348189d995ef43090f3a3e20d73f8e0c422b8f1"
+                "sha256:ca3c024de0fcf62b435f7b0001b759346a6e0d6adefe8e73240b570cb4f68a8a",
+                "sha256:cfa8bbb11a66aaa23fdea1cf199141dd652ed411e139873174649346f22ab92c"
             ],
             "index": "pypi",
-            "version": "==7.2.0"
+            "version": "==7.3.0"
         },
         "apache-airflow-providers-sqlite": {
             "hashes": [
@@ -1016,7 +1016,7 @@
                 "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504",
                 "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"
             ],
-            "markers": "python_version >= '3.8'",
+            "markers": "python_full_version >= '3.8.0'",
             "version": "==5.12.0"
         },
         "itsdangerous": {

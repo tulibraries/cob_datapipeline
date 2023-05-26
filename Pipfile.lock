@@ -374,19 +374,19 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:110263d6be92383b9d5de61f4b36f732f0c98080dcfaf0aeb2f53f93b45b030a",
-                "sha256:82d92428599c107d8cf7c716e4d805193f07585968d261d9751a0e0777d8b178"
+                "sha256:152def2fcc9854dcc42383d2b53e2ed2c9ccb5ff6cc0f3ada20f1ab54418ede4",
+                "sha256:a5d6fdcaec863bc7ad2f8133ff9a926d6f06468b83b5fb631cd90bd33b709c45"
             ],
             "index": "pypi",
-            "version": "==1.26.136"
+            "version": "==1.26.141"
         },
         "botocore": {
             "hashes": [
-                "sha256:82c610de0cdf4e13faeb9750c9b950da4201d2c98e1d4f18b0eface7a7b452cc",
-                "sha256:a52ced1a0311178849e332c2c85c5b702adb30b68c5de66a5fd59488d19de65a"
+                "sha256:b01d156c42765f3f437959e01a8c7f3cb0e29b24aa0b8f373498133408b2e3c7",
+                "sha256:e86e1633f98838317b9e1b5c874c4d85339b77f6b7e55c2a4d83913f6166f9ad"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==1.29.140"
+            "version": "==1.29.141"
         },
         "cachelib": {
             "hashes": [
@@ -679,7 +679,7 @@
                 "sha256:224e32b03eb46be70e12ef6d64e0be123a64e621ab4c0822ff6d450d52a540b9",
                 "sha256:89141536394f909066cabd112e3e1a37e4e654db00a25308b0f130bc3152eb46"
             ],
-            "markers": "python_version >= '3.7' and python_version < '4'",
+            "markers": "python_version >= '3.7' and python_version < '4.0'",
             "version": "==2.3.0"
         },
         "docutils": {
@@ -742,7 +742,7 @@
                 "sha256:62b521d75494c290a646ae8acc77123721e4364790f1e64af0038d823961fbf0",
                 "sha256:a85eebfa17c339a7260c4643475af444784ba6de5588adda67406f0a75599553"
             ],
-            "markers": "python_version >= '3.7' and python_version < '4'",
+            "markers": "python_version >= '3.7' and python_version < '4.0'",
             "version": "==4.4.4"
         },
         "flask-limiter": {

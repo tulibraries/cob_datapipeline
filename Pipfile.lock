@@ -241,11 +241,11 @@
         },
         "apache-airflow-providers-slack": {
             "hashes": [
-                "sha256:16c7a67f43bae5cfd6d938eb8697a3d44392e26cce9c06cfc82af1c3ba8d5762",
-                "sha256:e7e12ac3db8f4f1a5d85a2fc1348189d995ef43090f3a3e20d73f8e0c422b8f1"
+                "sha256:ca3c024de0fcf62b435f7b0001b759346a6e0d6adefe8e73240b570cb4f68a8a",
+                "sha256:cfa8bbb11a66aaa23fdea1cf199141dd652ed411e139873174649346f22ab92c"
             ],
             "index": "pypi",
-            "version": "==7.2.0"
+            "version": "==7.3.0"
         },
         "apache-airflow-providers-sqlite": {
             "hashes": [
@@ -382,11 +382,11 @@
         },
         "botocore": {
             "hashes": [
-                "sha256:82c610de0cdf4e13faeb9750c9b950da4201d2c98e1d4f18b0eface7a7b452cc",
-                "sha256:a52ced1a0311178849e332c2c85c5b702adb30b68c5de66a5fd59488d19de65a"
+                "sha256:b01d156c42765f3f437959e01a8c7f3cb0e29b24aa0b8f373498133408b2e3c7",
+                "sha256:e86e1633f98838317b9e1b5c874c4d85339b77f6b7e55c2a4d83913f6166f9ad"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==1.29.140"
+            "version": "==1.29.141"
         },
         "cachelib": {
             "hashes": [
@@ -1016,7 +1016,7 @@
                 "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504",
                 "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"
             ],
-            "markers": "python_version >= '3.8'",
+            "markers": "python_full_version >= '3.8.0'",
             "version": "==5.12.0"
         },
         "itsdangerous": {

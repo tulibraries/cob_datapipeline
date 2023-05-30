@@ -209,11 +209,11 @@
         },
         "apache-airflow-providers-ftp": {
             "hashes": [
-                "sha256:690bb55ab2126e6b178c8ea3b2fbc4a63ab81202ec2e9b2d92d332b8d9eac8ff",
-                "sha256:7f0b0ec34e0ba6c54c06177c3a2e443e0d4d00c3fdd039b685a85fbfff183bf6"
+                "sha256:c9ac633c58e44ef5505c1633b41ee62d684c52841d5c6096ebb555bc996b2923",
+                "sha256:ca7adc788a9e78ef4981fe5ac171711d44a60b76970dd3bc5caabf11855e6784"
             ],
             "index": "pypi",
-            "version": "==3.3.1"
+            "version": "==3.4.1"
         },
         "apache-airflow-providers-http": {
             "hashes": [
@@ -398,11 +398,11 @@
         },
         "cattrs": {
             "hashes": [
-                "sha256:bc12b1f0d000b9f9bee83335887d532a1d3e99a833d1bf0882151c97d3e68c21",
-                "sha256:f0eed5642399423cf656e7b66ce92cdc5b963ecafd041d1b24d136fdde7acf6d"
+                "sha256:57a5129bfa0c752d4f215311228ea6282bbaae0edbb27f575503df0a260e1c49",
+                "sha256:9be29ab7041a3b9da67cad5daee578c511bcd52495ed85a6f8be3cf9d7c922d3"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==22.2.0"
+            "version": "==23.1.0"
         },
         "certifi": {
             "hashes": [
@@ -671,7 +671,7 @@
                 "sha256:a07ffd2351b8c678dfc4a856a3005f8067aea51d6ba6c700796a4d9e280f39f0",
                 "sha256:e5db55f3687856d8fbdab002ed78544e1c4559a130302693d839dfe8f93f2373"
             ],
-            "markers": "python_version < '3.11'",
+            "markers": "python_version >= '3.7'",
             "version": "==0.3.6"
         },
         "dnspython": {
@@ -679,7 +679,7 @@
                 "sha256:224e32b03eb46be70e12ef6d64e0be123a64e621ab4c0822ff6d450d52a540b9",
                 "sha256:89141536394f909066cabd112e3e1a37e4e654db00a25308b0f130bc3152eb46"
             ],
-            "markers": "python_version >= '3.7' and python_version < '4.0'",
+            "markers": "python_version >= '3.7' and python_version < '4'",
             "version": "==2.3.0"
         },
         "docutils": {
@@ -742,7 +742,7 @@
                 "sha256:ba56245ba43b71c8ae936784b867625dce8b9956faeedec2953222e57942fb0b",
                 "sha256:e0ef23d8c863746bd141046167073699e1a7b03c97169cbba70f05b8d9cd6b9e"
             ],
-            "markers": "python_version >= '3.7' and python_version < '4.0'",
+            "markers": "python_version >= '3.7' and python_version < '4'",
             "version": "==4.5.2"
         },
         "flask-limiter": {
@@ -2238,7 +2238,7 @@
                 "sha256:06006244c70ac8ee83fa8282cb188f697b8db25bc8b4df07be1873c43897060c",
                 "sha256:3a8b36f13dd5fdc5d1b16fe317f5668545de77fa0b8e02006381fd49d731ab98"
             ],
-            "markers": "python_version < '3.10'",
+            "markers": "python_version >= '3.7'",
             "version": "==4.6.2"
         },
         "tzdata": {

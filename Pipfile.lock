@@ -217,11 +217,11 @@
         },
         "apache-airflow-providers-http": {
             "hashes": [
-                "sha256:570d60fb78d3b83a9456fb8d344d42cd9903157ce7cf1d3f6c79c37f8de5ab4d",
-                "sha256:dc9129333662e3017841c0114ee4ccce163dda2cd73ccdb1235d33b8906c8820"
+                "sha256:26e7e35bfeb706fe9210b896766fbb028abad4841c3a401670d96529162d94cc",
+                "sha256:d755bdb4ba24d7e8378664bc9c7c3185680d3ed143a1f6986bcc6a5126ae2b16"
             ],
             "index": "pypi",
-            "version": "==4.3.0"
+            "version": "==4.4.1"
         },
         "apache-airflow-providers-imap": {
             "hashes": [
@@ -1016,7 +1016,7 @@
                 "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504",
                 "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"
             ],
-            "markers": "python_version >= '3.8'",
+            "markers": "python_full_version >= '3.8.0'",
             "version": "==5.12.0"
         },
         "itsdangerous": {

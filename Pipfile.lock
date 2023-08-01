@@ -241,11 +241,11 @@
         },
         "apache-airflow-providers-slack": {
             "hashes": [
-                "sha256:ca3c024de0fcf62b435f7b0001b759346a6e0d6adefe8e73240b570cb4f68a8a",
-                "sha256:cfa8bbb11a66aaa23fdea1cf199141dd652ed411e139873174649346f22ab92c"
+                "sha256:3b5708225d8712ecafe7d3a83f2aa828f6f8950a7ba08f3762a187c146baff50",
+                "sha256:3fb0fb3622d9886c68d6fac4e0f69ffaa56442bd4c472a7122f3d11f41079733"
             ],
             "index": "pypi",
-            "version": "==7.3.0"
+            "version": "==7.3.1"
         },
         "apache-airflow-providers-sqlite": {
             "hashes": [

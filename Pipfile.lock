@@ -193,11 +193,11 @@
         },
         "apache-airflow-providers-amazon": {
             "hashes": [
-                "sha256:0206eb2f537976eb782841d635abd3be13df89b0a9eb3683de86c994f7dcfdaa",
-                "sha256:16c05f5e8fd006ada54cac309a9b8fb5f0d0ab17ac4d8b8bc7dfa78bf7c9ed1a"
+                "sha256:24214ce0b616c41bfcc78c8df9bb1a32e420cca81bad2783116bf6d3cb7dcc95",
+                "sha256:33c27a3c52f41c0e11195a3e81c0852e158d1e3e5767f58725b03049b77dbed3"
             ],
             "index": "pypi",
-            "version": "==8.1.0"
+            "version": "==8.4.0"
         },
         "apache-airflow-providers-common-sql": {
             "hashes": [
@@ -675,7 +675,7 @@
                 "sha256:76b122c08ef4ce2eedcd4d1abd8e641114bfc6c2867f49f3c41facf65bf19f5e",
                 "sha256:cc1c8b182eb3013e24bd475ff2e9295af86c1a38eb1aff128dac8962a9ce3c03"
             ],
-            "markers": "python_version < '3.11'",
+            "markers": "python_version >= '3.7'",
             "version": "==0.3.7"
         },
         "dnspython": {
@@ -1501,11 +1501,11 @@
         },
         "mypy-boto3-appflow": {
             "hashes": [
-                "sha256:6bb79a6e25bdb8ec16f0ca2da5bcdebf77f3557385679fc8b82aa2816ffb6f28",
-                "sha256:9b5399ed18bcd8ff3cd6d82dac10f87090a1feea3d5ad7f9b6cb94ca21ed45b0"
+                "sha256:75c2398544019f306bf04b33f674308eb6bda4de63f94d6307cf6c231616fcd5",
+                "sha256:ec67c248312ffb5534006be53b9baddb9cbb354a2c4f95349b1c3db2f02da72b"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==1.28.16"
+            "version": "==1.28.0"
         },
         "mypy-boto3-rds": {
             "hashes": [
@@ -2382,7 +2382,7 @@
                 "sha256:440d5dd3af93b060174bf433bccd69b0babc3b15b1a8dca43789fd7f61514b36",
                 "sha256:b75ddc264f0ba5615db7ba217daeb99701ad295353c45f9e95963337ceeeffb2"
             ],
-            "markers": "python_version < '3.10'",
+            "markers": "python_version >= '3.7'",
             "version": "==4.7.1"
         },
         "tzdata": {

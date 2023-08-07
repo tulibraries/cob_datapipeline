@@ -233,11 +233,11 @@
         },
         "apache-airflow-providers-sftp": {
             "hashes": [
-                "sha256:b58b961d1f894df1ed1eb8115abe0991ed18c11a3e86d912c7fb73ab199f8234",
-                "sha256:daed9bb7daab8a3eb5bbcc315157154504ba3a252deec5757ec3a8d2345a6592"
+                "sha256:7850e4109510867672aa5081f96bb1c92aa9809072552440de70f4688c12a3ac",
+                "sha256:96f279afe60f4e337bd659ee44ffe100ee4bfdce1191e23869d8aafe6dfe3d43"
             ],
             "index": "pypi",
-            "version": "==4.3.0"
+            "version": "==4.5.0"
         },
         "apache-airflow-providers-slack": {
             "hashes": [

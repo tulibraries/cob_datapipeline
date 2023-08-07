@@ -1413,11 +1413,11 @@
         },
         "moto": {
             "hashes": [
-                "sha256:5003126c46ce70fe351ff1cb67dc8d9a5983f403fae13b7628b0fb503d19039e",
-                "sha256:f3e966ba1460751e19eab5356545813b29c05478b47eb0da445d688949339be2"
+                "sha256:545afeb4df94dfa730e2d7e87366dc26b4a33c2891f462cbb049f040c80ed1ec",
+                "sha256:7d3bd748a34641715ba469c761f72fb8ec18f349987c98f5a0f9be85a07a9911"
             ],
             "index": "pypi",
-            "version": "==4.1.11"
+            "version": "==4.1.14"
         },
         "multidict": {
             "hashes": [

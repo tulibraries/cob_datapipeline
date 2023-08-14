@@ -1,7 +1,7 @@
 
 # Production Solr Collection Swap Process Steps
 
-This document outlines the expected steps needed to complete the Full Reindex Process to go from exporting data from Alma to having it live in the Production Library Search. This is intended as a checklist for the person responsible for shepherding the process to ensure that the steps that the required manual steps are followed.
+This document outlines the expected steps needed to complete the Full Reindex Process to go from exporting data from Alma to having it live in the Production Library Search. This is intended as a checklist for the person responsible for shepherding the process to ensure that the required manual steps are followed.
 
 These steps are broken down into three sections as these parts can be run sequentially, but they may also be run independently.
 
@@ -31,8 +31,7 @@ If something goes wrong with the full reindex and you need to rerun it from the 
 1. Ensure the `catalog_preproduction_oai_harvest` Dag is On (may be turned off)
 1. Create a PR to `tul_cob` changing CATALOG_COLLECTION in .env to use `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` and wait for merge and deploy to LibrarySearch QA
 1. Initiate Testing of changes on LibrarySearch QA and wait for approval to proceed
-1. Create Release of `tul_cob` based on approved changes (usually main) and wait for deploy to Library Search Stage
-1. Initiate lightweight review of changes LibrarySearch Stage and wait for approval to proceed.
+1. Create Release of `tul_cob` based on approved changes (usually main) and wait for deploy to Library Search production
 
 ## Deploy to Production
 

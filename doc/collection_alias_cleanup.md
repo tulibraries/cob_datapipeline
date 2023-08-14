@@ -11,27 +11,19 @@ dags themselves could take care of this cleanup step.
 To that end, we have added steps to these dags that together work to cleanup
 such artifacts.
 
-
-The collection and alias artifact cleanup work the same way so I will only
-describe the collection cleanup here.
+The collection and alias artifact cleanup work the same way. The process for collection cleanup is described below.
 
 
 ## Keeping track of what to delete (push_collection)
-The first step is to have a way to keep track of what to delete. We can't just
-delete what we create now because we need what we create now. To this end we
-will use the airflow variable mechanism as a way to persist/remember
-collections to be deleted.
+The first step is to have a way to keep track of what to delete. We
+will use the airflow variable mechanism as a way to persist/remember which
+collections need to be deleted.
 
 The natural data structure for such a variable would be a list because we will
-need to keep track of more than just one item (think for example if we fail to
-delete something we would need to continue to keep track of whatever we fail to
-delete so that we can try again the next time).
+need to keep track of more than just one item. We have created a `ListVariable` model which is a simple wrapper around the airflow variable to treat that variable as a list.  We can push new values into our variable using its `push` method.  For example,
 
-To that end we have created a `ListVariable` model which is a simple wrapper
-around the airflow variable to treat that variable as a list.  We can push new
-values into our variable using its `push` method.  For example
 `ListVariable.push('foo', 'bar')` would push the value 'bar' into the list
-variable saved as 'foo'.
+variable that previously included 'foo'.
 
 Note that `ListVariable.push` creates the new list variable if it doesn't
 already exist.
@@ -47,8 +39,7 @@ Now that we have saved something to the list variable, we will want to process
 it.
 
 So we have created two airflow operators `DeleteCollectionListVariable` and
-`DeleteAliasListVariable`. As their names would suggest these operators iterate
-over the values in a ListVariable instance and try to delete either the
+`DeleteAliasListVariable`. These operators iterate over the values in a ListVariable instance and try to delete either the
 collections or aliases respectively.
 
 ### The safeguards
@@ -65,7 +56,7 @@ allows us to skip specific collections listed in the `skip_included` parameter.
 Thus, if we wanted to always skip any collection named 'foo', or 'bar' we could
 set `skip_included=['foo', 'bar']`.
 
-Finally if neither of these safeguard suffices, we can also skip processing
+Finally if neither of these safeguards suffice, we can also skip processing
 a value by whatever matches a regular expression set in the `skip_matching`
 parameter.
 

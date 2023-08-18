@@ -374,19 +374,19 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:4a435fdbd77628e3d32cfbc8b6225e779d8f789027fadb6a51fe1b456e15ef54",
-                "sha256:57d618f03bd269ebef6287dd4ed86ddaa1d53a4021008ad3267c6097be17e172"
+                "sha256:1ab375c231547db4c9ce760e29cbe90d0341fe44910571b1bc4967a72fd8276f",
+                "sha256:7b8e7deee9f665612b3cd7412989aaab0337d8006a0490a188c814af137bd32d"
             ],
             "index": "pypi",
-            "version": "==1.28.28"
+            "version": "==1.28.29"
         },
         "botocore": {
             "hashes": [
-                "sha256:1fcfbd23c7f1f66f16c5c1a1e8565ee8ff68429cc0ee9d2acfb1b55739584cbd",
-                "sha256:d6310826e37ba0209e904d691638b8e848342ec17f5187568ca02ad092c55c45"
+                "sha256:71b335a47ee061994ac12f15ffe63c5c783cb055dc48079b7d755a46b9c1918c",
+                "sha256:d3dc422491b3a30667f188f3434541a1dd86d6f8ed7f98ca26e056ae7d912c85"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==1.31.28"
+            "version": "==1.31.29"
         },
         "cachelib": {
             "hashes": [
@@ -564,11 +564,11 @@
         },
         "click": {
             "hashes": [
-                "sha256:48ee849951919527a045bfe3bf7baa8a959c423134e1a5b98c05c20ba75a1cbd",
-                "sha256:fa244bb30b3b5ee2cae3da8f55c9e5e0c0e86093306301fb418eb9dc40fbded5"
+                "sha256:ae74fb96c20a0277a1d615f1e4d73c8414f5a98db8b799a7931d1582f3390c28",
+                "sha256:ca9853ad459e787e2192211578cc907e7594e294c7ccc834310722b41b9ca6de"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==8.1.6"
+            "version": "==8.1.7"
         },
         "clickclick": {
             "hashes": [
@@ -683,7 +683,7 @@
                 "sha256:57c6fbaaeaaf39c891292012060beb141791735dbb4004798328fc2c467402d8",
                 "sha256:8dcfae8c7460a2f84b4072e26f1c9f4101ca20c071649cb7c34e8b6a93d58984"
             ],
-            "markers": "python_version >= '3.8' and python_version < '4.0'",
+            "markers": "python_version >= '3.8' and python_version < '4'",
             "version": "==2.4.2"
         },
         "docutils": {
@@ -746,7 +746,7 @@
                 "sha256:ba56245ba43b71c8ae936784b867625dce8b9956faeedec2953222e57942fb0b",
                 "sha256:e0ef23d8c863746bd141046167073699e1a7b03c97169cbba70f05b8d9cd6b9e"
             ],
-            "markers": "python_version >= '3.7' and python_version < '4.0'",
+            "markers": "python_version >= '3.7' and python_version < '4'",
             "version": "==4.5.2"
         },
         "flask-limiter": {

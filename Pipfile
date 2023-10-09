@@ -4,7 +4,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-apache-airflow = "==2.6.3"
+apache-airflow = "==2.7.1"
 apache-airflow-providers-slack = "*"
 apache-airflow-providers-amazon = "*"
 apache-airflow-providers-ftp = "*"

@@ -1477,12 +1477,12 @@
         },
         "moto": {
             "hashes": [
-                "sha256:545afeb4df94dfa730e2d7e87366dc26b4a33c2891f462cbb049f040c80ed1ec",
-                "sha256:7d3bd748a34641715ba469c761f72fb8ec18f349987c98f5a0f9be85a07a9911"
+                "sha256:4440bc86d5a7bb77043d8031022f549e0c1e2869f1218b0939dbbbdc10776932",
+                "sha256:cc9650747088a72db810ed0fd96f852b6fa296ca4b5e7818d17d9e7fdaf5dde6"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.7'",
-            "version": "==4.1.14"
+            "version": "==4.2.5"
         },
         "multidict": {
             "hashes": [

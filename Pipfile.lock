@@ -195,12 +195,12 @@
         },
         "apache-airflow-providers-amazon": {
             "hashes": [
-                "sha256:7d6f7d85251fd386b4272d0a91029185d31b033307cb510a2f053e2f1f880fe6",
-                "sha256:9fe118305d1af12a1e1a4d2a09f5e3ca5bf2e4d1ec13343116bdbb961b95e874"
+                "sha256:684d9c4c920ca1ecda76cfd97cbb6c9beeb8c94534a595ac674a5e9ad3db4e30",
+                "sha256:696058beb71ed2eb35430c6f2908f938ebe9fd48bef0ed6e79511ba8b34d87aa"
             ],
             "index": "pypi",
             "markers": "python_version ~= '3.8'",
-            "version": "==8.5.1"
+            "version": "==8.7.1"
         },
         "apache-airflow-providers-common-sql": {
             "hashes": [
@@ -1563,38 +1563,6 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==6.0.4"
-        },
-        "mypy-boto3-appflow": {
-            "hashes": [
-                "sha256:1b67dbcc87d2ac35075e6aa51e0bc24be8a5cf6a90772295bf81b0619b1208b2",
-                "sha256:cd4a8ef1218aa00f6e98fda22abc395570b8a41055aace03f4ebbf949c045412"
-            ],
-            "markers": "python_version >= '3.7'",
-            "version": "==1.28.42"
-        },
-        "mypy-boto3-rds": {
-            "hashes": [
-                "sha256:09085c7648ae66ee7b2d7ffec00727e841bc717a10d684f074f6837589430c85",
-                "sha256:a50c4232a5f2c62539fb0fe6638c4a440788dcacc186cf56eafdb0dedce71732"
-            ],
-            "markers": "python_version >= '3.7'",
-            "version": "==1.28.61"
-        },
-        "mypy-boto3-redshift-data": {
-            "hashes": [
-                "sha256:7c4a31aaf22c02cf2651363f7524c06d03b13657f8fb5aa9c993b6f057b63cb0",
-                "sha256:f3f2f8026cee3a8113743749e3b45f31742d7be4ca79e5fc2267a27ea35f4c74"
-            ],
-            "markers": "python_version >= '3.7'",
-            "version": "==1.28.36"
-        },
-        "mypy-boto3-s3": {
-            "hashes": [
-                "sha256:11a3db97398973d4ae28489b94c010778a0a5c65f99e00268456c3fea67eca79",
-                "sha256:b008809f448e74075012d4fc54b0176de0b4f49bc38e39de30ca0e764eb75056"
-            ],
-            "markers": "python_version >= '3.7'",
-            "version": "==1.28.55"
         },
         "numpy": {
             "hashes": [

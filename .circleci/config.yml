@@ -16,8 +16,8 @@ jobs:
           name: 'Run Pylint & Pytest'
           command: |
             SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
-            make lint
-            make test
+            pipenv run pylint cob_datapipeline -E
+            PYTHONPATH=. pipenv run pytest
   qa_deploy:
     docker:
       - image: cimg/python:3.9.10

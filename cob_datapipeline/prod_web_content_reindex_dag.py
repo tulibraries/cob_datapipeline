@@ -7,10 +7,14 @@ from airflow.models import Variable
 from airflow.hooks.base import BaseHook
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
-from cob_datapipeline.tasks.task_slack_posts import web_content_slackpostonsuccess
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.operators import\
         PushVariable, DeleteAliasListVariable, DeleteCollectionListVariable
+from airflow.providers.slack.notifications.slack import send_slack_notification
+
+slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ execution_date }} DAG {{ dag.dag_id }} success: We started with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_pre'))['response']['numFound'] }} and ended with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_post'))['response']['numFound'] }} docs. {{ ti.log_url }}")
+slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ execution_date }} {{ ti.log_url }}")
+
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -37,18 +41,19 @@ WEB_CONTENT_BASE_URL = Variable.get("WEB_CONTENT_PROD_BASE_URL")
 
 # CREATE DAG
 DEFAULT_ARGS = {
-    'owner': 'airflow',
-    'depends_on_past': False,
-    'start_date': pendulum.datetime(2018, 12, 13, tz="UTC"),
-    'email_on_failure': False,
-    'email_on_retry': False,
-    'on_failure_callback': tasks.execute_slackpostonfail,
-    'retries': 2,
-    'retry_delay': timedelta(minutes=5),
+    "owner": "airflow",
+    "depends_on_past": False,
+    "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
+    "email_on_failure": False,
+    "email_on_retry": False,
+    "on_failure_callback": [slackpostonfail],
+    "on_success_callback": [slackpostonsuccess],
+    "retries": 2,
+    "retry_delay": timedelta(minutes=5),
 }
 
 DAG = airflow.DAG(
-    'prod_web_content_reindex',
+    "prod_web_content_reindex",
     default_args=DEFAULT_ARGS,
     catchup=False,
     max_active_runs=1,
@@ -64,14 +69,14 @@ Tasks with custom logic are relegated to individual Python files.
 
 SET_COLLECTION_NAME = BashOperator(
     task_id="set_collection_name",
-    bash_command='echo ' + pendulum.now().format('YYYY-MM-DD_HH-mm-ss'),
+    bash_command="echo " + pendulum.now().format("YYYY-MM-DD_HH-mm-ss"),
     dag=DAG
 )
 
 GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
     ALIAS,
-    'get_num_solr_docs_pre',
+    "get_num_solr_docs_pre",
     conn_id=SOLR_CONN.conn_id
 )
 
@@ -84,7 +89,7 @@ CREATE_COLLECTION = tasks.create_sc_collection(
 )
 
 INDEX_WEB_CONTENT = BashOperator(
-    task_id='index_web_content',
+    task_id="index_web_content",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_web_content.sh ",
     env={
         "HOME": AIRFLOW_USER_HOME,
@@ -100,7 +105,7 @@ INDEX_WEB_CONTENT = BashOperator(
 GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     DAG,
     CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
-    'get_num_solr_docs_post',
+    "get_num_solr_docs_post",
     conn_id=SOLR_CONN.conn_id
 )
 
@@ -119,7 +124,7 @@ PUSH_ALIAS = PushVariable(
 
 DELETE_ALIAS = DeleteAliasListVariable(
     task_id="delete_aliases",
-    solr_conn_id='SOLRCLOUD',
+    solr_conn_id="SOLRCLOUD",
     list_variable="WEB_CONTENT_PROD_ALIASES",
     skip_from_last=2,
     skip_included=[ALIAS],
@@ -133,17 +138,11 @@ PUSH_COLLECTION = PushVariable(
 
 DELETE_COLLECTIONS = DeleteCollectionListVariable(
     task_id="delete_collections",
-    solr_conn_id='SOLRCLOUD',
+    solr_conn_id="SOLRCLOUD",
     list_variable="WEB_CONTENT_PROD_COLLECTIONS",
     skip_from_last=2,
     skip_included=[CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}"],
     dag=DAG)
-
-POST_SLACK = PythonOperator(
-    task_id='slack_post_succ',
-    python_callable=web_content_slackpostonsuccess,
-    dag=DAG
-)
 
 # SET UP TASK DEPENDENCIES
 SET_COLLECTION_NAME.set_upstream(GET_NUM_SOLR_DOCS_PRE)
@@ -155,4 +154,3 @@ PUSH_ALIAS.set_upstream(SOLR_ALIAS_SWAP)
 DELETE_ALIAS.set_upstream(PUSH_ALIAS)
 PUSH_COLLECTION.set_upstream(DELETE_ALIAS)
 DELETE_COLLECTIONS.set_upstream(PUSH_COLLECTION)
-POST_SLACK.set_upstream(DELETE_COLLECTIONS)

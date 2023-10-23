@@ -33,7 +33,6 @@ class TestProdWebContentReindexDag(unittest.TestCase):
             "delete_aliases",
             "push_collection",
             "delete_collections",
-            "slack_post_succ"
             ])
 
     def test_dag_task_order(self):
@@ -48,7 +47,6 @@ class TestProdWebContentReindexDag(unittest.TestCase):
             "delete_aliases": "push_alias",
             "push_collection": "delete_aliases",
             "delete_collections": "push_collection",
-            "slack_post_succ": "delete_collections",
         }
 
         for task, upstream_task in expected_task_deps.items():

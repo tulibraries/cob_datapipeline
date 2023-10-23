@@ -10,6 +10,10 @@ from airflow.operators.python import PythonOperator
 from cob_datapipeline.operators.batch_sftp_to_s3_operator import BatchSFTPToS3Operator
 from cob_datapipeline.helpers import determine_most_recent_date
 from cob_datapipeline.tasks.xml_parse import update_variables
+from airflow.providers.slack.notifications.slack import send_slack_notification
+
+slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ ti.xcom_pull(task_ids='archive_files_in_sftp') }} files moved from sftp to s3 in almasftp/bw/{{ ti.xcom_pull(task_ids='get_list_of_alma_sftp_files_to_transer', key='most_recent_date') }} and then archived on the sftp server in archive/{{ ti.xcom_pull(task_ids='get_list_of_alma_sftp_files_to_transer', key='most_recent_date') }}")
+slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ execution_date }} {{ ti.log_url }}")
 
 ALMA_SFTP_CONNECTION_ID = "ALMASFTP"
 S3_CONN_ID = "AIRFLOW_S3"
@@ -20,7 +24,8 @@ DEFAULT_ARGS = {
     "owner": "airflow",
     "depends_on_past": False,
     "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
-    "email_on_failure": False,
+    "on_failure_callback": [slackpostonfail],
+    "on_success_callback": [slackpostonsuccess],
     "email_on_retry": False,
     "on_failure_callback": tasks.execute_slackpostonfail,
     "retries": 5,
@@ -111,23 +116,6 @@ UPDATE_VARIABLES = PythonOperator(
     dag=DAG
 )
 
-def slackpostonsuccess(**context):
-    """Send slack notification of successful DAG run"""
-    most_recent_date = context["task_instance"].xcom_pull(
-        task_ids="get_list_of_alma_sftp_files_to_transer",
-        key="most_recent_date")
-    count = context["task_instance"].xcom_pull(
-        task_ids="archive_files_in_sftp")
-    msg = f"{count} files moved from sftp to s3 in almasftp/{most_recent_date} and then archived on the sftp server in archive/{most_recent_date}"
-    return tasks.execute_slackpostonsuccess(context, conn_id="COB_SLACK_WEBHOOK", message=msg)
-
-SLACK_POST_SUCCESS = PythonOperator(
-    task_id="success_slack_trigger",
-    python_callable=slackpostonsuccess,
-    dag=DAG
-)
-
 GET_LIST_OF_FILES_TO_TRANSFER.set_downstream(MOVE_FILES_TO_S3)
 MOVE_FILES_TO_S3.set_downstream(ARCHIVE_FILES_IN_SFTP)
 ARCHIVE_FILES_IN_SFTP.set_downstream(UPDATE_VARIABLES)
-UPDATE_VARIABLES.set_downstream(SLACK_POST_SUCCESS)

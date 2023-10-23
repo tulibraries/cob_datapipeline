@@ -26,5 +26,4 @@ class TestMoveAlmaSFTPToS3Dag(unittest.TestCase):
             "move_file_to_s3",
             "archive_files_in_sftp",
             "update_variables",
-            "success_slack_trigger",
             ])

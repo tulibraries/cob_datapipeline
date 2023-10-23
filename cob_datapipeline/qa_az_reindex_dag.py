@@ -7,11 +7,15 @@ from airflow.models import Variable
 from airflow.hooks.base import BaseHook
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
-from cob_datapipeline.tasks.task_slack_posts import az_slackpostonsuccess
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.operators import\
         PushVariable, DeleteAliasListVariable, DeleteCollectionListVariable
 from tulflow import tasks
+from airflow.providers.slack.notifications.slack import send_slack_notification
+
+slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ execution_date }} DAG {{ dag.dag_id }} success: We started with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_pre'))['response']['numFound'] }} and ended with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_post'))['response']['numFound'] }} docs. {{ ti.log_url }}")
+slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ execution_date }} {{ ti.log_url }}")
+
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -44,7 +48,8 @@ DEFAULT_ARGS = {
     "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
     "email_on_failure": False,
     "email_on_retry": False,
-    "on_failure_callback": tasks.execute_slackpostonfail,
+    "on_failure_callback": [slackpostonfail],
+    "on_success_callback": [slackpostonsuccess],
     "retries": 2,
     "retry_delay": timedelta(minutes=5),
 }
@@ -140,12 +145,6 @@ DELETE_COLLECTIONS = DeleteCollectionListVariable(
     skip_included=[CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}"],
     dag=DAG)
 
-POST_SLACK = PythonOperator(
-    task_id="slack_post_succ",
-    python_callable=az_slackpostonsuccess,
-    dag=DAG
-)
-
 # SET UP TASK DEPENDENCIES
 SET_COLLECTION_NAME.set_upstream(GET_NUM_SOLR_DOCS_PRE)
 CREATE_COLLECTION.set_upstream(SET_COLLECTION_NAME)
@@ -156,4 +155,3 @@ PUSH_ALIAS.set_upstream(SOLR_ALIAS_SWAP)
 DELETE_ALIASES.set_upstream(PUSH_ALIAS)
 PUSH_COLLECTION.set_upstream(DELETE_ALIASES)
 DELETE_COLLECTIONS.set_upstream(PUSH_COLLECTION)
-POST_SLACK.set_upstream(DELETE_COLLECTIONS)

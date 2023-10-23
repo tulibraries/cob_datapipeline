@@ -12,8 +12,10 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python  import PythonOperator
 from cob_datapipeline.tasks.xml_parse import prepare_oai_boundwiths, update_variables
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
-from cob_datapipeline.tasks.task_slack_posts import catalog_slackpostonsuccess
+from airflow.providers.slack.notifications.slack import send_slack_notification
 
+slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ execution_date }} DAG {{ dag.dag_id }} success: We started with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_pre'))['response']['numFound'] }} and ended with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_post'))['response']['numFound'] }} docs. {{ ti.log_url }}")
+slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ execution_date }} {{ ti.log_url }}")
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -71,7 +73,8 @@ DEFAULT_ARGS = {
     "owner": "cob",
     "depends_on_past": False,
     "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
-    "on_failure_callback": tasks.execute_slackpostonfail,
+    "on_failure_callback": [slackpostonfail],
+    "on_success_callback": [slackpostonsuccess],
     "retries": 0,
     "retry_delay": timedelta(minutes=10)
 }
@@ -224,12 +227,6 @@ UPDATE_DATE_VARIABLES = PythonOperator(
     dag=DAG
 )
 
-POST_SLACK = PythonOperator(
-    task_id="slack_post_succ",
-    python_callable=catalog_slackpostonsuccess,
-    dag=DAG
-)
-
 # SET UP TASK DEPENDENCIES
 BW_OAI_HARVEST.set_upstream(GET_NUM_SOLR_DOCS_PRE)
 LIST_CATALOG_BW_S3_DATA.set_upstream(BW_OAI_HARVEST)
@@ -240,4 +237,3 @@ INDEX_DELETES_OAI_MARC.set_upstream(INDEX_UPDATES_OAI_MARC)
 SOLR_COMMIT.set_upstream(INDEX_DELETES_OAI_MARC)
 GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_COMMIT)
 UPDATE_DATE_VARIABLES.set_upstream(GET_NUM_SOLR_DOCS_POST)
-POST_SLACK.set_upstream(UPDATE_DATE_VARIABLES)

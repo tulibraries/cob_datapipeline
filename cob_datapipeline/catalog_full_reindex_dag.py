@@ -11,10 +11,14 @@ from airflow.providers.http.operators.http import SimpleHttpOperator
 from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from cob_datapipeline.tasks.xml_parse import prepare_boundwiths, prepare_alma_data, update_variables
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
-from cob_datapipeline.tasks.task_slack_posts import catalog_slackpostonsuccess
 from cob_datapipeline.operators import\
         PushVariable, DeleteCollectionListVariable
 from cob_datapipeline import helpers
+from airflow.providers.slack.notifications.slack import send_slack_notification
+
+slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ execution_date }} DAG {{ dag.dag_id }} success: We started with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_pre'))['response']['numFound'] }} and ended with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_post'))['response']['numFound'] }} docs. {{ ti.log_url }}")
+slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ execution_date }} {{ ti.log_url }}")
+
 """
 INIT SYSTEMWIDE VARIABLES
 
@@ -24,7 +28,6 @@ initialized here if not found (i.e. if this is a new installation)
 
 AIRFLOW_HOME = Variable.get("AIRFLOW_HOME")
 AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
-
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_WRITER = BaseHook.get_connection("SOLRCLOUD-WRITER")
@@ -59,7 +62,8 @@ DEFAULT_ARGS = {
     "owner": "cob",
     "depends_on_past": False,
     "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
-    "on_failure_callback": tasks.execute_slackpostonfail,
+    "on_failure_callback": [slackpostonfail],
+    "on_success_callback": [slackpostonsuccess],
     "retries": 0,
     "retry_delay": timedelta(minutes=10),
 }
@@ -234,12 +238,6 @@ GET_NUM_SOLR_DOCS_CURRENT_PROD = task_solrgetnumdocs(
     conn_id=SOLR_CLOUD.conn_id
 )
 
-POST_SLACK = PythonOperator(
-    task_id="slack_post_succ",
-    python_callable=catalog_slackpostonsuccess,
-    dag=DAG
-)
-
 # SET UP TASK DEPENDENCIES
 
 SET_S3_NAMESPACE.set_upstream(SAFETY_CHECK)
@@ -258,5 +256,3 @@ INDEX_SFTP_MARC.set_upstream(GET_NUM_SOLR_DOCS_PRE)
 SOLR_COMMIT.set_upstream(INDEX_SFTP_MARC)
 UPDATE_DATE_VARIABLES.set_upstream(SOLR_COMMIT)
 GET_NUM_SOLR_DOCS_POST.set_upstream(UPDATE_DATE_VARIABLES)
-POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_POST)
-POST_SLACK.set_upstream(GET_NUM_SOLR_DOCS_CURRENT_PROD)

@@ -10,8 +10,10 @@ from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
 from airflow.providers.amazon.aws.transfers.s3_to_sftp import S3ToSFTPOperator
 from airflow.providers.ssh.operators.ssh import SSHOperator
-from cob_datapipeline.tasks.task_slack_posts import notes_slackpostonsuccess
+from airflow.providers.slack.notifications.slack import send_slack_notification
 
+slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ execution_date }} DAG {{ dag.dag_id }} success: We started with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_pre'))['response']['numFound'] }} and ended with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_post'))['response']['numFound'] }} docs. {{ ti.log_url }}")
+slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ execution_date }} {{ ti.log_url }}")
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -36,8 +38,9 @@ DEFAULT_ARGS = {
     "depends_on_past": False,
     "email_on_failure": False,
     "email_on_retry": False,
-    'start_date': pendulum.datetime(2018, 12, 13, tz="UTC"),
-    "on_failure_callback": tasks.execute_slackpostonfail,
+    "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
+    "on_failure_callback": [slackpostonfail],
+    "on_success_callback": [slackpostonsuccess],
     "retries": 2,
     "retry_delay": timedelta(minutes=5),
 }
@@ -107,14 +110,7 @@ RELOAD_ELECTRONIC_NOTES = SSHOperator(
     dag=DAG
 )
 
-SLACK_POST_SUCCESS = PythonOperator(
-    task_id="slack_post_success",
-    python_callable=notes_slackpostonsuccess,
-    dag=DAG
-)
-
 # SET UP TASK DEPENDENCIES
 SET_DATETIME >> HARVEST_NOTES
 HARVEST_NOTES >> S3_TO_SERVER_TASKS
 S3_TO_SERVER_TASKS >> RELOAD_ELECTRONIC_NOTES
-RELOAD_ELECTRONIC_NOTES >> SLACK_POST_SUCCESS

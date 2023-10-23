@@ -23,7 +23,6 @@ class TestAlmaElectronicNotesDag(unittest.TestCase):
             "s3_to_server_collection",
             "s3_to_server_service",
             "reload_electronic_notes",
-            "slack_post_success"
             ])
 
     def test_harvest_notes(self):

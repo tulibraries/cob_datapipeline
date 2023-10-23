@@ -11,7 +11,7 @@ def pytest_sessionstart():
     file after command line options have been parsed.
     """
     repo_dir = os.getcwd()
-    subprocess.run("airflow db init", shell=True)
+    subprocess.run("airflow db migrate", shell=True)
     subprocess.run("mkdir -p dags/cob_datapipeline", shell=True)
     subprocess.run("mkdir -p data", shell=True)
     subprocess.run("mkdir -p logs", shell=True)

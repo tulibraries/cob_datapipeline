@@ -3,7 +3,6 @@ from datetime import datetime, timedelta
 from tulflow import tasks
 import airflow
 import pendulum
-import json
 from airflow.models import Variable
 from airflow.hooks.base import BaseHook
 from airflow.operators.bash import BashOperator
@@ -13,10 +12,7 @@ from cob_datapipeline.operators import\
         PushVariable, DeleteAliasListVariable, DeleteCollectionListVariable
 from airflow.providers.slack.notifications.slack import send_slack_notification
 
-ndocs_pre = json.loads("{{ ti.xcom_pull(task_ids='get_num_solr_docs_pre') }}")["response"]["numFound"]
-ndocs_post = json.loads("{{ ti.xcom_pull(task_ids='get_num_solr_docs_post') }}")["response"]["numFound"]
-
-slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ execution_date }} DAG {{ dag.dag_id }} success: We started with {{ ndocs_pre }} and ended with {{ ndocs_post }} docs. {{ ti.log_url }}")
+slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ execution_date }} DAG {{ dag.dag_id }} success: We started with {{ ti.xcom_pull(task_ids='get_num_solr_docs_pre'), key='return_value'['response']['numFound'] }} and ended with {{ ti.xcom_pull(task_ids='get_num_solr_docs_post')['response']['numFound'] }} docs. {{ ti.log_url }}")
 slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ execution_date }} {{ ti.log_url }}")
 
 
@@ -61,6 +57,7 @@ DAG = airflow.DAG(
     default_args=DEFAULT_ARGS,
     catchup=False,
     max_active_runs=1,
+    render_template_as_native_obj=True,
     schedule=SCHEDULE_INTERVAL
 )
 

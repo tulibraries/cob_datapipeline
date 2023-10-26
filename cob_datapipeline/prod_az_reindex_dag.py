@@ -13,8 +13,8 @@ from cob_datapipeline.operators import\
 from tulflow import tasks
 from airflow.providers.slack.notifications.slack import send_slack_notification
 
-slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ execution_date }} DAG {{ dag.dag_id }} success: We started with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_pre'))['response']['numFound'] }} and ended with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_post'))['response']['numFound'] }} docs. {{ ti.log_url }}")
-slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ execution_date }} {{ ti.log_url }}")
+slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ dag_run.logical_date }} DAG {{ dag.dag_id }} success: {{ ti.log_url }}")
+slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ dag_run.logical_date }} {{ ti.log_url }}")
 
 """
 INIT SYSTEMWIDE VARIABLES

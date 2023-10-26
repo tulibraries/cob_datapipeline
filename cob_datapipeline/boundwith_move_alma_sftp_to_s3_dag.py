@@ -12,8 +12,8 @@ from cob_datapipeline.helpers import determine_most_recent_date
 from cob_datapipeline.tasks.xml_parse import update_variables
 from airflow.providers.slack.notifications.slack import send_slack_notification
 
-slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ ti.xcom_pull(task_ids='archive_files_in_sftp') }} files moved from sftp to s3 in almasftp/bw/{{ ti.xcom_pull(task_ids='get_list_of_alma_sftp_files_to_transer', key='most_recent_date') }} and then archived on the sftp server in archive/{{ ti.xcom_pull(task_ids='get_list_of_alma_sftp_files_to_transer', key='most_recent_date') }}")
-slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ execution_date }} {{ ti.log_url }}")
+slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ dag_run.logical_date }} DAG {{ dag.dag_id }} success: {{ ti.log_url }}")
+slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ dag_run.logical_date }} {{ ti.log_url }}")
 
 ALMA_SFTP_CONNECTION_ID = "ALMASFTP"
 S3_CONN_ID = "AIRFLOW_S3"

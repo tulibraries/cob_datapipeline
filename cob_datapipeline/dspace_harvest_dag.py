@@ -13,7 +13,7 @@ from cob_datapipeline.operators.batch_s3_to_sftp_operator import BatchS3ToSFTPOp
 import airflow
 from airflow.providers.slack.notifications.slack import send_slack_notification
 
-slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ execution_date }} {{ ti.log_url }}")
+slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ dag_run.logical_date }} {{ ti.log_url }}")
 
 """
 INIT SYSTEMWIDE VARIABLES

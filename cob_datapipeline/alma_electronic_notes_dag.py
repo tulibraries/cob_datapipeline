@@ -12,7 +12,7 @@ from airflow.providers.amazon.aws.transfers.s3_to_sftp import S3ToSFTPOperator
 from airflow.providers.ssh.operators.ssh import SSHOperator
 from airflow.providers.slack.notifications.slack import send_slack_notification
 
-slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ execution_date }} DAG {{ dag.dag_id }} success: We started with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_pre'))['response']['numFound'] }} and ended with {{ json.loads(ti.xcom_pull(task_ids='get_num_solr_docs_post'))['response']['numFound'] }} docs. {{ ti.log_url }}")
+slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ logical_date }} DAG {{ dag.dag_id }} success: {{ ti.log_url }}")
 slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ execution_date }} {{ ti.log_url }}")
 
 """

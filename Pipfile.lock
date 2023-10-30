@@ -348,12 +348,12 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:2dd93e5c530334fbc74a662f269fa8bfc4c3b7321f9dbe2d53f7c8e57fe5f6dd",
-                "sha256:beefa8e8e1cf5f904dd95736f3516508f6a0cf396ff46aa166a136107cc2ff51"
+                "sha256:a61cf96f7e196b1450afdf4856b7ea0e58080752e687b0011157be96934489be",
+                "sha256:bbe377a288b6b12b526fae3b3d743318c6868626cf67e1e97f104345a5194b1e"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.7'",
-            "version": "==1.28.69"
+            "version": "==1.28.73"
         },
         "botocore": {
             "hashes": [
@@ -646,7 +646,7 @@
                 "sha256:76b122c08ef4ce2eedcd4d1abd8e641114bfc6c2867f49f3c41facf65bf19f5e",
                 "sha256:cc1c8b182eb3013e24bd475ff2e9295af86c1a38eb1aff128dac8962a9ce3c03"
             ],
-            "markers": "python_version >= '3.7'",
+            "markers": "python_version < '3.11'",
             "version": "==0.3.7"
         },
         "dnspython": {
@@ -2626,7 +2626,7 @@
                 "sha256:8f92fc8806f9a6b641eaa5318da32b44d401efaac0f6678c9bc448ba3605faa0",
                 "sha256:df8e4339e9cb77357558cbdbceca33c303714cf861d1eef15e1070055ae8b7ef"
             ],
-            "markers": "python_version >= '3.8'",
+            "markers": "python_version < '3.10'",
             "version": "==4.8.0"
         },
         "tzdata": {

@@ -1499,12 +1499,12 @@
         },
         "moto": {
             "hashes": [
-                "sha256:20cd41f89b7fe363ef49b9ead787c9a1f3d560f4d0711b3767e7416694de1127",
-                "sha256:ce0a55d7e756c59a5a4392c7097aa5ca53e00aa2dd3f7000093356be15e7aef9"
+                "sha256:1298006aaa6996b886658eb194cac0e3a5679c9fcce6cb13e741ccc5a7247abb",
+                "sha256:3e0ef388900448485cd6eff18e9f7fcaa6cf4560b6fb536ba2e2e1278a5ecc59"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.7'",
-            "version": "==4.2.6"
+            "version": "==4.2.7"
         },
         "multidict": {
             "hashes": [

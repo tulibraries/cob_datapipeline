@@ -205,12 +205,12 @@
         },
         "apache-airflow-providers-slack": {
             "hashes": [
-                "sha256:059045b73bf148c1bc5b7450a2d728c9d104882c85fbdaacedb074733651618c",
-                "sha256:62cb92f6c3eec735f9a1d9cdabe38213b7b8872536b6d6c51636c002e93b36e0"
+                "sha256:97e08ea565f97f8d42d125cbb7e2233bc9e6418505d21b03261603376724e3b6",
+                "sha256:9c67eabc716edf0f59d98ec1acc1f744eaf981af315037ce0a37467cddaab935"
             ],
             "index": "pypi",
             "markers": "python_version ~= '3.8'",
-            "version": "==8.2.0"
+            "version": "==8.3.0"
         },
         "apache-airflow-providers-sqlite": {
             "hashes": [

@@ -38,6 +38,7 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             "solr_commit",
             "update_variables",
             "get_num_solr_docs_post",
+            "slack_success_post",
             "get_num_solr_docs_current_prod",
             ])
 
@@ -57,6 +58,7 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             "solr_commit": ["index_sftp_marc"],
             "update_variables": ["solr_commit"],
             "get_num_solr_docs_post": ["update_variables"],
+            "slack_success_post": ["get_num_solr_docs_post"],
             "get_num_solr_docs_current_prod": [],
         }
         for task, upstream_tasks in expected_task_deps.items():

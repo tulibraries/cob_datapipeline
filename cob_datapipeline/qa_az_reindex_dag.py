@@ -1,19 +1,20 @@
 """Airflow DAG to index AZ Databases into Solr."""
 from datetime import datetime, timedelta
+import airflow
 import os
 import pendulum
-import airflow
 from airflow.models import Variable
 from airflow.hooks.base import BaseHook
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
+from cob_datapipeline.notifiers import send_collection_notification
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.operators import\
         PushVariable, DeleteAliasListVariable, DeleteCollectionListVariable
 from tulflow import tasks
 from airflow.providers.slack.notifications.slack import send_slack_notification
 
-slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ dag_run.logical_date }} DAG {{ dag.dag_id }} success: {{ ti.log_url }}")
+slackpostonsuccess = send_collection_notification(channel="blacklight_project")
 slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ dag_run.logical_date }} {{ ti.log_url }}")
 
 
@@ -49,7 +50,6 @@ DEFAULT_ARGS = {
     "email_on_failure": False,
     "email_on_retry": False,
     "on_failure_callback": [slackpostonfail],
-    "on_success_callback": [slackpostonsuccess],
     "retries": 2,
     "retry_delay": timedelta(minutes=5),
 }
@@ -143,6 +143,7 @@ DELETE_COLLECTIONS = DeleteCollectionListVariable(
     list_variable="AZ_QA_COLLECTIONS",
     skip_from_last=2,
     skip_included=[CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}"],
+    on_success_callback=[slackpostonsuccess],
     dag=DAG)
 
 # SET UP TASK DEPENDENCIES

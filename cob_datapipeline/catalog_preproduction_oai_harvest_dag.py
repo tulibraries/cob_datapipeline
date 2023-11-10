@@ -10,12 +10,13 @@ from airflow.hooks.base  import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
 from airflow.operators.python  import PythonOperator
+from cob_datapipeline.notifiers import send_collection_notification
 from cob_datapipeline.tasks.xml_parse import prepare_oai_boundwiths, update_variables
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline import helpers
 from airflow.providers.slack.notifications.slack import send_slack_notification
 
-slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ dag_run.logical_date }} DAG {{ dag.dag_id }} success: {{ ti.log_url }}")
+slackpostonsuccess = send_collection_notification(channel="blacklight_project")
 slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ dag_run.logical_date }} {{ ti.log_url }}")
 
 """
@@ -75,7 +76,6 @@ DEFAULT_ARGS = {
     "depends_on_past": False,
     "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
     "on_failure_callback": [slackpostonfail],
-    "on_success_callback": [slackpostonsuccess],
     "retries": 0,
     "retry_delay": timedelta(minutes=10)
 }
@@ -233,6 +233,7 @@ UPDATE_DATE_VARIABLES = PythonOperator(
             "CATALOG_PRE_PRODUCTION_LAST_HARVEST_FROM_DATE": CATALOG_HARVEST_FROM_DATE,
         }
     },
+    on_success_callback=[slackpostonsuccess],
     dag=DAG
 )
 

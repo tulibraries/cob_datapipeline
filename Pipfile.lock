@@ -355,20 +355,20 @@
         },
         "boto3": {
             "hashes": [
-                "sha256:1fb7e7ba32a6701990168eb7a08e1fb624ae48130784dfab25904ed47deabb31",
-                "sha256:96b4cb2708933cef7dbe1177df37ef0593839942978784147aade0e49511eb2b"
+                "sha256:6617ac176efb21485ebc3a058a3a97feb1300141421ae3d1809562c4cac1d5f9",
+                "sha256:f3024bba9ac980007ba7b5f28a9734d111fb5466e2426ac76c5edbd6dedd8db2"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.7'",
-            "version": "==1.28.85"
+            "version": "==1.29.2"
         },
         "botocore": {
             "hashes": [
-                "sha256:b8f35d65f2b45af50c36fc25cc1844d6bd61d38d2148b2ef133b8f10e198555d",
-                "sha256:ce58e688222df73ec5691f934be1a2122a52c9d11d3037b586b3fff16ed6d25f"
+                "sha256:0e231524e9b72169fe0b8d9310f47072c245fb712778e0669f53f264f0e49536",
+                "sha256:a68a33193d8cd59e3b2142bff632e562afc02f9c4417e3dcc81a6e1b1f47148e"
             ],
             "markers": "python_version >= '3.7'",
-            "version": "==1.31.85"
+            "version": "==1.32.2"
         },
         "cachelib": {
             "hashes": [
@@ -1566,12 +1566,12 @@
         },
         "moto": {
             "hashes": [
-                "sha256:9b5a363f36f8c3fb36388764e7b8c01c615da2f2cba7da3e681680de14bfc769",
-                "sha256:e78b49ae8acee06a865e4963174bdf974dd66398fb3bb831a7428498506c0c56"
+                "sha256:24de81eeaa450a20b57c5cdf9a757ea5216bddc7db798e335d2de1f2376bf324",
+                "sha256:c85289d13d15d5274d0a643381af1f1b03d7ee88f0943c9d2d6c28e6177a298a"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.7'",
-            "version": "==4.2.8"
+            "version": "==4.2.9"
         },
         "multidict": {
             "hashes": [
@@ -2269,11 +2269,11 @@
         },
         "responses": {
             "hashes": [
-                "sha256:060be153c270c06fa4d22c1ef8865fdef43902eb595204deeef736cddb62d353",
-                "sha256:3df82f7d4dcd3e5f61498181aadb4381f291da25c7506c47fe8cb68ce29203e7"
+                "sha256:a2b43f4c08bfb9c9bd242568328c65a34b318741d3fab884ac843c5ceeb543f9",
+                "sha256:b127c6ca3f8df0eb9cc82fd93109a3007a86acb24871834c47b77765152ecf8c"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==0.24.0"
+            "version": "==0.24.1"
         },
         "rfc3339-validator": {
             "hashes": [

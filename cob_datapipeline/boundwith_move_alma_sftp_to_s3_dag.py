@@ -2,7 +2,6 @@
 from datetime import datetime, timedelta
 import logging
 import pendulum
-from tulflow import tasks
 import airflow
 from airflow.models import Variable
 from airflow.providers.sftp.hooks.sftp import SFTPHook

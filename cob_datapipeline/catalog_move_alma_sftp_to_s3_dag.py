@@ -2,7 +2,6 @@
 from datetime import datetime, timedelta
 import logging
 import pendulum
-from tulflow import tasks
 import airflow
 from airflow.models import Variable
 from airflow.providers.sftp.hooks.sftp import SFTPHook
@@ -27,7 +26,7 @@ DEFAULT_ARGS = {
     "on_failure_callback": [slackpostonfail],
     "on_success_callback": [slackpostonsuccess],
     "email_on_retry": False,
-    "on_failure_callback": tasks.execute_slackpostonfail,
+    "on_failure_callback": [slackpostonfail],
     "retries": 5,
     "retry_delay": timedelta(minutes=5),
 }

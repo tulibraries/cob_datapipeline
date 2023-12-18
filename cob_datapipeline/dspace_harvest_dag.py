@@ -2,7 +2,7 @@
 from datetime import datetime, timedelta
 import os
 import pendulum
-from tulflow import harvest, tasks
+from tulflow import harvest
 from cob_datapipeline import helpers
 from airflow.hooks.base import BaseHook
 from airflow.models import Variable

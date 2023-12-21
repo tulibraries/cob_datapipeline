@@ -4,7 +4,7 @@ jobs:
   lint_and_test:
     working_directory: ~/cob_datapipeline
     docker:
-      - image: cimg/python:3.9.10
+      - image: cimg/python:3.10.13
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
@@ -20,7 +20,7 @@ jobs:
             PYTHONPATH=. pipenv run pytest
   qa_deploy:
     docker:
-      - image: cimg/python:3.9.10
+      - image: cimg/python:3.10.13
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD
@@ -44,7 +44,7 @@ jobs:
             pipenv run ansible-playbook -i inventory/qa playbook.yml --tags "jumphost,role::airflow::dags" --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
   prod_deploy:
     docker:
-      - image: cimg/python:3.9.10
+      - image: cimg/python:3.10.13
         auth:
           username: $DOCKERHUB_USER
           password: $DOCKERHUB_PASSWORD

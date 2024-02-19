@@ -5,7 +5,7 @@ from re import compile as re_compile
 import logging
 import boto3
 from lxml import etree
-from moto import mock_s3
+from moto import mock_aws
 import requests_mock
 import airflow
 from airflow.hooks.base import BaseHook
@@ -91,7 +91,7 @@ class TestCleanupMetadata(unittest.TestCase):
         "access_id": "puppy",
         "access_secret": "chow"
     }
-    @mock_s3
+    @mock_aws
     def test_cleanup_metadata(self):
         """Test Pulling S3 XML, Cleaning up data, & Writing to S3."""
 

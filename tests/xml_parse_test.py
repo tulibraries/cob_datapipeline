@@ -5,7 +5,7 @@ from tulflow import process
 import boto3
 from cob_datapipeline.tasks import xml_parse
 from lxml import etree
-from moto import mock_s3
+from moto import mock_aws
 import pandas
 
 NS = {
@@ -23,7 +23,7 @@ class TestBWXMLProcessIntegration(unittest.TestCase):
         "SOURCE_FOLDER": "almasftp/alma_bibs__boundwith"
     }
 
-    @mock_s3
+    @mock_aws
     def test_prepare_boundwiths(self):
         """Test creating Boundwith Lookup CSV file."""
         self.maxDiff = None
@@ -74,7 +74,7 @@ class TestAlmaXMLProcessIntegration(unittest.TestCase):
         "SOURCE_SUFFIX": ".tar.gz"
     }
 
-    @mock_s3
+    @mock_aws
     def test_prepare_alma_data(self):
         """Test preparing Alma Data (expand, add namespace, add bw parent info) for indexing."""
         self.maxDiff = None

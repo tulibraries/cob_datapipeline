@@ -45,8 +45,8 @@ class DeleteCollectionTest(unittest.TestCase):
                 name='foo',
                 solr_conn_id='solr_conn_id').execute()
 
-        expected_log_message = 'INFO:airflow.task.operators:Attempting to process foo item.'
-        response_log = 'INFO:airflow.task.operators:{"status":{"status": 200}}'
+        expected_log_message = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollection:Attempting to process foo item.'
+        response_log = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollection:{"status":{"status": 200}}'
 
         self.assertIn(expected_log_message, log.output)
         self.assertIn(response_log, log.output)
@@ -68,7 +68,7 @@ class DeleteCollectionTest(unittest.TestCase):
                 solr_conn_id='solr_conn_id')
             task.execute()
             self.assertEqual(task.processed_items, [{'name': 'foo', 'status': 'OK'}])
-        msg = 'INFO:airflow.task.operators:{"status":{"status": 200}}'
+        msg = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollection:{"status":{"status": 200}}'
         self.assertIn(msg, log.output)
 
     @requests_mock.mock()
@@ -149,7 +149,7 @@ class DeleteCollectionTest(unittest.TestCase):
             self.assertEqual(task.processed_items,
                              [{'name': 'foo', 'status': 'SKIPPED', 'reason': 'skip_included'}])
 
-        skip_log_message = "INFO:airflow.task.operators:Skipping processing foo because it is included in ['foo']"
+        skip_log_message = "INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollection:Skipping processing foo because it is included in ['foo']"
         self.assertIn(skip_log_message, log.output)
 
         log_message = 'INFO:airflow.task.operators:Attempting to delete foo collection.'
@@ -169,7 +169,7 @@ class DeleteCollectionTest(unittest.TestCase):
             self.assertEqual(task.processed_items,
                              [{'name': 'foo', 'status': 'SKIPPED', 'reason': 'skip_matching'}])
 
-        skip_log_message = 'INFO:airflow.task.operators:Skipping processing foo because it matches "fo.*"'
+        skip_log_message = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollection:Skipping processing foo because it matches "fo.*"'
         self.assertIn(skip_log_message, log.output)
 
         log_message = 'INFO:airflow.task.operators:Attempting to delete foo collection.'
@@ -214,16 +214,16 @@ class DeleteCollectionBatchTest(unittest.TestCase):
                 skip_from_last=0,
                 solr_conn_id='solr_conn_id').execute()
 
-        log_message_foo = 'INFO:airflow.task.operators:Attempting to process foo item.'
+        log_message_foo = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:Attempting to process foo item.'
         self.assertIn(log_message_foo, log.output)
 
-        response_log_foo = 'INFO:airflow.task.operators:{ "collection": "foo" }'
+        response_log_foo = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:{ "collection": "foo" }'
         self.assertIn(response_log_foo, log.output)
 
-        log_message_bar = 'INFO:airflow.task.operators:Attempting to process bar item.'
+        log_message_bar = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:Attempting to process bar item.'
         self.assertIn(log_message_bar, log.output)
 
-        response_log_bar = 'INFO:airflow.task.operators:{ "collection": "bar" }'
+        response_log_bar = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:{ "collection": "bar" }'
         self.assertIn(response_log_bar, log.output)
 
     @requests_mock.mock()
@@ -244,16 +244,16 @@ class DeleteCollectionBatchTest(unittest.TestCase):
                 solr_conn_id='solr_conn_id',
                 skip_included=['bar']).execute()
 
-        log_message_foo = 'INFO:airflow.task.operators:Attempting to process foo item.'
+        log_message_foo = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:Attempting to process foo item.'
         self.assertIn(log_message_foo, log.output)
 
-        response_log_foo = 'INFO:airflow.task.operators:{ "collection": "foo" }'
+        response_log_foo = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:{ "collection": "foo" }'
         self.assertIn(response_log_foo, log.output)
 
-        log_message_bar = 'INFO:airflow.task.operators:Attempting to process bar item.'
+        log_message_bar = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:Attempting to process bar item.'
         self.assertNotIn(log_message_bar, log.output)
 
-        response_log_bar = 'INFO:airflow.task.operators:{ "collection": "bar" }'
+        response_log_bar = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:{ "collection": "bar" }'
         self.assertNotIn(response_log_bar, log.output)
 
     @requests_mock.mock()
@@ -275,19 +275,19 @@ class DeleteCollectionBatchTest(unittest.TestCase):
                 solr_conn_id='solr_conn_id',
                 skip_matching='ba.*').execute()
 
-        log_message_foo = 'INFO:airflow.task.operators:Attempting to process foo item.'
+        log_message_foo = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:Attempting to process foo item.'
         self.assertIn(log_message_foo, log.output)
 
-        response_log_foo = 'INFO:airflow.task.operators:{ "collection": "foo" }'
+        response_log_foo = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:{ "collection": "foo" }'
         self.assertIn(response_log_foo, log.output)
 
-        log_message_bar = 'INFO:airflow.task.operators:Attempting to process bar item.'
+        log_message_bar = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:Attempting to process bar item.'
         self.assertNotIn(log_message_bar, log.output)
 
-        response_log_bar = 'INFO:airflow.task.operators:{ "collection": "bar" }'
+        response_log_bar = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:{ "collection": "bar" }'
         self.assertNotIn(response_log_bar, log.output)
 
-        skip_log_message = 'INFO:airflow.task.operators:Skipping processing bar because it matches "ba.*"'
+        skip_log_message = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:Skipping processing bar because it matches "ba.*"'
         self.assertIn(skip_log_message, log.output)
 
     @requests_mock.mock()
@@ -311,19 +311,19 @@ class DeleteCollectionBatchTest(unittest.TestCase):
             self.assertIn({'name': 'bar', 'status': 'SKIPPED', 'reason': 'skip_from_last'},
                           task.processed_items)
 
-        log_message_foo = 'INFO:airflow.task.operators:Attempting to process foo item.'
+        log_message_foo = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:Attempting to process foo item.'
         self.assertIn(log_message_foo, log.output)
 
-        response_log_foo = 'INFO:airflow.task.operators:{ "collection": "foo" }'
+        response_log_foo = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:{ "collection": "foo" }'
         self.assertIn(response_log_foo, log.output)
 
-        log_message_bar = 'INFO:airflow.task.operators:Attempting to process bar item.'
+        log_message_bar = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:Attempting to process bar item.'
         self.assertNotIn(log_message_bar, log.output)
 
-        response_log_bar = 'INFO:airflow.task.operators:{ "collection": "bar" }'
+        response_log_bar = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:{ "collection": "bar" }'
         self.assertNotIn(response_log_bar, log.output)
 
-        skip_log_message = 'INFO:airflow.task.operators:Skipping the last 1 items: bar'
+        skip_log_message = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionBatch:Skipping the last 1 items: bar'
         self.assertIn(skip_log_message, log.output)
 
 class DeleteCollectionListVariableTest(unittest.TestCase):
@@ -360,16 +360,16 @@ class DeleteCollectionListVariableTest(unittest.TestCase):
                 skip_from_last=0,
                 solr_conn_id='solr_conn_id').execute()
 
-        log_message_foo = 'INFO:airflow.task.operators:Attempting to process foo item.'
+        log_message_foo = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionListVariable:Attempting to process foo item.'
         self.assertIn(log_message_foo, log.output)
 
-        response_log_foo = 'INFO:airflow.task.operators:{ "collection": "foo" }'
+        response_log_foo = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionListVariable:{ "collection": "foo" }'
         self.assertIn(response_log_foo, log.output)
 
-        log_message_bar = 'INFO:airflow.task.operators:Attempting to process bar item.'
+        log_message_bar = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionListVariable:Attempting to process bar item.'
         self.assertIn(log_message_bar, log.output)
 
-        response_log_bar = 'INFO:airflow.task.operators:{ "collection": "bar" }'
+        response_log_bar = 'INFO:airflow.task.operators.cob_datapipeline.operators.solr_api.delete_collection.DeleteCollectionListVariable:{ "collection": "bar" }'
         self.assertIn(response_log_bar, log.output)
 
     def test_reset_list_variable_does_not_exist(self):

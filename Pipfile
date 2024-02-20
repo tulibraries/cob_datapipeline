@@ -4,7 +4,8 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-apache-airflow = "==2.7.3"
+aiobotocore = "*"
+apache-airflow = "==2.8.1"
 apache-airflow-providers-slack = "*"
 apache-airflow-providers-amazon = "*"
 apache-airflow-providers-ftp = "*"
@@ -21,6 +22,7 @@ pysftp = "*"
 pylint = "*"
 pytest = "*"
 requests-mock = "*"
+s3fs = "*"
 setuptools = "*"
 sshtunnel = "*"
 sickle = "*"

@@ -2911,11 +2911,11 @@
         },
         "tulflow": {
             "hashes": [
-                "sha256:07e7e3e383c3fc482b97c3da63c90b047c30cfff80690cb28ae0270e0d1767e6",
-                "sha256:280dcf3d3b0b5d3b3f3f895f0d091b64a38ac2406952950c280fe79cf19a3f3d"
+                "sha256:6a36a8bcfd6ee0e974fcfe870fbaefd1c6667fbc0b3da33502e4a78709ca9e81",
+                "sha256:f45171a2a26ac106235e661bc93d76b234b20ad37fdfaa497c640c33be0b4995"
             ],
             "index": "pypi",
-            "version": "==0.9.7"
+            "version": "==0.9.8"
         },
         "typing-extensions": {
             "hashes": [

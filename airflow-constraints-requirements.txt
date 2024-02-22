@@ -1,4 +1,4 @@
--c "https://raw.githubusercontent.com/apache/airflow/constraints-2.8.1/constraints-3.9.txt"
+-c "constraints-3.9.txt"
 
 Werkzeug
 aiobotocore

@@ -28,7 +28,7 @@ tulflow = "*"
 
 # required in circleci context.
 numpy = "==1.24.4"
-pandas = "==2.1.4"
+pandas = "==2.2.1"
 
 [packages]
 

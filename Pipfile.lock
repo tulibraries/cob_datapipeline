@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "410036c735a1681a759854ff59231452cfed08dd2cf5082dff45f0bbf62b5812"
+            "sha256": "4e45ea66bca93d7eddb10cc14e620c43d21769de21cd39df8cd10890bd228a99"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -364,6 +364,7 @@
                 "sha256:5f278b95fb2b32f3d09d950759a05664357ba35d81107bab1537c4ddd212cd8c"
             ],
             "index": "pypi",
+            "markers": "python_version >= '3.7'",
             "version": "==1.33.13"
         },
         "botocore": {
@@ -1343,11 +1344,11 @@
         },
         "idna": {
             "hashes": [
-                "sha256:9ecdbbd083b06798ae1e86adcbfe8ab1479cf864e4ee30fe4e46a003d12491ca",
-                "sha256:c05567e9c24a6b9faaa835c4821bad0590fbb9d5779e7caa6e1cc4978e7eb24f"
+                "sha256:028ff3aadf0609c1fd278d8ea3089299412a7a8b9bd005dd08b9f8285bcb5cfc",
+                "sha256:82fee1fc78add43492d3a1898bfa6d8a904cc97d8427f683ed8e798d07761aa0"
             ],
             "markers": "python_version >= '3.5'",
-            "version": "==3.6"
+            "version": "==3.7"
         },
         "importlib-metadata": {
             "hashes": [
@@ -1761,11 +1762,12 @@
         },
         "moto": {
             "hashes": [
-                "sha256:070ac2edf89ad7aee28534481ce68e2f344c8a6a8fefec5427eea0d599bfdbdb",
-                "sha256:261d312d1d69c2afccb450a0566666d7b75d76ed6a7d00aac278a9633b073ff0"
+                "sha256:ad8b23f2b555ad694da8b2432a42b6d96beaaf67a4e7d932196a72193a2eee2c",
+                "sha256:ca1e22831a741733b581ff2ef4d6ae2e1c6db1eab97af1b78b86ca2c6e88c609"
             ],
             "index": "pypi",
-            "version": "==5.0.3"
+            "markers": "python_version >= '3.8'",
+            "version": "==5.0.6"
         },
         "multidict": {
             "hashes": [

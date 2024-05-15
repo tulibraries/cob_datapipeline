@@ -2709,11 +2709,11 @@
         },
         "tulflow": {
             "hashes": [
-                "sha256:834cc321695bff43738f0f1a62e6a1f905bff13e9966ccdc1a50866502c24248",
-                "sha256:9f4be624cc6bad803c6083d8129d867e68493b2d77a1a846b52fa1b2358ef5eb"
+                "sha256:076e9a2d50ec1ac795f56e0c399a9e02b44d8195b56830d22ef80caa8dfb103d",
+                "sha256:4f2ff629510b1295d7a2502c95190b5d514b98d13cb4fd0a946fc2d0a9612649"
             ],
             "index": "pypi",
-            "version": "==0.9.9"
+            "version": "==0.10.0"
         },
         "typing-extensions": {
             "hashes": [

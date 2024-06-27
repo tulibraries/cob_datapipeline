@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "e88a3d6daa2e4b2ed8007460d694d8ef8e2c6f106a75bf50f93bcedd8927d332"
+            "sha256": "dac2cc5f1bc9c998155f8ad74cf37284bdfc87b4296640f4bfc45695ef1d2cb4"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -149,11 +149,11 @@
         },
         "apache-airflow-providers-amazon": {
             "hashes": [
-                "sha256:229173d17cd74cfb6340e277c5173ab3b378ec16d00dfbd60caa84a69191101f",
-                "sha256:6ce8765a71f476d3e8fc976132478c7de31eb5bb77117c3f65c5ebf4db919a18"
+                "sha256:a2726c49f22559fdab2b268c71637c1aa05a763d7979f867c27a401e45f25c91",
+                "sha256:cb4323bbf027dc53668a7543743b7e2ff71518861fb98cc81e751b338cc0017b"
             ],
             "index": "pypi",
-            "version": "==8.19.0"
+            "version": "==8.20.0"
         },
         "apache-airflow-providers-common-io": {
             "hashes": [
@@ -213,11 +213,11 @@
         },
         "apache-airflow-providers-slack": {
             "hashes": [
-                "sha256:2cacab53ea962f0e5db8304aff66afcc83ee3951c690c72b0e42fd65bb80bc90",
-                "sha256:5d0a41c4dc17cdded98195bfba14e71def2e54f7e5532775b10cca4851475b35"
+                "sha256:70f30df095f33699f4b2b00eb3526a3fc1df62af61a78e499db32892ee3af7ca",
+                "sha256:a2aa5c25ced0c0bbb4816de200f20edc2e58340e53d0c69901a3ffc0ef40d00d"
             ],
             "index": "pypi",
-            "version": "==8.6.1"
+            "version": "==8.6.2"
         },
         "apache-airflow-providers-smtp": {
             "hashes": [
@@ -1061,7 +1061,7 @@
                 "sha256:fd096eb7ffef17c456cfa587523c5f92321ae02427ff955bebe9e3c63bc9f0da",
                 "sha256:fe754d231288e1e64323cfad462fcee8f0288654c10bdf4f603a39ed923bef33"
             ],
-            "markers": "python_version >= '3' and (platform_machine == 'aarch64' or (platform_machine == 'ppc64le' or (platform_machine == 'x86_64' or (platform_machine == 'amd64' or (platform_machine == 'AMD64' or (platform_machine == 'win32' or platform_machine == 'WIN32'))))))",
+            "markers": "python_version >= '3' and platform_machine == 'aarch64' or (platform_machine == 'ppc64le' or (platform_machine == 'x86_64' or (platform_machine == 'amd64' or (platform_machine == 'AMD64' or (platform_machine == 'win32' or platform_machine == 'WIN32')))))",
             "version": "==3.0.3"
         },
         "grpcio": {
@@ -2132,7 +2132,7 @@
                 "sha256:37dd54208da7e1cd875388217d5e00ebd4179249f90fb72437e91a35459a0ad3",
                 "sha256:a8b2bc7bffae282281c8140a97d3aa9c14da0b136dfe83f850eea9a5f7470427"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "version": "==2.9.0.post0"
         },
         "python-nvd3": {
@@ -2528,7 +2528,7 @@
                 "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926",
                 "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "version": "==1.16.0"
         },
         "slack-sdk": {

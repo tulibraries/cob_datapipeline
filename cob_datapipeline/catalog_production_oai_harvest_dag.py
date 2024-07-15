@@ -4,7 +4,7 @@ import os
 import pendulum
 from tulflow import harvest, tasks
 import airflow
-from airflow.providers.http.operators.http import SimpleHttpOperator
+from airflow.providers.http.operators.http import HttpOperator
 from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from airflow.hooks.base import BaseHook
 from airflow.models import Variable
@@ -200,7 +200,7 @@ INDEX_DELETES_OAI_MARC = BashOperator(
     dag=DAG
 )
 
-SOLR_COMMIT = SimpleHttpOperator(
+SOLR_COMMIT = HttpOperator(
     task_id='solr_commit',
     method='GET',
     http_conn_id=SOLR_WRITER.conn_id,

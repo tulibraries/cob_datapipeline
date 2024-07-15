@@ -8,7 +8,7 @@ from airflow.models import Variable
 from airflow.operators.empty import EmptyOperator
 from airflow.operators.bash import BashOperator
 from airflow.operators.python import PythonOperator
-from airflow.providers.http.operators.http import SimpleHttpOperator
+from airflow.providers.http.operators.http import HttpOperator
 from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from cob_datapipeline.notifiers import send_collection_notification
 from cob_datapipeline.tasks.xml_parse import prepare_boundwiths, prepare_alma_data, update_variables
@@ -89,7 +89,7 @@ SAFETY_CHECK = PythonOperator(
     dag=DAG
 )
 
-VERIFY_PROD_COLLECTION = SimpleHttpOperator(
+VERIFY_PROD_COLLECTION = HttpOperator(
     task_id="verify_prod_collection",
     http_conn_id='http_tul_cob',
     method='GET',
@@ -205,7 +205,7 @@ INDEX_SFTP_MARC = BashOperator(
     dag=DAG
 )
 
-SOLR_COMMIT = SimpleHttpOperator(
+SOLR_COMMIT = HttpOperator(
     task_id="solr_commit",
     method="GET",
     http_conn_id=SOLR_CLOUD.conn_id,

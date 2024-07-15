@@ -111,10 +111,19 @@ def pytest_sessionstart():
         login="puppy",
         password="chow"
     )
+
+    library_website = Connection(
+        conn_id="library_website",
+        conn_type="http",
+        host="http://127.0.0.2",
+        schema="http",
+    )
+
     airflow_session = Session()
     airflow_session.add(slack)
     airflow_session.add(solrcloud)
     airflow_session.add(solrcloud_writer)
+    airflow_session.add(library_website)
     airflow_session.add(aws)
     airflow_session.commit()
 

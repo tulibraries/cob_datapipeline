@@ -38,7 +38,7 @@ REPLICATION_FACTOR = SOLR_CONFIG.get("replication_factor")
 WEB_CONTENT_BRANCH = Variable.get("WEB_CONTENT_PROD_BRANCH")
 
 # Manifold website creds
-WEB_CONTENT_BASE_URL = Variable.get("WEB_CONTENT_PROD_BASE_URL")
+WEB_CONTENT_BASE_URL = BaseHook.get_connection("library_website")
 
 # CREATE DAG
 DEFAULT_ARGS = {

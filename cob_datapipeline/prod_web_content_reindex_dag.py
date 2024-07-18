@@ -99,7 +99,8 @@ INDEX_WEB_CONTENT = BashOperator(
         "SOLR_AUTH_USER": SOLR_CONN.login if SOLR_CONN.login else "",
         "SOLR_WEB_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"),
         "WEB_CONTENT_BASE_URL": WEB_CONTENT_BASE_URL,
-        "WEB_CONTENT_BRANCH": WEB_CONTENT_BRANCH
+        "WEB_CONTENT_BRANCH": WEB_CONTENT_BRANCH,
+        "WEB_CONTENT_READ_TIMEOUT": WEB_CONTENT_READ_TIMEOUT
     },
     dag=DAG
 )

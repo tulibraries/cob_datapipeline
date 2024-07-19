@@ -36,7 +36,6 @@ CONFIGSET = SOLR_CONFIG.get("configset")
 ALIAS = CONFIGSET + "-prod"
 REPLICATION_FACTOR = SOLR_CONFIG.get("replication_factor")
 WEB_CONTENT_BRANCH = Variable.get("WEB_CONTENT_PROD_BRANCH")
-WEB_CONTENT_READ_TIMEOUT = Variable.get("WEB_CONTENT_READ_TIMEOUT")
 
 # Manifold website creds
 WEB_CONTENT_BASE_URL = BaseHook.get_connection("library_website").host
@@ -100,7 +99,6 @@ INDEX_WEB_CONTENT = BashOperator(
         "SOLR_WEB_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"),
         "WEB_CONTENT_BASE_URL": WEB_CONTENT_BASE_URL,
         "WEB_CONTENT_BRANCH": WEB_CONTENT_BRANCH,
-        "WEB_CONTENT_READ_TIMEOUT": WEB_CONTENT_READ_TIMEOUT
     },
     dag=DAG
 )

@@ -86,7 +86,7 @@ DAG = airflow.DAG(
     catchup=False,
     default_args=DEFAULT_ARGS,
     max_active_runs=1,
-    schedule=CronTriggerTimetable("0 2,5,8,11,14,17,20,23 * * *", timezone="America/New_York")
+    schedule=CronTriggerTimetable("0 2/3 * * *", timezone="America/New_York")
 )
 
 """

@@ -1,5 +1,6 @@
 """Airflow DAG to perform a partial index of tul_cob catalog from OAI into Pre Production Solr Collection."""
 from datetime import datetime, timedelta
+from airflow.timetables.trigger import CronTriggerTimetable
 import os
 import pendulum
 from tulflow import harvest, tasks
@@ -74,7 +75,7 @@ AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
 DEFAULT_ARGS = {
     "owner": "cob",
     "depends_on_past": False,
-    "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
+    "start_date": pendulum.datetime(2018, 12, 13, tz="America/New_York"),
     "on_failure_callback": [slackpostonfail],
     "retries": 0,
     "retry_delay": timedelta(minutes=10)
@@ -85,7 +86,7 @@ DAG = airflow.DAG(
     catchup=False,
     default_args=DEFAULT_ARGS,
     max_active_runs=1,
-    schedule=timedelta(hours=int(CATALOG_OAI_PUBLISH_INTERVAL))
+    schedule=CronTriggerTimetable("0 2,5,8,11,14,17,20,23 * * *", timezone="America/New_York")
 )
 
 """

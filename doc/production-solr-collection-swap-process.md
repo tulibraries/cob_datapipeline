@@ -21,8 +21,8 @@ These steps are broken down into three sections as these parts can be run sequen
 1. Once a new preproduction Solr collection is created via `catalog_full_reindex`, turn on the `catalog_preproduction_oai_harvest` Dag. 
 
 ### Caveats and Incidentals
-* `cob_datapipeline` deployments to Airflow Prod only happen on new releases for that repository. 
-* `ansible-playbook-airflow` prod updates need shepherding from qa to main branch. 
+* `cob_datapipeline` deployments to airflow-prod only happen on new releases for that repo (plus verified CI deployment step).
+* `ansible-playbook-airflow` prod updates need shepherding from qa to main branch and then a verified deployment step in the CI.
 
 #### If something goes wrong with the full reindex
 If something goes wrong with the full reindex and you need to rerun it from the start you can reuse the files that were moved to s3 simply by skipping the `catalog_move_alma_sftp_to_s3` dag run step.

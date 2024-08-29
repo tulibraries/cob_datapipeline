@@ -1,6 +1,7 @@
 """Airflow DAG to perform a partial index of tul_cob catalog from OAI into Pre Production Solr Collection."""
 from datetime import datetime, timedelta
 from airflow.timetables.trigger import CronTriggerTimetable
+from airflow import DAG
 import os
 import pendulum
 from tulflow import harvest, tasks

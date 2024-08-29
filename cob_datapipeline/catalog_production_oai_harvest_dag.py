@@ -1,5 +1,6 @@
 """Airflow DAG to perform a partial index of tul_cob catalog from OAI into Production SolrCloud."""
 from datetime import datetime, timedelta
+from airflow.models.dag import DAG
 from airflow.timetables.trigger import CronTriggerTimetable
 import os
 import pendulum

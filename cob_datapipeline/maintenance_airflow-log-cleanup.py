@@ -16,7 +16,7 @@ import airflow
 import jinja2
 from airflow.providers.slack.notifications.slack import send_slack_notification
 
-slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ execution_date }} {{ ti.log_url }}")
+slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ logical_date }} {{ ti.log_url }}")
 
 
 # airflow-log-cleanup
@@ -42,15 +42,12 @@ ENABLE_DELETE = True
 # logs cleared.
 NUMBER_OF_WORKERS = 1
 DIRECTORIES_TO_DELETE = [
-    "alma_electronic_notes",
     "boundwith_move_alma_sftp_to_s3",
     "catalog_full_reindex",
     "catalog_move_alma_sftp_to_s3",
     "catalog_pre_production_oai_harvest",
     "catalog_production_oai_harvest",
-    "qa_az_reindex",
     "prod_az_reindex",
-    "qa_web_content_reindex",
     "prod_web_content_reindex",
     "maintenance_airflow-log-cleanup",
 ]

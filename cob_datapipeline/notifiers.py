@@ -14,7 +14,7 @@ def send_collection_notification(channel, username="airflow"):
         ti = context.get("task_instance")
         logurl = ti.log_url
         dagid = ti.dag_id
-        date = context.get("execution_date")
+        date = context.get("logical_date")
 
         try:
             response_pre = ti.xcom_pull(task_ids="get_num_solr_docs_pre")

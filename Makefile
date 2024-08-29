@@ -30,5 +30,5 @@ tty-root-schedular:
 	$(INTO-SUBMODULE) && $(MAKE) tty-root-schedular
 
 ps:
-	$(INTO-SUBMODULE) && docker-compose -p infra ps
+	$(INTO-SUBMODULE) && docker compose -p infra ps
 

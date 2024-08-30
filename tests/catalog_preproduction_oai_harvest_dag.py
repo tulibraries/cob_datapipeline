@@ -1,4 +1,4 @@
-"""Unit Tests for the TUL Cob Catalog Full Reindex DAG."""
+"""Unit Tests for the TUL Cob Catalog PreProduction OAI Harvest DAG."""
 import os
 import unittest
 import airflow

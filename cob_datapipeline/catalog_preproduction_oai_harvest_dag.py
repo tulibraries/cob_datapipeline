@@ -83,7 +83,7 @@ DEFAULT_ARGS = {
 }
 
 DAG = airflow.DAG(
-    "catalog_pre_production_oai_harvest",
+    "catalog_pre_production_oai_harvest_v2",
     catchup=False,
     default_args=DEFAULT_ARGS,
     max_active_runs=1,

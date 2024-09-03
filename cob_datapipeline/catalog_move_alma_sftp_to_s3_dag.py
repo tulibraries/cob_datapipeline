@@ -24,7 +24,6 @@ DEFAULT_ARGS = {
     "depends_on_past": False,
     "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
     "on_failure_callback": [slackpostonfail],
-    "on_success_callback": [slackpostonsuccess],
     "email_on_retry": False,
     "on_failure_callback": [slackpostonfail],
     "retries": 5,
@@ -112,6 +111,7 @@ UPDATE_VARIABLES = PythonOperator(
                 "{{ ti.xcom_pull(task_ids='get_list_of_alma_sftp_files_to_transer', key='most_recent_date')}}",
         }
     },
+    on_success_callback=[slackpostonsuccess],
     dag=DAG
 )
 

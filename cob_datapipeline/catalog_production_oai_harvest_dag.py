@@ -11,6 +11,7 @@ from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from airflow.hooks.base import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
+from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.operators.python  import PythonOperator
 from cob_datapipeline.notifiers import send_collection_notification
 from cob_datapipeline.tasks.xml_parse import prepare_oai_boundwiths, update_variables
@@ -226,6 +227,15 @@ UPDATE_DATE_VARIABLES = PythonOperator(
             "CATALOG_PROD_LAST_HARVEST_FROM_DATE": CATALOG_HARVEST_FROM_DATE,
         }
     },
+    dag=DAG
+)
+
+CLEAR_CATALOG_CACHE = SimpleHttpOperator(
+    task_id="clear_catalog_cache",
+    method="DELETE",
+    http_conn_id="http_tul_cob",
+    endpoint="clear_caches",
+    headers={"Content-Type": "application/json"},
     on_success_callback=[slackpostonsuccess],
     dag=DAG
 )
@@ -240,3 +250,4 @@ INDEX_DELETES_OAI_MARC.set_upstream(INDEX_UPDATES_OAI_MARC)
 SOLR_COMMIT.set_upstream(INDEX_DELETES_OAI_MARC)
 GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_COMMIT)
 UPDATE_DATE_VARIABLES.set_upstream(GET_NUM_SOLR_DOCS_POST)
+CLEAR_CATALOG_CACHE.set_upstream(UPDATE_DATE_VARIABLES)

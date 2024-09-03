@@ -26,7 +26,6 @@ DEFAULT_ARGS = {
     "email_on_failure": False,
     "email_on_retry": False,
     "on_failure_callback": [slackpostonfail],
-    "on_success_callback": [slackpostonsuccess],
     "retries": 5,
     "retry_delay": timedelta(minutes=5),
 }
@@ -111,6 +110,7 @@ UPDATE_VARIABLES = PythonOperator(
                 "{{ ti.xcom_pull(task_ids='get_list_of_alma_sftp_files_to_transer', key='most_recent_date')}}",
         }
     },
+    on_success_callback=[slackpostonsuccess],
     dag=DAG
 )
 

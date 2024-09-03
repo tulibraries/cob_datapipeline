@@ -11,7 +11,6 @@ from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from airflow.hooks.base import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
-from airflow.operators.http_operator import SimpleHttpOperator
 from airflow.operators.python  import PythonOperator
 from cob_datapipeline.notifiers import send_collection_notification
 from cob_datapipeline.tasks.xml_parse import prepare_oai_boundwiths, update_variables
@@ -230,7 +229,7 @@ UPDATE_DATE_VARIABLES = PythonOperator(
     dag=DAG
 )
 
-CLEAR_CATALOG_CACHE = SimpleHttpOperator(
+CLEAR_CATALOG_CACHE = HttpOperator(
     task_id="clear_catalog_cache",
     method="DELETE",
     http_conn_id="http_tul_cob",

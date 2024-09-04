@@ -83,3 +83,18 @@ def cleanup_metadata(**op_kwargs):
         filename = s3_key.replace(source_prefix, dest_prefix)
         transformed_xml = etree.tostring(collection, encoding="utf-8")
         process.generate_s3_object(transformed_xml, bucket, filename, access_id, access_secret)
+
+def choose_indexing_branch(**kwargs):
+    ti = kwargs['ti']
+    harvest_data = ti.xcom_pull(task_ids="oai_harvest")
+    updates = harvest_data.get("updated", 0) > 0
+    deletes = harvest_data.get("deleted", 0) > 0
+
+    if updates and deletes:
+        return "updates_and_deletes_branch"
+    elif updates:
+        return "updates_only_branch"
+    elif deletes:
+        return "deletes_only_branch"
+    else:
+        return "no_updates_no_deletes_branch"

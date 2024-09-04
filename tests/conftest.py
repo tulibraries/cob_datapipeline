@@ -27,6 +27,7 @@ def pytest_sessionstart():
     Variable.set("ALMAOAI_LAST_HARVEST_FROM_DATE", "none")
     Variable.set("ALMAOAI_LAST_HARVEST_DATE", "none")
     Variable.set("CATALOG_PROD_LAST_HARVEST_FROM_DATE", None)
+    Variable.set("CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE", None)
     Variable.set("CATALOG_PRE_PRODUCTION_LAST_HARVEST_FROM_DATE", None)
     Variable.set("ALMASFTP_HARVEST_PATH", repo_dir + "/data/sftpdump/")
     Variable.set("ALMASFTP_HOST", "127.0.0.1")

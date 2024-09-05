@@ -190,6 +190,7 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "ALMAOAI_LAST_HARVEST_FROM_DATE": CATALOG_LAST_HARVEST_FROM_DATE,
         "COMMAND": "ingest",
     }},
+    trigger_rule="none_failed_min_one_success",
     dag=DAG
 )
 
@@ -209,6 +210,7 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION),
         "COMMAND": "delete --suppress",
     }},
+    trigger_rule="none_failed_min_one_success",
     dag=DAG
 )
 
@@ -217,6 +219,7 @@ SOLR_COMMIT = HttpOperator(
     method='GET',
     http_conn_id=SOLR_WRITER.conn_id,
     endpoint= '/solr/' + COLLECTION + '/update?commit=true',
+    trigger_rule="none_failed_min_one_success",
     dag=DAG
 )
 
@@ -252,6 +255,7 @@ UPDATES_AND_DELETES_BRANCH = EmptyOperator(task_id = 'updates_and_deletes_branch
 SUCCESS = EmptyOperator(
         task_id = 'success',
         on_success_callback=[slackpostonsuccess],
+        trigger_rule="none_failed_min_one_success",
         dag=DAG)
 
 # SET UP TASK DEPENDENCIES

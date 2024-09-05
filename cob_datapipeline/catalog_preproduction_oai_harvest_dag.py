@@ -190,6 +190,7 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "ALMAOAI_LAST_HARVEST_FROM_DATE": CATALOG_LAST_HARVEST_FROM_DATE,
         "COMMAND": "ingest",
     }},
+    trigger_rule="none_failed_min_one_success",
     dag=DAG
 )
 
@@ -209,6 +210,7 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION),
         "COMMAND": "delete --suppress",
     }},
+    trigger_rule="none_failed_min_one_success",
     dag=DAG
 )
 
@@ -217,6 +219,7 @@ SOLR_COMMIT = HttpOperator(
     method='GET',
     http_conn_id=SOLR_WRITER.conn_id,
     endpoint= '/solr/' + COLLECTION + '/update?commit=true',
+    trigger_rule="none_failed_min_one_success",
     dag=DAG
 )
 
@@ -239,25 +242,9 @@ UPDATE_DATE_VARIABLES = PythonOperator(
     dag=DAG
 )
 
-def choose_indexing_branch(**kwargs):
-    ti = kwargs['ti']
-    harvest_data = ti.xcom_pull(task_ids="oai_harvest")
-    updates = harvest_data.get("updated", 0) > 0
-    deletes = harvest_data.get("deleted", 0) > 0
-
-    if updates and deletes:
-        return "updates_and_deletes_branch"
-    elif updates:
-        return "updates_only_branch"
-    elif deletes:
-        return "deletes_only_branch"
-    else:
-        return "no_updates_no_deletes_branch"
-
-
 CHOOSE_INDEXING_BRANCH = BranchPythonOperator(
-        task_id='choose_indexing_branch',
-        python_callable=choose_indexing_branch,
+        task_id="choose_indexing_branch",
+        python_callable=helpers.choose_indexing_branch,
         provide_context=True,
         dag=DAG)
 
@@ -268,6 +255,7 @@ UPDATES_AND_DELETES_BRANCH = EmptyOperator(task_id = 'updates_and_deletes_branch
 SUCCESS = EmptyOperator(
         task_id = 'success',
         on_success_callback=[slackpostonsuccess],
+        trigger_rule="none_failed_min_one_success",
         dag=DAG)
 
 # SET UP TASK DEPENDENCIES
@@ -283,29 +271,30 @@ CHOOSE_INDEXING_BRANCH.set_upstream(OAI_HARVEST)
  >> UPDATES_ONLY_BRANCH
  >> INDEX_UPDATES_OAI_MARC
  >> SOLR_COMMIT
->> GET_NUM_SOLR_DOCS_POST
->> UPDATE_DATE_VARIABLES)
+ >> GET_NUM_SOLR_DOCS_POST
+ >> UPDATE_DATE_VARIABLES
+ >> SUCCESS)
 
 # deletes_only
 (CHOOSE_INDEXING_BRANCH
->> DELETES_ONLY_BRANCH
->> INDEX_DELETES_OAI_MARC
->> SOLR_COMMIT
->> GET_NUM_SOLR_DOCS_POST
->> UPDATE_DATE_VARIABLES
->> SUCCESS)
+ >> DELETES_ONLY_BRANCH
+ >> INDEX_DELETES_OAI_MARC
+ >> SOLR_COMMIT
+ >> GET_NUM_SOLR_DOCS_POST
+ >> UPDATE_DATE_VARIABLES
+ >> SUCCESS)
 
 # updates_and_deletes
 (CHOOSE_INDEXING_BRANCH
->> UPDATES_AND_DELETES_BRANCH
->> INDEX_UPDATES_OAI_MARC
->> INDEX_DELETES_OAI_MARC
->> SOLR_COMMIT
->> GET_NUM_SOLR_DOCS_POST
->> UPDATE_DATE_VARIABLES
->> SUCCESS)
+ >> UPDATES_AND_DELETES_BRANCH
+ >> INDEX_UPDATES_OAI_MARC
+ >> INDEX_DELETES_OAI_MARC
+ >> SOLR_COMMIT
+ >> GET_NUM_SOLR_DOCS_POST
+ >> UPDATE_DATE_VARIABLES
+ >> SUCCESS)
 
 # no_updates_no_deletes
 (CHOOSE_INDEXING_BRANCH
->> NO_UPDATES_NO_DELETES_BRANCH
->> SUCCESS)
+ >> NO_UPDATES_NO_DELETES_BRANCH
+ >> SUCCESS)

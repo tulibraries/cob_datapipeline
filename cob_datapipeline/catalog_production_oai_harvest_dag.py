@@ -11,7 +11,9 @@ from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from airflow.hooks.base import BaseHook
 from airflow.models import Variable
 from airflow.operators.bash import BashOperator
-from airflow.operators.python  import PythonOperator
+from airflow.operators.empty import EmptyOperator
+from airflow.operators.python  import PythonOperator, BranchPythonOperator
+from cob_datapipeline import helpers
 from cob_datapipeline.notifiers import send_collection_notification
 from cob_datapipeline.tasks.xml_parse import prepare_oai_boundwiths, update_variables
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
@@ -180,6 +182,7 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "ALMAOAI_LAST_HARVEST_FROM_DATE": CATALOG_LAST_HARVEST_FROM_DATE,
         "COMMAND": "ingest",
     }},
+    trigger_rule="none_failed_min_one_success",
     dag=DAG
 )
 
@@ -199,6 +202,7 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION),
         "COMMAND": "delete --suppress",
     }},
+    trigger_rule="none_failed_min_one_success",
     dag=DAG
 )
 
@@ -207,6 +211,7 @@ SOLR_COMMIT = HttpOperator(
     method='GET',
     http_conn_id=SOLR_WRITER.conn_id,
     endpoint= '/solr/' + COLLECTION + '/update?commit=true',
+    trigger_rule="none_failed_min_one_success",
     dag=DAG
 )
 
@@ -229,24 +234,72 @@ UPDATE_DATE_VARIABLES = PythonOperator(
     dag=DAG
 )
 
+CHOOSE_INDEXING_BRANCH = BranchPythonOperator(
+        task_id="choose_indexing_branch",
+        python_callable=helpers.choose_indexing_branch,
+        provide_context=True,
+        dag=DAG)
+
+NO_UPDATES_NO_DELETES_BRANCH = EmptyOperator(task_id = 'no_updates_no_deletes_branch', dag=DAG)
+UPDATES_ONLY_BRANCH = EmptyOperator(task_id = 'updates_only_branch', dag=DAG)
+DELETES_ONLY_BRANCH = EmptyOperator(task_id = 'deletes_only_branch', dag=DAG)
+UPDATES_AND_DELETES_BRANCH = EmptyOperator(task_id = 'updates_and_deletes_branch', dag=DAG)
+
 CLEAR_CATALOG_CACHE = HttpOperator(
     task_id="clear_catalog_cache",
     method="DELETE",
     http_conn_id="http_tul_cob",
     endpoint="clear_caches",
     headers={"Content-Type": "application/json"},
-    on_success_callback=[slackpostonsuccess],
     dag=DAG
 )
+
+SUCCESS = EmptyOperator(
+        task_id = 'success',
+        on_success_callback=[slackpostonsuccess],
+        trigger_rule="none_failed_min_one_success",
+        dag=DAG)
+
 
 # SET UP TASK DEPENDENCIES
 BW_OAI_HARVEST.set_upstream(GET_NUM_SOLR_DOCS_PRE)
 LIST_CATALOG_BW_S3_DATA.set_upstream(BW_OAI_HARVEST)
 PREPARE_BOUNDWITHS.set_upstream(LIST_CATALOG_BW_S3_DATA)
 OAI_HARVEST.set_upstream(PREPARE_BOUNDWITHS)
-INDEX_UPDATES_OAI_MARC.set_upstream(OAI_HARVEST)
-INDEX_DELETES_OAI_MARC.set_upstream(INDEX_UPDATES_OAI_MARC)
-SOLR_COMMIT.set_upstream(INDEX_DELETES_OAI_MARC)
-GET_NUM_SOLR_DOCS_POST.set_upstream(SOLR_COMMIT)
-UPDATE_DATE_VARIABLES.set_upstream(GET_NUM_SOLR_DOCS_POST)
-CLEAR_CATALOG_CACHE.set_upstream(UPDATE_DATE_VARIABLES)
+CHOOSE_INDEXING_BRANCH.set_upstream(OAI_HARVEST)
+
+# updates_only
+(CHOOSE_INDEXING_BRANCH
+ >> UPDATES_ONLY_BRANCH
+ >> INDEX_UPDATES_OAI_MARC
+ >> SOLR_COMMIT
+ >> GET_NUM_SOLR_DOCS_POST
+ >> UPDATE_DATE_VARIABLES
+ >> CLEAR_CATALOG_CACHE
+ >> SUCCESS)
+
+# deletes_only
+(CHOOSE_INDEXING_BRANCH
+ >> DELETES_ONLY_BRANCH
+ >> INDEX_DELETES_OAI_MARC
+ >> SOLR_COMMIT
+ >> GET_NUM_SOLR_DOCS_POST
+ >> UPDATE_DATE_VARIABLES
+ >> CLEAR_CATALOG_CACHE
+ >> SUCCESS)
+
+# updates_and_deletes
+(CHOOSE_INDEXING_BRANCH
+ >> UPDATES_AND_DELETES_BRANCH
+ >> INDEX_UPDATES_OAI_MARC
+ >> INDEX_DELETES_OAI_MARC
+ >> SOLR_COMMIT
+ >> GET_NUM_SOLR_DOCS_POST
+ >> UPDATE_DATE_VARIABLES
+ >> CLEAR_CATALOG_CACHE
+ >> SUCCESS)
+
+# no_updates_no_deletes
+(CHOOSE_INDEXING_BRANCH
+ >> NO_UPDATES_NO_DELETES_BRANCH
+ >> SUCCESS)

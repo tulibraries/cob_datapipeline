@@ -9,6 +9,8 @@ from moto import mock_aws
 import requests_mock
 import airflow
 from airflow.hooks.base import BaseHook
+from unittest.mock import Mock
+from parameterized import parameterized
 from cob_datapipeline import helpers
 
 class TestDetermineMostRecentDate(unittest.TestCase):
@@ -126,3 +128,25 @@ class TestCleanupMetadata(unittest.TestCase):
             etree.tostring(test_output_content, pretty_print=True),
             etree.tostring(should_match_output, pretty_print=True)
         )
+
+class TestChooseIndexingBranch(unittest.TestCase):
+    """Primary Class for Testing Logic for Picking Most Recent Alma SFTP files"""
+    @parameterized.expand([
+        ({"updated": 834, "deleted": 2}, "updates_and_deletes_branch"),
+        ({"updated": 834, "deleted": 0}, "updates_only_branch"),
+        ({"updated": 0, "deleted": 2}, "deletes_only_branch"),
+        ({"updated": 0, "deleted": 0}, "no_updates_no_deletes_branch"),
+    ])
+    def test_choose_indexing_branch(self, harvest_data, expected_branch):
+        # Mock the TaskInstance (ti) object and its xcom_pull method
+        mock_ti = Mock()
+        mock_ti.xcom_pull.return_value = harvest_data
+
+        # Mock kwargs to pass to the function
+        mock_kwargs = {'ti': mock_ti}
+
+        # Call the function with the mocked kwargs
+        result = helpers.choose_indexing_branch(**mock_kwargs)
+
+        # Assert that the function returns the correct branch
+        assert result == expected_branch

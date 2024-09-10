@@ -200,23 +200,41 @@ with DAG as dag:
         conn_id=SOLR_CLOUD.conn_id
     )
 
-    INDEX_SFTP_MARC = BashOperator(
-        task_id="index_sftp_marc",
-        bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
-        env={
-            "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
-            "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
-            "BUCKET": AIRFLOW_DATA_BUCKET,
-            "FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/alma_bibs__",
-            "GIT_BRANCH": COB_INDEX_VERSION,
-            "HOME": AIRFLOW_USER_HOME,
-            "LATEST_RELEASE": str(LATEST_RELEASE),
-            "SOLR_AUTH_USER": SOLR_WRITER.login or "",
-            "SOLR_AUTH_PASSWORD": SOLR_WRITER.password or "",
-            "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION_NAME),
-            "TRAJECT_FULL_REINDEX": "yes",
-        },
+    LIST_S3_MARC_FILES = S3ListOperator(
+        task_id="list_s3_marc_files",
+        bucket=AIRFLOW_DATA_BUCKET,
+        prefix=ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/alma_bibs__",
+        delimiter="/",
+        aws_conn_id=AIRFLOW_S3.conn_id,
     )
+
+    @task_group()
+    def index_sftp_marc_group(s3_keys):
+        for index, chunk in enumerate(split_list(s3_keys, CATALOG_INDEXING_MULTIPLIER)):
+            INDEX_SFTP_MARC = BashOperator(
+                task_id=f"index_sftp_marc{index}",
+                bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
+                env={
+                    "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
+                    "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
+                    "BUCKET": AIRFLOW_DATA_BUCKET,
+                    "DATA": chunk,
+                    "GIT_BRANCH": COB_INDEX_VERSION,
+                    "HOME": AIRFLOW_USER_HOME,
+                    "LATEST_RELEASE": str(LATEST_RELEASE),
+                    "SOLR_AUTH_USER": SOLR_WRITER.login or "",
+                    "SOLR_AUTH_PASSWORD": SOLR_WRITER.password or "",
+                    "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION_NAME),
+                    "TRAJECT_FULL_REINDEX": "yes",
+                },
+            )
+
+
+    INDEX_SFTP_MARC = PythonOperator(
+            task_id="index_sftp_marc",
+            python_callable= lambda ti: index_sftp_marc_group(ti.xcom_pull(task_ids="list_s3_marc_files")),
+            provide_context=True,
+            )
 
     SOLR_COMMIT = HttpOperator(
         task_id="solr_commit",

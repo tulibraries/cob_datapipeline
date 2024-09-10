@@ -39,7 +39,6 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             "update_variables",
             "get_num_solr_docs_post",
             "slack_success_post",
-            "get_num_solr_docs_current_prod",
             ])
 
     def test_dag_task_order(self):
@@ -59,7 +58,6 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             "update_variables": ["solr_commit"],
             "get_num_solr_docs_post": ["update_variables"],
             "slack_success_post": ["get_num_solr_docs_post"],
-            "get_num_solr_docs_current_prod": [],
         }
         for task, upstream_tasks in expected_task_deps.items():
             upstream_list = [up_task.task_id for up_task in DAG.get_task(task).upstream_list]

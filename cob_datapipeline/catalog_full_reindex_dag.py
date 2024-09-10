@@ -238,14 +238,6 @@ SLACK_SUCCESS_POST = EmptyOperator(
         on_success_callback=[slackpostonsuccess],
         )
 
-
-GET_NUM_SOLR_DOCS_CURRENT_PROD = task_solrgetnumdocs(
-    DAG,
-    PROD_COLLECTION_NAME,
-    "get_num_solr_docs_current_prod",
-    conn_id=SOLR_CLOUD.conn_id
-)
-
 # SET UP TASK DEPENDENCIES
 
 SET_S3_NAMESPACE.set_upstream(SAFETY_CHECK)

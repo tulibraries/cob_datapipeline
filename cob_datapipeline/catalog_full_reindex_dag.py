@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from tulflow import tasks
 import airflow
 import pendulum
-from airflow.decorators import task, task_group
+from airflow.decorators import task_group
 from airflow.hooks.base import BaseHook
 from airflow.models import Variable
 from airflow.operators.empty import EmptyOperator
@@ -48,7 +48,7 @@ REPLICATION_FACTOR = CATALOG_SOLR_CONFIG.get("replication_factor")
 PROD_COLLECTION_NAME = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION")
 
 # Used to break up indexing into multiple processes.
-# Also used to as a multiplier of the "prepare_alma_data" task group.
+# Also used as a multiplier of the "prepare_alma_data" task group.
 CATALOG_INDEXING_MULTIPLIER = Variable.get("CATALOG_INDEXING_MULTIPLIER", 3)
 
 # Don't think we ever want to actually use this. Remove?

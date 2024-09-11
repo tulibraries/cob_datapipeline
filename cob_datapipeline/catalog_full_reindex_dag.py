@@ -212,7 +212,7 @@ with DAG as dag:
     def index_sftp_marc_group(s3_keys):
         for index, chunk in enumerate(split_list(s3_keys, CATALOG_INDEXING_MULTIPLIER)):
             INDEX_SFTP_MARC = BashOperator(
-                task_id=f"index_sftp_marc{index}",
+                task_id=f"index_sftp_marc_{index}",
                 bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
                 env={
                     "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
@@ -280,7 +280,8 @@ with DAG as dag:
     PUSH_COLLECTION.set_upstream(CREATE_COLLECTION)
     DELETE_COLLECTIONS.set_upstream(PUSH_COLLECTION)
     GET_NUM_SOLR_DOCS_PRE.set_upstream(DELETE_COLLECTIONS)
-    INDEX_SFTP_MARC.set_upstream(GET_NUM_SOLR_DOCS_PRE)
+    LIST_S3_MARC_FILES.set_upstream(GET_NUM_SOLR_DOCS_PRE)
+    INDEX_SFTP_MARC.set_upstream(LIST_S3_MARC_FILES)
     SOLR_COMMIT.set_upstream(INDEX_SFTP_MARC)
     UPDATE_DATE_VARIABLES.set_upstream(SOLR_COMMIT)
     GET_NUM_SOLR_DOCS_POST.set_upstream(UPDATE_DATE_VARIABLES)

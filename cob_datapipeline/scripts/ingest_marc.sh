@@ -17,8 +17,7 @@ cd tmp/cob_index
 gem install bundler
 bundle install --without=debug
 
-echo "Grabbing files from S3"
-data_in=$(aws s3api list-objects --bucket $BUCKET --prefix $FOLDER | jq -r '.Contents[].Key')
+data_in=$(echo $DATA | jq -r '.')
 
 if [ -z "$COMMAND" ]; then
   COMMAND=ingest

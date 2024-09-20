@@ -29,6 +29,7 @@ def backup_collection(collection: str):
         schedule_interval="@daily",  # Adjust the schedule as needed
         catchup=False,
         on_failure_callback=[slackpostonfail],
+        default_args={ "retries": 2 },
         )
 def backup_collections_dag():
 

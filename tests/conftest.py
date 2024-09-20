@@ -87,7 +87,14 @@ def pytest_sessionstart():
     slack = Connection(
         conn_id="AIRFLOW_CONN_SLACK_WEBHOOK",
         conn_type="http",
-        host="127.0.0.1/services",
+        host="http://127.0.0.1/services",
+        port=""
+    )
+    slack = Connection(
+        conn_id="slack_api_default",
+        conn_type="http",
+        host="http://127.0.0.1/services",
+        password="my_slack_token",
         port=""
     )
     solrcloud = Connection(
@@ -101,7 +108,7 @@ def pytest_sessionstart():
     solrcloud_writer = Connection(
         conn_id="SOLRCLOUD-WRITER",
         conn_type="http",
-        host="127.0.0.1",
+        host="http://127.0.0.1",
         port="8983",
         login="puppy",
         password="chow"

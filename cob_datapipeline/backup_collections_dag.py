@@ -26,7 +26,7 @@ def backup_collection(collection: str):
 @dag(
         dag_id="backup_collections",
         start_date=datetime(2023, 9, 17),
-        schedule_interval="@daily",  # Adjust the schedule as needed
+        schedule_interval="0 6 * * *",
         catchup=False,
         on_failure_callback=[slackpostonfail],
         default_args={ "retries": 2 },

@@ -12,7 +12,7 @@ from airflow.operators.python import PythonOperator
 from airflow.providers.http.operators.http import HttpOperator
 from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from cob_datapipeline.notifiers import send_collection_notification
-from cob_datapipeline.tasks.xml_parse import prepare_boundwiths, prepare_alma_data, update_variables
+from cob_datapipeline.tasks import xml_parse
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.operators import\
         PushVariable, DeleteCollectionListVariable
@@ -91,7 +91,8 @@ def split_list(a_list, chunk_size):
 # one the section in location index.
 def sub_list(a_list, index):
     chunk_size = CATALOG_INDEXING_MULTIPLIER
-    split_list(a_list, chunk_size)[index]
+    list_of_lists = list(split_list(a_list, chunk_size))
+    return list_of_lists[index]
 
 with DAG as dag:
     """
@@ -138,7 +139,7 @@ with DAG as dag:
 
     PREPARE_BOUNDWITHS = PythonOperator(
         task_id=f"prepare_boundwiths",
-        python_callable=prepare_boundwiths,
+        python_callable=xml_parse.prepare_boundwiths,
         op_kwargs={
             "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
             "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
@@ -154,7 +155,7 @@ with DAG as dag:
         for index in range(CATALOG_INDEXING_MULTIPLIER):
             PREPARE_ALMA_DATA = PythonOperator(
                 task_id=f"prepare_alma_data_{index}",
-                python_callable=prepare_alma_data,
+                python_callable=xml_parse.prepare_alma_data,
                 op_kwargs={
                     "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
                     "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
@@ -241,7 +242,7 @@ with DAG as dag:
 
     UPDATE_DATE_VARIABLES = PythonOperator(
         task_id="update_variables",
-        python_callable=update_variables,
+        python_callable=xml_parse.update_variables,
         op_kwargs={
             "UPDATE": {
                 "CATALOG_PRE_PRODUCTION_SOLR_COLLECTION": COLLECTION_NAME,

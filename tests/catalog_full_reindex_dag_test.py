@@ -6,7 +6,8 @@ import requests
 import requests_mock
 import airflow
 from cob_datapipeline.catalog_full_reindex_dag import DAG,\
-        CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE
+        CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE, \
+        split_list, sub_list
         
 from tests.helpers import get_connection
 
@@ -116,4 +117,62 @@ class TestCatalogFullReindexDag(unittest.TestCase):
 
     def test_we_calculate_correct_harvest_from_date(self):
         self.assertEqual(CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE, "2020-06-07T00:00:00Z" )
+
+
+
+CATALOG_INDEXING_MULTIPLIER = 3
+class TestSplitListFunctions(unittest.TestCase):
+
+    def test_split_list_equal_chunks(self):
+        a_list = [1, 2, 3, 4, 5, 6]
+        chunk_size = 2
+        expected_output = [[1, 2], [3, 4], [5, 6]]
+        result = list(split_list(a_list, chunk_size))
+        self.assertEqual(result, expected_output)
+
+    def test_split_list_smaller_chunk(self):
+        a_list = [1, 2, 3, 4, 5]
+        chunk_size = 2
+        expected_output = [[1, 2], [3, 4], [5]]
+        result = list(split_list(a_list, chunk_size))
+        self.assertEqual(result, expected_output)
+
+    def test_split_list_large_chunk(self):
+        a_list = [1, 2, 3]
+        chunk_size = 5
+        expected_output = [[1, 2, 3]]
+        result = list(split_list(a_list, chunk_size))
+        self.assertEqual(result, expected_output)
+
+    def test_split_list_empty(self):
+        a_list = []
+        chunk_size = 2
+        expected_output = []
+        result = list(split_list(a_list, chunk_size))
+        self.assertEqual(result, expected_output)
+
+    def test_sub_list_valid_index(self):
+        a_list = [1, 2, 3, 4, 5, 6]
+        index = 1
+        # With CATALOG_INDEXING_MULTIPLIER = 3, it splits into [[1, 2, 3], [4, 5, 6]]
+        expected_output = [4, 5, 6]
+        result = sub_list(a_list, index)
+        self.assertEqual(result, expected_output)
+
+    def test_sub_list_invalid_index(self):
+        a_list = [1, 2, 3]
+        index = 5
+        # With CATALOG_INDEXING_MULTIPLIER = 3, the list is split into [[1, 2, 3]]
+        with self.assertRaises(IndexError):
+            sub_list(a_list, index)
+
+    def test_sub_list_empty_list(self):
+        a_list = []
+        index = 0
+        # Empty list should raise IndexError when accessing any index
+        with self.assertRaises(IndexError):
+            sub_list(a_list, index)
+
+if __name__ == '__main__':
+    unittest.main()
 

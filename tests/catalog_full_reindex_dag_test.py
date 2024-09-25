@@ -7,7 +7,7 @@ import requests_mock
 import airflow
 from cob_datapipeline.catalog_full_reindex_dag import DAG,\
         CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE, \
-        split_list, sub_list
+        split_list
         
 from tests.helpers import get_connection
 
@@ -29,7 +29,8 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             "safety_check",
             "verify_prod_collection",
             "set_s3_namespace",
-            "list_alma_s3_data",
+            "list_alma_s3_data.get_list",
+            "list_alma_s3_data.split_list",
             "list_boundwith_s3_data",
             "prepare_boundwiths",
             "prepare_alma_data.prepare_alma_data_0",
@@ -39,7 +40,8 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             "push_collection",
             "delete_collections",
             "get_num_solr_docs_pre",
-            "list_s3_marc_files",
+            "list_s3_marc_files.get_list",
+            "list_s3_marc_files.split_list",
             "index_sftp_marc.index_sftp_marc_0",
             "index_sftp_marc.index_sftp_marc_1",
             "index_sftp_marc.index_sftp_marc_2",
@@ -53,12 +55,19 @@ class TestCatalogFullReindexDag(unittest.TestCase):
         """Unit test that the DAG instance contains the expected dependencies."""
         expected_task_deps = {
             "set_s3_namespace": ["safety_check", "verify_prod_collection"],
-            "list_alma_s3_data": ["set_s3_namespace"],
+            "list_alma_s3_data.get_list": ["set_s3_namespace"],
+            "list_alma_s3_data.split_list": ["list_alma_s3_data.get_list"],
             "list_boundwith_s3_data": ["set_s3_namespace"],
             "prepare_boundwiths": ["list_boundwith_s3_data"],
-            "prepare_alma_data.prepare_alma_data_0": ["list_alma_s3_data", "prepare_boundwiths"],
-            "prepare_alma_data.prepare_alma_data_1": ["list_alma_s3_data", "prepare_boundwiths"],
-            "prepare_alma_data.prepare_alma_data_2": ["list_alma_s3_data", "prepare_boundwiths"],
+            "prepare_alma_data.prepare_alma_data_0": [
+                "list_alma_s3_data.split_list", "prepare_boundwiths"
+                ],
+            "prepare_alma_data.prepare_alma_data_1": [
+                "list_alma_s3_data.split_list", "prepare_boundwiths"
+                ],
+            "prepare_alma_data.prepare_alma_data_2": [
+                "list_alma_s3_data.split_list", "prepare_boundwiths"
+                ],
             "create_collection": [
                 "prepare_alma_data.prepare_alma_data_0",
                 "prepare_alma_data.prepare_alma_data_1",
@@ -67,10 +76,11 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             "push_collection": ["create_collection"],
             "delete_collections": ["push_collection"],
             "get_num_solr_docs_pre": ["delete_collections"],
-            "list_s3_marc_files": ["get_num_solr_docs_pre"],
-            "index_sftp_marc.index_sftp_marc_0": ["list_s3_marc_files"],
-            "index_sftp_marc.index_sftp_marc_1": ["list_s3_marc_files"],
-            "index_sftp_marc.index_sftp_marc_2": ["list_s3_marc_files"],
+            "list_s3_marc_files.get_list": ["get_num_solr_docs_pre"],
+            "list_s3_marc_files.split_list": ["list_s3_marc_files.get_list"],
+            "index_sftp_marc.index_sftp_marc_0": ["list_s3_marc_files.split_list"],
+            "index_sftp_marc.index_sftp_marc_1": ["list_s3_marc_files.split_list"],
+            "index_sftp_marc.index_sftp_marc_2": ["list_s3_marc_files.split_list"],
             "solr_commit": [
                 "index_sftp_marc.index_sftp_marc_0",
                 "index_sftp_marc.index_sftp_marc_1",
@@ -121,7 +131,7 @@ class TestCatalogFullReindexDag(unittest.TestCase):
 
 
 CATALOG_INDEXING_MULTIPLIER = 3
-class TestSplitListFunctions(unittest.TestCase):
+class TestSplitListFunction(unittest.TestCase):
 
     def test_split_list_equal_chunks(self):
         a_list = [1, 2, 3, 4, 5, 6]
@@ -150,29 +160,6 @@ class TestSplitListFunctions(unittest.TestCase):
         expected_output = []
         result = list(split_list(a_list, chunk_size))
         self.assertEqual(result, expected_output)
-
-    def test_sub_list_valid_index(self):
-        a_list = [1, 2, 3, 4, 5, 6]
-        index = 1
-        # With CATALOG_INDEXING_MULTIPLIER = 3, it splits into [[1, 2, 3], [4, 5, 6]]
-        expected_output = [4, 5, 6]
-        result = sub_list(a_list, index)
-        self.assertEqual(result, expected_output)
-
-    def test_sub_list_invalid_index(self):
-        a_list = [1, 2, 3]
-        index = 5
-        # With CATALOG_INDEXING_MULTIPLIER = 3, the list is split into [[1, 2, 3]]
-        with self.assertRaises(IndexError):
-            sub_list(a_list, index)
-
-    def test_sub_list_empty_list(self):
-        a_list = []
-        index = 0
-        # Empty list should raise IndexError when accessing any index
-        with self.assertRaises(IndexError):
-            sub_list(a_list, index)
-
 if __name__ == '__main__':
     unittest.main()
 

@@ -205,7 +205,7 @@ with DAG as dag:
     LIST_S3_MARC_FILES = S3ListOperator(
         task_id="list_s3_marc_files",
         bucket=AIRFLOW_DATA_BUCKET,
-        prefix=ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace')[] }}/alma_bibs__",
+        prefix=ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/alma_bibs__",
         delimiter="/",
         aws_conn_id=AIRFLOW_S3.conn_id,
     )

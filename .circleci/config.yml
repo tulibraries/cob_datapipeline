@@ -13,7 +13,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: 'Instasll Dependencies'
+          name: 'Install Dependencies'
           command: |
             SLUGIFY_USES_TEXT_UNIDECODE=yes pipenv install --dev
 

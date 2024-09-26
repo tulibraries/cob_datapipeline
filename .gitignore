@@ -14,3 +14,7 @@ deploy.zip
 dags
 data
 .vscode
+
+constraints-*.txt
+requirements.txt
+project-dependencies.txt

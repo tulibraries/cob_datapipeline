@@ -78,6 +78,14 @@ $ pipenv run pytest
 
 `lint` and `pytest` are run automatically by CircleCI on each pull request.
 
+### Make Commands
+
+#### rebuld-pipfile:
+Used to rebuild Pipfile while making sure that airflow-constraints are met.
+
+#### compare-dependencies:
+Used to automatically check if a new dependency does not match upstream airflow contraints.
+
 ## Deployment
 
 CircleCI checks (lints and tests) code and deploys to the QA server when development branches are merged into the `main` branch. Code is deployed to production when a new release is created. See the [CircleCI configuration file](cob_datapipeline/.circleci/config.yml) for details.

@@ -87,13 +87,6 @@ def split_list(a_list, chunk_size):
     for i in range(0, len(a_list), chunk_size):
         yield a_list[i:i + chunk_size]
 
-# Splits a list into CATALOG_INDEXING_MULTIPLIER sections and returns
-# one the section in location index.
-def sub_list(a_list, index):
-    chunk_size = CATALOG_INDEXING_MULTIPLIER
-    list_of_lists = list(split_list(a_list, chunk_size))
-    return list_of_lists[index]
-
 with DAG as dag:
     """
     CREATE TASKS
@@ -121,13 +114,32 @@ with DAG as dag:
         bash_command='echo ' + "{{ logical_date.strftime('%Y-%m-%d_%H-%M-%S') }}",
     )
 
-    LIST_ALMA_S3_DATA = S3ListOperator(
-        task_id="list_alma_s3_data",
-        bucket=AIRFLOW_DATA_BUCKET,
-        prefix=ALMASFTP_S3_PREFIX + "/" + ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE + "/alma_bibs__",
-        delimiter="/",
-        aws_conn_id=AIRFLOW_S3.conn_id,
-    )
+    def split_list_task(**kwargs):
+        ti = kwargs["ti"]
+        a_list = ti.xcom_pull("list_alma_s3_data.get_list")
+        chunk_size = CATALOG_INDEXING_MULTIPLIER
+        return list(split_list(a_list, chunk_size))
+
+
+    @task_group
+    def list_s3_files(prefix):
+        GET_LIST = S3ListOperator(
+                task_id="get_list",
+                bucket=AIRFLOW_DATA_BUCKET,
+                prefix=prefix,
+                delimiter="/",
+                aws_conn_id=AIRFLOW_S3.conn_id,
+                )
+        SPLIT_LIST = PythonOperator(
+                    task_id="split_list",
+                    python_callable=split_list_task,
+                    provide_context=True,
+                )
+        GET_LIST >> SPLIT_LIST
+
+    LIST_ALMA_S3_DATA = list_s3_files.override(group_id='list_alma_s3_data')(
+            prefix=ALMASFTP_S3_PREFIX + "/" + ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE + "/alma_bibs__",
+            )
 
     LIST_BOUNDWITH_S3_DATA = S3ListOperator(
         task_id="list_boundwith_s3_data",
@@ -136,6 +148,7 @@ with DAG as dag:
         delimiter="/",
         aws_conn_id=AIRFLOW_S3.conn_id,
     )
+
 
     PREPARE_BOUNDWITHS = PythonOperator(
         task_id=f"prepare_boundwiths",
@@ -162,7 +175,7 @@ with DAG as dag:
                     "BUCKET": AIRFLOW_DATA_BUCKET,
                     "DEST_PREFIX": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
                     "LOOKUP_KEY": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/lookup.tsv",
-                    "S3_KEYS": "{{ sub_list(ti.xcom_pull(task_ids='list_boundwith_data'), index) }}",
+                    "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_alma_s3_data.split_list')[index] }}",
                     "SOURCE_PREFIX": ALMASFTP_S3_PREFIX + "/" + ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE + "/alma_bibs__",
                     "SOURCE_SUFFIX": ".tar.gz"
                 },
@@ -202,13 +215,10 @@ with DAG as dag:
         conn_id=SOLR_CLOUD.conn_id
     )
 
-    LIST_S3_MARC_FILES = S3ListOperator(
-        task_id="list_s3_marc_files",
-        bucket=AIRFLOW_DATA_BUCKET,
-        prefix=ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/alma_bibs__",
-        delimiter="/",
-        aws_conn_id=AIRFLOW_S3.conn_id,
-    )
+    LIST_S3_MARC_FILES = list_s3_files.override(group_id="list_s3_marc_files")(
+            prefix=ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/alma_bibs__",
+            )
+
 
     @task_group()
     def index_sftp_marc():
@@ -220,7 +230,7 @@ with DAG as dag:
                     "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
                     "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
                     "BUCKET": AIRFLOW_DATA_BUCKET,
-                    "DATA": "{{ sub_list(ti.xcom_pull(task_ids='list_s3_marc_files_split'), index) }}",
+                    "DATA": "{{ ti.xcom_pull(task_ids='list_s3_marc_files.split_list')[index] }}",
                     "GIT_BRANCH": COB_INDEX_VERSION,
                     "HOME": AIRFLOW_USER_HOME,
                     "LATEST_RELEASE": str(LATEST_RELEASE),

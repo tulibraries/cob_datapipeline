@@ -175,7 +175,7 @@ with DAG as dag:
                     "BUCKET": AIRFLOW_DATA_BUCKET,
                     "DEST_PREFIX": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
                     "LOOKUP_KEY": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/lookup.tsv",
-                    "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_alma_s3_data.split_list')[index] }}",
+                    "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_alma_s3_data.split_list')[" + str(index) + "] }}",
                     "SOURCE_PREFIX": ALMASFTP_S3_PREFIX + "/" + ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE + "/alma_bibs__",
                     "SOURCE_SUFFIX": ".tar.gz"
                 },
@@ -230,7 +230,7 @@ with DAG as dag:
                     "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
                     "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
                     "BUCKET": AIRFLOW_DATA_BUCKET,
-                    "DATA": "{{ ti.xcom_pull(task_ids='list_s3_marc_files.split_list')[index] }}",
+                    "DATA": "{{ ti.xcom_pull(task_ids='list_s3_marc_files.split_list')[" + str(index) + "] }}",
                     "GIT_BRANCH": COB_INDEX_VERSION,
                     "HOME": AIRFLOW_USER_HOME,
                     "LATEST_RELEASE": str(LATEST_RELEASE),

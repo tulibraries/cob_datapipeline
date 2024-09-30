@@ -168,6 +168,7 @@ with DAG as dag:
     PREPARE_BOUNDWITHS = PythonOperator(
         task_id=f"prepare_boundwiths",
         python_callable=xml_parse.prepare_boundwiths,
+        execution_timeout=timedelta(minutes=30),
         op_kwargs={
             "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
             "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,

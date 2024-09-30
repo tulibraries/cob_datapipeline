@@ -245,7 +245,7 @@ with DAG as dag:
                     "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
                     "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
                     "BUCKET": AIRFLOW_DATA_BUCKET,
-                    "DATA": "{{ ti.xcom_pull(task_ids='list_s3_marc_files.split_list')[" + str(index) + "] }}",
+                    "DATA": "{{ ti.xcom_pull(task_ids='list_s3_marc_files.split_list')[" + str(index) + "] }}|tojson",
                     "GIT_BRANCH": COB_INDEX_VERSION,
                     "HOME": AIRFLOW_USER_HOME,
                     "LATEST_RELEASE": str(LATEST_RELEASE),

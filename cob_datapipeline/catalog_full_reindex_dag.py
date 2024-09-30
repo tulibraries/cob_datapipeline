@@ -83,9 +83,24 @@ DAG = airflow.DAG(
 )
 
 # Function to split a list into group of lists
-def split_list(a_list, chunk_size):
-    for i in range(0, len(a_list), chunk_size):
-        yield a_list[i:i + chunk_size]
+def split_list(a_list, n):
+    if n == 0:
+        return []
+
+     # Calculate the group size and remainder
+    group_size = len(a_list) // n
+    remainder = len(a_list) % n
+
+    # Create the groups
+    groups = []
+    start = 0
+    for i in range(n):
+        # Distribute the remainder across the first few groups
+        end = start + group_size + (1 if i < remainder else 0)
+        groups.append(a_list[start:end])
+        start = end
+
+    return groups
 
 with DAG as dag:
     """
@@ -117,8 +132,8 @@ with DAG as dag:
     def split_list_task(**kwargs):
         ti = kwargs["ti"]
         a_list = ti.xcom_pull("list_alma_s3_data.get_list")
-        chunk_size = CATALOG_INDEXING_MULTIPLIER
-        return list(split_list(a_list, chunk_size))
+        groups_count = CATALOG_INDEXING_MULTIPLIER
+        return list(split_list(a_list, groups_count))
 
 
     @task_group

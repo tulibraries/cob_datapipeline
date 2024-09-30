@@ -135,30 +135,44 @@ class TestSplitListFunction(unittest.TestCase):
 
     def test_split_list_equal_chunks(self):
         a_list = [1, 2, 3, 4, 5, 6]
-        chunk_size = 2
-        expected_output = [[1, 2], [3, 4], [5, 6]]
-        result = list(split_list(a_list, chunk_size))
+        groups_count = 2
+        expected_output = [[1, 2, 3], [4, 5, 6]]
+        result = list(split_list(a_list, groups_count))
         self.assertEqual(result, expected_output)
 
     def test_split_list_smaller_chunk(self):
         a_list = [1, 2, 3, 4, 5]
-        chunk_size = 2
-        expected_output = [[1, 2], [3, 4], [5]]
-        result = list(split_list(a_list, chunk_size))
+        groups_count = 2
+        expected_output = [[1, 2, 3], [4, 5]]
+        result = list(split_list(a_list, groups_count))
         self.assertEqual(result, expected_output)
 
     def test_split_list_large_chunk(self):
         a_list = [1, 2, 3]
-        chunk_size = 5
+        groups_count = 5
+        expected_output = [[1], [2], [3], [], []]
+        result = list(split_list(a_list, groups_count))
+        self.assertEqual(result, expected_output)
+
+    def test_split_list_one_chunk(self):
+        a_list = [1, 2, 3]
+        groups_count = 1
         expected_output = [[1, 2, 3]]
-        result = list(split_list(a_list, chunk_size))
+        result = list(split_list(a_list, groups_count))
+        self.assertEqual(result, expected_output)
+
+    def test_split_list_zero_chunk(self):
+        a_list = [1, 2, 3]
+        groups_count = 0
+        expected_output = []
+        result = list(split_list(a_list, groups_count))
         self.assertEqual(result, expected_output)
 
     def test_split_list_empty(self):
         a_list = []
-        chunk_size = 2
-        expected_output = []
-        result = list(split_list(a_list, chunk_size))
+        groups_count = 2
+        expected_output = [[], []]
+        result = list(split_list(a_list, groups_count))
         self.assertEqual(result, expected_output)
 if __name__ == '__main__':
     unittest.main()

@@ -131,7 +131,12 @@ with DAG as dag:
 
     def split_list_task(**kwargs):
         ti = kwargs["ti"]
-        a_list = ti.xcom_pull("list_alma_s3_data.get_list")
+        task = ti.task
+        task_group = task.task_group
+        group_name = task_group.group_id
+        print(f"The group_name is {group_name}")
+
+        a_list = ti.xcom_pull(f"{group_name}.get_list")
         groups_count = CATALOG_INDEXING_MULTIPLIER
         return list(split_list(a_list, groups_count))
 
@@ -169,6 +174,7 @@ with DAG as dag:
         task_id=f"prepare_boundwiths",
         python_callable=xml_parse.prepare_boundwiths,
         execution_timeout=timedelta(minutes=30),
+        retries=3,
         op_kwargs={
             "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
             "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,

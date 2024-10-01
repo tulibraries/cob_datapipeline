@@ -17,7 +17,7 @@ cd tmp/cob_index
 gem install bundler
 bundle install --without=debug
 
-data_in=$(echo $DATA | jq -r '.')
+data_in=$(echo $DATA | jq -r '.[]')
 
 if [ -z "$COMMAND" ]; then
   COMMAND=ingest

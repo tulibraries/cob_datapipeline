@@ -191,6 +191,7 @@ with DAG as dag:
             PREPARE_ALMA_DATA = PythonOperator(
                 task_id=f"prepare_alma_data_{index}",
                 python_callable=xml_parse.prepare_alma_data,
+                retries=3,
                 op_kwargs={
                     "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
                     "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
@@ -248,6 +249,7 @@ with DAG as dag:
             INDEX_SFTP_MARC = BashOperator(
                 task_id=f"index_sftp_marc_{index}",
                 bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
+                retries=3,
                 env={
                     "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
                     "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,

@@ -179,6 +179,7 @@ LIST_UPDATED_FILES = S3ListOperator(
         prefix=DAG.dag_id + f"/{ S3_NAME_SPACE }/new-updated",
         delimiter="/",
         aws_conn_id=AIRFLOW_S3.conn_id,
+        trigger_rule="none_failed_min_one_success",
         )
 
 INDEX_UPDATES_OAI_MARC = BashOperator(
@@ -208,6 +209,7 @@ LIST_DELETED_FILES = S3ListOperator(
         prefix=DAG.dag_id + f"/{ S3_NAME_SPACE }/deleted",
         delimiter="/",
         aws_conn_id=AIRFLOW_S3.conn_id,
+        trigger_rule="none_failed_min_one_success",
         )
 
 INDEX_DELETES_OAI_MARC = BashOperator(

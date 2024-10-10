@@ -168,8 +168,8 @@ OAI_HARVEST = PythonOperator(
 LIST_UPDATED_FILES = S3ListOperator(
         task_id="list_updated_files",
         bucket=AIRFLOW_DATA_BUCKET,
-        prefix=DAG.dag_id + f"/{ S3_NAME_SPACE }/new-updated",
-        delimiter="/",
+        prefix=DAG.dag_id + f"/{ S3_NAME_SPACE }/new-updated/",
+        delimiter="",
         aws_conn_id=AIRFLOW_S3.conn_id,
         trigger_rule="none_failed_min_one_success",
         )
@@ -197,8 +197,8 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
 LIST_DELETED_FILES = S3ListOperator(
         task_id="list_deleted_files",
         bucket=AIRFLOW_DATA_BUCKET,
-        prefix=DAG.dag_id + f"/{ S3_NAME_SPACE }/deleted",
-        delimiter="/",
+        prefix=DAG.dag_id + f"/{ S3_NAME_SPACE }/deleted/",
+        delimiter="",
         aws_conn_id=AIRFLOW_S3.conn_id,
         trigger_rule="none_failed_min_one_success",
         )
@@ -210,7 +210,6 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "FOLDER": DAG.dag_id + f"/{ S3_NAME_SPACE }/deleted",
         "GIT_BRANCH": COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": "false",

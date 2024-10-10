@@ -173,6 +173,14 @@ OAI_HARVEST = PythonOperator(
     dag=DAG
 )
 
+LIST_UPDATED_FILES = S3ListOperator(
+        task_id="list_updated_files",
+        bucket=AIRFLOW_DATA_BUCKET,
+        prefix=DAG.dag_id + f"/{ S3_NAME_SPACE }/new-updated",
+        delimiter="/",
+        aws_conn_id=AIRFLOW_S3.conn_id,
+        )
+
 INDEX_UPDATES_OAI_MARC = BashOperator(
     task_id="index_updates_oai_marc",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
@@ -180,7 +188,6 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "FOLDER": DAG.dag_id + f"/{ S3_NAME_SPACE }/new-updated",
         "GIT_BRANCH": COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": "false",
@@ -189,10 +196,19 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION),
         "ALMAOAI_LAST_HARVEST_FROM_DATE": CATALOG_LAST_HARVEST_FROM_DATE,
         "COMMAND": "ingest",
+        "DATA": "{{ ti.xcom_pull(task_ids='list_updated_files') | tojson }}",
     }},
     trigger_rule="none_failed_min_one_success",
     dag=DAG
 )
+
+LIST_DELETED_FILES = S3ListOperator(
+        task_id="list_deleted_files",
+        bucket=AIRFLOW_DATA_BUCKET,
+        prefix=DAG.dag_id + f"/{ S3_NAME_SPACE }/deleted",
+        delimiter="/",
+        aws_conn_id=AIRFLOW_S3.conn_id,
+        )
 
 INDEX_DELETES_OAI_MARC = BashOperator(
     task_id="index_deletes_oai_marc",
@@ -201,7 +217,6 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "FOLDER": DAG.dag_id + f"/{ S3_NAME_SPACE }/deleted",
         "GIT_BRANCH": COB_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
         "LATEST_RELEASE": "false",
@@ -209,6 +224,7 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "SOLR_AUTH_PASSWORD": SOLR_WRITER.password or "",
         "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION),
         "COMMAND": "delete --suppress",
+        "DATA": "{{ ti.xcom_pull(task_ids='list_deleted_files') | tojson }}",
     }},
     trigger_rule="none_failed_min_one_success",
     dag=DAG
@@ -269,6 +285,7 @@ CHOOSE_INDEXING_BRANCH.set_upstream(OAI_HARVEST)
 # updates_only
 (CHOOSE_INDEXING_BRANCH
  >> UPDATES_ONLY_BRANCH
+ >> LIST_UPDATED_FILES
  >> INDEX_UPDATES_OAI_MARC
  >> SOLR_COMMIT
  >> GET_NUM_SOLR_DOCS_POST
@@ -278,6 +295,7 @@ CHOOSE_INDEXING_BRANCH.set_upstream(OAI_HARVEST)
 # deletes_only
 (CHOOSE_INDEXING_BRANCH
  >> DELETES_ONLY_BRANCH
+ >> LIST_DELETED_FILES
  >> INDEX_DELETES_OAI_MARC
  >> SOLR_COMMIT
  >> GET_NUM_SOLR_DOCS_POST
@@ -287,7 +305,9 @@ CHOOSE_INDEXING_BRANCH.set_upstream(OAI_HARVEST)
 # updates_and_deletes
 (CHOOSE_INDEXING_BRANCH
  >> UPDATES_AND_DELETES_BRANCH
+ >> LIST_UPDATED_FILES
  >> INDEX_UPDATES_OAI_MARC
+ >> LIST_DELETED_FILES
  >> INDEX_DELETES_OAI_MARC
  >> SOLR_COMMIT
  >> GET_NUM_SOLR_DOCS_POST

@@ -189,6 +189,7 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION),
         "ALMAOAI_LAST_HARVEST_FROM_DATE": CATALOG_LAST_HARVEST_FROM_DATE,
         "COMMAND": "ingest",
+        "DATA": "{{ ti.xcom_pull(task_ids='list_updated_files') | tojson }}",
     }},
     trigger_rule="none_failed_min_one_success",
     dag=DAG
@@ -217,6 +218,7 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "SOLR_AUTH_PASSWORD": SOLR_WRITER.password or "",
         "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION),
         "COMMAND": "delete --suppress",
+        "DATA": "{{ ti.xcom_pull(task_ids='list_deleted_files') | tojson }}",
     }},
     trigger_rule="none_failed_min_one_success",
     dag=DAG

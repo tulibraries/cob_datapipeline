@@ -22,4 +22,5 @@ set -e
 git clone https://github.com/tulibraries/cob_web_index.git --branch=$WEB_CONTENT_BRANCH
 cd cob_web_index
 bundle install --without=debug
+gem install nokogiri --platform=ruby
 bundle exec cob_web_index ingest $DELETE_SWITCH

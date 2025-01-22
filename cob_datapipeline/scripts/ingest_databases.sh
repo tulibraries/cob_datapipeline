@@ -17,6 +17,6 @@ source $HOME/.bashrc
 set -e
 git clone https://github.com/tulibraries/cob_az_index.git --branch=$AZ_BRANCH
 cd cob_az_index
+bundle config build.nokogiri --use-system-libraries
 bundle install --without=debug
-gem install nokogiri --platform=ruby
 bundle exec cob_az_index ingest $AZ_DELETE_SWITCH

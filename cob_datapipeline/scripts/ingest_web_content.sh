@@ -21,6 +21,6 @@ export PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH"
 set -e
 git clone https://github.com/tulibraries/cob_web_index.git --branch=$WEB_CONTENT_BRANCH
 cd cob_web_index
-bundle config build.nokogiri --use-system-libraries
+bundle config set force_ruby_platform true
 bundle install --without=debug
 bundle exec cob_web_index ingest $DELETE_SWITCH

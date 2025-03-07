@@ -15,6 +15,7 @@ fi
 git clone https://github.com/tulibraries/cob_index.git tmp/cob_index --branch=$GIT_BRANCH
 cd tmp/cob_index
 gem install bundler
+bundle config set force_ruby_platform true
 bundle install --without=debug
 
 data_in=$(echo $DATA | jq -r '.[]')

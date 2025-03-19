@@ -34,4 +34,4 @@ pandas = "==2.1.4"
 [packages]
 
 [requires]
-python_version = "3.13.1"
+python_version = "3.12.4"

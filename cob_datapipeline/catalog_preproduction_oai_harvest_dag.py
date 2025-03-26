@@ -80,7 +80,8 @@ DEFAULT_ARGS = {
     "start_date": pendulum.datetime(2018, 12, 13, tz="America/New_York"),
     "on_failure_callback": [slackpostonfail],
     "retries": 0,
-    "retry_delay": timedelta(minutes=10)
+    "retry_delay": timedelta(minutes=10),
+    "execution_timeout": timedelta(hours=10)
 }
 
 DAG = airflow.DAG(
@@ -184,7 +185,7 @@ LIST_UPDATED_FILES = S3ListOperator(
 
 INDEX_UPDATES_OAI_MARC = BashOperator(
     task_id="index_updates_oai_marc",
-    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh",
     env={**os.environ, **{
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,

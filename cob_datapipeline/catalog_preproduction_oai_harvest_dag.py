@@ -80,7 +80,8 @@ DEFAULT_ARGS = {
     "start_date": pendulum.datetime(2018, 12, 13, tz="America/New_York"),
     "on_failure_callback": [slackpostonfail],
     "retries": 0,
-    "retry_delay": timedelta(minutes=10)
+    "retry_delay": timedelta(minutes=10),
+    "execution_timeout": timedelta(hours=10)
 }
 
 DAG = airflow.DAG(
@@ -200,6 +201,7 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "DATA": "{{ ti.xcom_pull(task_ids='list_updated_files') | tojson }}",
     }},
     trigger_rule="none_failed_min_one_success",
+    execution_timeout=timedelta(hours=24),
     dag=DAG
 )
 

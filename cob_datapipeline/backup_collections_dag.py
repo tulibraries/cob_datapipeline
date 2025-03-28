@@ -57,6 +57,7 @@ def backup_collections_dag():
     success = EmptyOperator(
             task_id="slack_success_post",
             on_success_callback=[slackpostonsuccess],
+            cmd_timeout=None,
            )
 
     # Set up the task dependencies

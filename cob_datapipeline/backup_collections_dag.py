@@ -2,7 +2,9 @@ from airflow.decorators import dag, task
 from airflow.hooks.base import BaseHook
 from datetime import datetime
 from tulflow.solr_api_utils import SolrApiUtils
+from airflow.operators.empty import EmptyOperator
 from airflow.providers.slack.notifications.slack import send_slack_notification
+from airflow.providers.ssh.operators.ssh import SSHOperator
 import pdb
 
 slackpostonsuccess = send_slack_notification(channel="infra_alerts", username="airflow", text=":partygritty: {{ dag_run.logical_date }} DAG {{ dag.dag_id }} success: {{ ti.log_url }}")
@@ -39,14 +41,28 @@ def backup_collections_dag():
         return DB.get_collections()
 
     # Task to iterate over the collections and trigger backups
-    @task(on_success_callback=[slackpostonsuccess])
+    @task
     def backup_collections(collections: list):
         for collection in collections:
             backup_collection(collection)
 
+    # Delete the old backups
+    delete_task = SSHOperator(
+            task_id="delete_old_solr_backups",
+            ssh_conn_id="SOLR_NETWORKED_DRIVE",
+            command="sudo find /backups/ -type f -mtime +30 -exec rm {} \\;",
+            )
+
+    # Post Success
+    success = EmptyOperator(
+            task_id="slack_success_post",
+            on_success_callback=[slackpostonsuccess],
+           )
+
     # Set up the task dependencies
     collections = get_collections()
-    backup_collections(collections)
+    backup_collections(collections) >> delete_task >> success
+
 
 # Instantiate the DAG
 backup_collections_dag = backup_collections_dag()

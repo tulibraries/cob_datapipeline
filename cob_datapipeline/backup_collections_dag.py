@@ -51,13 +51,13 @@ def backup_collections_dag():
             task_id="delete_old_solr_backups",
             ssh_conn_id="SOLR_NETWORKED_DRIVE",
             command="sudo find /backups/ -type f -mtime +30 -exec rm {} \\;",
+            cmd_timeout=None,
             )
 
     # Post Success
     success = EmptyOperator(
             task_id="slack_success_post",
             on_success_callback=[slackpostonsuccess],
-            cmd_timeout=None,
            )
 
     # Set up the task dependencies

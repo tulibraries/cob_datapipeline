@@ -185,7 +185,7 @@ LIST_UPDATED_FILES = S3ListOperator(
 
 INDEX_UPDATES_OAI_MARC = BashOperator(
     task_id="index_updates_oai_marc",
-    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
     env={**os.environ, **{
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
@@ -201,6 +201,7 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "DATA": "{{ ti.xcom_pull(task_ids='list_updated_files') | tojson }}",
     }},
     trigger_rule="none_failed_min_one_success",
+    execution_timeout=timedelta(hours=24),
     dag=DAG
 )
 
@@ -215,7 +216,7 @@ LIST_DELETED_FILES = S3ListOperator(
 
 INDEX_DELETES_OAI_MARC = BashOperator(
     task_id="index_deletes_oai_marc",
-    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh",
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
     env={**os.environ, **{
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,

@@ -27,7 +27,7 @@
                 <xsl:variable name="leader07">m</xsl:variable>
                 <xsl:value-of select="concat('      ',$leader06,$leader07,'         Ki     ')"/>
                 -->
-                <xsl:text xml:space="preserve">00000nam#a2200000Ki#4500</xsl:text>
+                <xsl:text xml:space="preserve">00000nam#a22000007i#4500</xsl:text>
             </xsl:element>
 
             <!-- Variables -->

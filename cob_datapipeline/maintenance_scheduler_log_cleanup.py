@@ -14,7 +14,7 @@ default_args = {
 with DAG(
     'cleanup_scheduler_logs',
     default_args=default_args,
-    description='Remove folders older than 7 days from /var/lib/airflow/airflow-app/logs/scheduler',
+    description='Remove folders older than 30 days from /var/lib/airflow/airflow-app/logs/scheduler',
     schedule_interval='@daily',  # Runs once a day
     catchup=False,
 ) as dag:
@@ -23,6 +23,6 @@ with DAG(
         task_id='cleanup_old_folders',
         bash_command=(
             "find /var/lib/airflow/airflow-app/logs/scheduler "
-            "-mindepth 1 -maxdepth 1 -type d -mtime +7 -exec rm -rf {} +"
+            "-mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf {} +"
         )
     )

@@ -1,0 +1,115 @@
+---
+year:
+- year_display
+- year_facet
+- year_sort
+- year_t
+original_order:
+- original_order_display
+also_runs:
+- also_runs_display
+- also_runs_t
+prize:
+- prize_display
+- prize_t
+game_id:
+- game_id_display
+- id
+group:
+- group_display
+- group_facet
+- group_t
+title:
+- title_display
+- title_sort
+- title_t
+short_description:
+- short_description_display
+- short_description_t
+long_description:
+- long_description_display
+- long_description_t
+event_type:
+- event_type_display
+- event_type_facet
+- event_type_t
+game_system:
+- game_system_display
+- game_system_facet
+- game_system_t
+rules_edition:
+- rules_edition_display
+- rules_edition_facet
+- rules_edition_t
+minimum_players:
+- minimum_players_display
+- minimum_players_t
+maximum_players:
+- maximum_players_display
+- maximum_players_t
+age_required:
+- age_required_display
+- age_required_t
+experience_required:
+- experience_required_display
+- experience_required_t
+materials_provided:
+- materials_provided_display
+- materials_provided_t
+start_date_time:
+- start_date_time_display
+- start_date_time_t
+duration:
+- duration_display
+- duration_t
+end_date_time:
+- end_date_time_display
+- end_date_time_t
+gm_names:
+- gm_names_display
+- gm_names_t
+website:
+- website_display
+- website_t
+email:
+- email_display
+- email_t
+tournament:
+- tournament_display
+- tournament_t
+round_number:
+- round_number_display
+- round_number_t
+total_rounds:
+- total_rounds_display
+- total_rounds_t
+minimum_play_time:
+- minimum_play_time_display
+- minimum_play_time_t
+attendee_registration:
+- attendee_registration_display
+- attendee_registration_t
+cost:
+- cost_display
+- cost_t
+location:
+- location_display
+- location_t
+room_name:
+- room_name_display
+- room_name_t
+table_number:
+- table_number_display
+- table_number_t
+special_category:
+- special_category_display
+- special_category_t
+tickets_available:
+- tickets_available_display
+- tickets_available_t
+last_modified:
+- last_modified_display
+- last_modified_t
+rules_complexity:
+- rules_complexity_display
+- rules_complexity_t

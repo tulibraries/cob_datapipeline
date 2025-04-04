@@ -12,7 +12,7 @@ default_args = {
 }
 
 with DAG(
-    'cleanup_scheduler_logs',
+    'maintenance_scheduler_log_cleanup',
     default_args=default_args,
     description='Remove folders older than 30 days from /var/lib/airflow/airflow-app/logs/scheduler',
     schedule_interval='@daily',  # Runs once a day

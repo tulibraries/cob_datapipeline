@@ -39,7 +39,7 @@ DAG = airflow.DAG(
 )
 
 def calculate_list_of_files_to_move(**context):
-    sftp_conn = SFTPHook(ftp_conn_id=ALMA_SFTP_CONNECTION_ID)
+    sftp_conn = SFTPHook(ssh_conn_id=ALMA_SFTP_CONNECTION_ID)
     files_list = sftp_conn.list_directory("./")
     # Ignore an file that does not start with this prefix
     files = [f for f in files_list if f.startswith("alma_bibs__boundwith2_20")]
@@ -69,7 +69,7 @@ MOVE_FILES_TO_S3 = BatchSFTPToS3Operator(
 
 def archive_files_in_sftp(**context):
     """Move sftp files into the archive folder"""
-    sftp_conn = SFTPHook(ftp_conn_id=ALMA_SFTP_CONNECTION_ID)
+    sftp_conn = SFTPHook(ssh_conn_id=ALMA_SFTP_CONNECTION_ID)
     # Paramiko is the underlying package used for SSH/SFTP conns
     # the paramiko client exposes a lot more core SFTP functionality
     paramiko_conn = sftp_conn.get_conn()

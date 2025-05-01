@@ -23,6 +23,7 @@ initialized here if not found (i.e. if this is a new installation) & defaults ex
 
 AIRFLOW_HOME = Variable.get("AIRFLOW_HOME")
 AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
+
 SCHEDULE_INTERVAL = Variable.get("GENCON_INDEX_SCHEDULE_INTERVAL")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
@@ -60,19 +61,19 @@ Tasks with custom logic are relegated to individual Python files.
 
 GET_CSV_DATA = BashOperator(
     task_id="get_csv_data",
-    bash_command="cp -pr " + AIRFLOW_HOME + "/dags/gencon_datapipeline/scripts/gencon_dags/csv-s3/* " + AIRFLOW_HOME + "/dags/gencon_datapipeline/scripts/gencon_dags/csv/*",
+    bash_command="cp -pr /opt/airflow/dags/cob_datapipeline/scripts/gencon_dags/csv-s3/* /opt/airflow/dags/cob_datapipeline/scripts/gencon_dags/csv/",
     dag=DAG)
 
 INDEX_DATABASES = BashOperator(
     task_id="index_gencon",
-    bash_command=AIRFLOW_HOME + "/dags/gencon_datapipeline/scripts/ingest_csv.sh",
+    bash_command="/opt/airflow/dags/cob_datapipeline/scripts/ingest_csv.sh ",
     retries=1,
-    env={**os.environ, **{
+    env={
         "HOME": AIRFLOW_USER_HOME,
-        "SOLR_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"),
-        "SOLRCLOUD_PASSWORD": SOLR_CONN.password if SOLR_CONN.password else "",
-        "SOLRCLOUD_USER": SOLR_CONN.login if SOLR_CONN.login else "",
-    }},
+        "SOLR_AUTH_USER": SOLR_CONN.login if SOLR_CONN.login else "",
+        "SOLR_AUTH_PASSWORD": SOLR_CONN.password if SOLR_CONN.password else "",
+        "SOLR_WEB_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET),
+    },
     dag=DAG
 )
 

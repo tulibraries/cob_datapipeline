@@ -1,17 +1,19 @@
 #!/usr/bin/env bash
-source $HOME/.bashrc
+
+set -eo pipefail
+
 # export / set all environment variables passed here by task for pick-up by subprocess
 export AIRFLOW_USER_HOME="/home/airflow"
 export HOME=$AIRFLOW_USER_HOME
-source ~/.bashrc
+
+source $HOME/.bashrc
+
 export PATH="$AIRFLOW_USER_HOME/.rbenv/shims:$AIRFLOW_USER_HOME/.rbenv/bin:$PATH"
 
-cd gencon_dags
-# have any error in following cause bash script to fail
-set -e pipefail
-set -aux
+cd /opt/airflow/dags/cob_datapipeline/scripts/gencon_dags
 
-set -e
+export SOLR_URL="${SOLR_WEB_URL//\/\////$SOLR_AUTH_USER:$SOLR_AUTH_PASSWORD@}"
+
 bundle config set force_ruby_platform true
 bundle install --without=debug
 

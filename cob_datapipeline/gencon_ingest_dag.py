@@ -59,12 +59,17 @@ Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """
 
-GET_CSV_DATA = BashOperator(
-    task_id="get_csv_data",
-    bash_command="cp -pr /opt/airflow/dags/cob_datapipeline/scripts/gencon_dags/csv-s3/* /opt/airflow/dags/cob_datapipeline/scripts/gencon_dags/csv/",
+MAKE_TEMP_DIRECTORY = BashOperator(
+    task_id="make_temp_directory",
+    bash_command="mkdir /tmp/gencon",
     dag=DAG)
 
-INDEX_DATABASES = BashOperator(
+GET_CSV_DATA = BashOperator(
+    task_id="get_csv_data",
+    bash_command="cp -pr /opt/airflow/dags/cob_datapipeline/scripts/gencon_dags/csv-s3/* /tmp/gencon/",
+    dag=DAG)
+
+INDEX_GENCON = BashOperator(
     task_id="index_gencon",
     bash_command="/opt/airflow/dags/cob_datapipeline/scripts/ingest_csv.sh ",
     retries=1,
@@ -77,4 +82,11 @@ INDEX_DATABASES = BashOperator(
     dag=DAG
 )
 
-INDEX_DATABASES.set_upstream(GET_CSV_DATA)
+REMOVE_TEMP_DIRECTORY = BashOperator(
+    task_id="remove_temp_directory",
+    bash_command="rm -rf /tmp/gencon",
+    dag=DAG)
+
+GET_CSV_DATA.set_upstream(MAKE_TEMP_DIRECTORY)
+INDEX_GENCON.set_upstream(GET_CSV_DATA)
+REMOVE_TEMP_DIRECTORY.set_upstream(INDEX_GENCON)

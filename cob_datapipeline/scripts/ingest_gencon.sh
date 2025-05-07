@@ -8,9 +8,15 @@ export HOME=$AIRFLOW_USER_HOME
 
 source $HOME/.bashrc
 
+export PATH="$AIRFLOW_USER_HOME/.local/bin/aws:$PATH"
 export PATH="$AIRFLOW_USER_HOME/.rbenv/shims:$AIRFLOW_USER_HOME/.rbenv/bin:$PATH"
 
-cd /opt/airflow/dags/cob_datapipeline/scripts/gencon_dags
+mkdir -p /tmp/gencon
+aws s3 sync s3://tulib-airflow-prod/gencon /tmp/gencon --include "*.csv"
+#/home/airflow/.local/bin/aws s3 sync s3://tulib-airflow-prod/gencon /tmp/gencon --include "*.csv"
+
+cd $AIRFLOW_USER_HOME/dags/cob_datapipeline/scripts/gencon_dags
+#cd /opt/airflow/dags/cob_datapipeline/scripts/gencon_dags
 
 export SOLR_URL="${SOLR_WEB_URL//\/\////$SOLR_AUTH_USER:$SOLR_AUTH_PASSWORD@}"
 

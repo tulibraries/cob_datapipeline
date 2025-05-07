@@ -78,7 +78,7 @@
     "configset": "tul_cob-web-0",
     "replication_factor": 4
   },
-  "GENCON_INDEX_SCHEDULE_INTERVAL": "@daily",
+  "GENCON_INDEX_SCHEDULE_INTERVAL": "None",
   "GENCON_SOLR_CONFIG": {
     "configset": "gencon50-v3.0.1",
     "replication_factor": 4

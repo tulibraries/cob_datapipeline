@@ -6,12 +6,10 @@ import pendulum
 from airflow.models import Variable
 from airflow.hooks.base import BaseHook
 from airflow.operators.bash import BashOperator
-from airflow.operators.python import PythonOperator
 from tulflow import tasks
 from airflow.providers.slack.notifications.slack import send_slack_notification
 from airflow.models.connection import Connection
 from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
-from airflow.operators.python_operator import PythonOperator
 
 """
 INIT SYSTEMWIDE VARIABLES
@@ -24,6 +22,11 @@ AIRFLOW_HOME = Variable.get("AIRFLOW_HOME")
 AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 
 SCHEDULE_INTERVAL = Variable.get("GENCON_INDEX_SCHEDULE_INTERVAL")
+
+GENCON_INDEX_VERSION = Variable.get("GENCON_INDEX_VERSION")
+GENCON_INDEX_PATH = Variable.get("GENCON_INDEX_PATH")
+GENCON_TEMP_PATH = Variable.get("GENCON_TEMP_PATH")
+GENCON_CSV_S3 = Variable.get("GENCON_CSV_S3")
 
 # Get S3 data bucket variables
 AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
@@ -69,7 +72,11 @@ INDEX_GENCON = BashOperator(
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
+        "GIT_BRANCH": GENCON_INDEX_VERSION,
         "HOME": AIRFLOW_USER_HOME,
+        "GENCON_INDEX_PATH": GENCON_INDEX_PATH,
+        "GENCON_TEMP_PATH": GENCON_TEMP_PATH,
+        "GENCON_CSV_S3": GENCON_CSV_S3,
         "SOLR_AUTH_USER": SOLR_CONN.login if SOLR_CONN.login else "",
         "SOLR_AUTH_PASSWORD": SOLR_CONN.password if SOLR_CONN.password else "",
         "SOLR_WEB_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET),

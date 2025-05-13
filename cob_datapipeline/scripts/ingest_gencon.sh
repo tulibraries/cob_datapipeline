@@ -8,17 +8,31 @@ export HOME=$AIRFLOW_USER_HOME
 
 source $HOME/.bashrc
 
-export PATH="$AIRFLOW_USER_HOME/.local/bin/aws:$PATH"
+export PATH="$AIRFLOW_USER_HOME/.local/bin:$PATH"
 export PATH="$AIRFLOW_USER_HOME/.rbenv/shims:$AIRFLOW_USER_HOME/.rbenv/bin:$PATH"
 
-mkdir -p /tmp/gencon
-aws s3 sync s3://tulib-airflow-prod/gencon /tmp/gencon --include "*.csv"
-#/home/airflow/.local/bin/aws s3 sync s3://tulib-airflow-prod/gencon /tmp/gencon --include "*.csv"
-
-cd $AIRFLOW_USER_HOME/dags/cob_datapipeline/scripts/gencon_dags
-#cd /opt/airflow/dags/cob_datapipeline/scripts/gencon_dags
-
 export SOLR_URL="${SOLR_WEB_URL//\/\////$SOLR_AUTH_USER:$SOLR_AUTH_PASSWORD@}"
+export GENCON_INDEX_PATH="$PWD/gencon_index"
+
+echo ">>> My Dreictory: $PWD"
+
+# Get the raw CSV files from S3
+aws s3 sync $GENCON_CSV_S3 $GENCON_TEMP_PATH --include "*.csv"
+
+if [[ ! -d "$GENCON_INDEX_PATH" ]]; then
+  git clone https://github.com/tulibraries/gencon_index.git $GENCON_INDEX_PATH
+  cd $GENCON_INDEX_PATH
+else
+  # If the repository already exists locally, navigate to its directory and pull the latest changes.
+
+  if [[ -d "$GENCON_INDEX_PATH/.git" ]]; then
+      cd $GENCON_INDEX_PATH
+      git pull origin main
+  else
+      echo "Error: Local 'gencon_index' directory is not a Git repository."
+      exit 1;
+  fi
+fi
 
 bundle config set force_ruby_platform true
 bundle install --without=debug

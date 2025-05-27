@@ -62,7 +62,8 @@ def backup_collections_dag():
 
     # Set up the task dependencies
     collections = get_collections()
-    collections >> delete_task >> backup_collections(collections) >> success
+    backup_task =  backup_collections(collections)
+    collections >> delete_task >> backup_task >> success
 
 
 # Instantiate the DAG

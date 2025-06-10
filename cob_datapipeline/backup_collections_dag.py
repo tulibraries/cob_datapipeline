@@ -50,7 +50,7 @@ def backup_collections_dag():
     delete_task = SSHOperator(
             task_id="delete_old_solr_backups",
             ssh_conn_id="SOLR_NETWORKED_DRIVE",
-            command="sudo find /backups/ -type f -mtime +30 -exec rm {} \\;",
+            command="sudo find /backups/ -type d -mindepth 1 -maxdepth 1 -mtime +30 -exec rm -rf {} +",
             cmd_timeout=None,
             )
 

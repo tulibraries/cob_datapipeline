@@ -78,6 +78,15 @@
     "configset": "tul_cob-web-0",
     "replication_factor": 4
   },
+  "GENCON_INDEX_SCHEDULE_INTERVAL": "@monthly",
+  "GENCON_INDEX_VERSION": "main",
+  "GENCON_INDEX_PATH": "/opt/airflow/dags/cob_datapipeline/scripts/gencon_index",
+  "GENCON_TEMP_PATH": "/tmp/gencon",
+  "GENCON_CSV_S3": "s3://tulib-airflow-prod/gencon",
+  "GENCON_SOLR_CONFIG": {
+    "configset": "gencon50-v3.0.1",
+    "replication_factor": 4
+  },
   "almaoai_last_num_oai_delete_recs": 1349,
   "almaoai_last_num_oai_update_recs": 34655
 }

@@ -29,7 +29,7 @@ sshtunnel = "==0.4.0"
 tulflow = "*"
 # required in circleci context.
 numpy = "==1.26.4"
-pandas = "==2.1.4"
+pandas = "==2.3.1"
 
 [packages]
 

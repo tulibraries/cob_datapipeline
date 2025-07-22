@@ -13,6 +13,7 @@ These steps are broken down into three sections as these parts can be run sequen
 1. Trigger the `boundwith_move_alma_sftp_to_s3` Dag and wait for completion.
    1. Skip this step if you want to reuse the s3 alma_sftp files from the last run.
 1. Turn off the `catalog_pre_production_oai_harvest_v2` Dag.
+1. Check the tul_cob-catalog-solr and cob_index repositories for any code changes.  If there are any code changes that need to be included in the reindex, create a new release.
 1. Set the Airflow variables required for the full reindex:
    1. Ensure the variable `CATALOG_PRE_PRODUCTION_SOLR_CONFIG` is using the correct version of solr configs. See the [tul_cob-catalog-solr releases](https://github.com/tulibraries/tul_cob-catalog-solr/releases) to confirm latest version, if needed. 
    1. Ensure the variable `PRE_PRODUCTION_COB_INDEX_VERSION` is the correct version of cob_index. See the  [cob_index releases](https://github.com/tulibraries/cob_index/releases) to confirm latest version, if needed. 

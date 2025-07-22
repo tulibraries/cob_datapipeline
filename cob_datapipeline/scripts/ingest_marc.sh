@@ -18,6 +18,11 @@ gem install bundler
 bundle config set force_ruby_platform true
 bundle install --without=debug
 
+# force Ruby’s external/internal encodings to UTF-8
+export RUBYOPT='-E UTF-8'
+export LANG=en_US.UTF-8
+export LC_ALL=en_US.UTF-8
+
 data_in=$(echo $DATA | jq -r '.[]')
 
 if [ -z "$COMMAND" ]; then

@@ -50,6 +50,11 @@ jobs:
           printf '%s' "${ANSIBLE_VAULT_PASSWORD}" > "$HOME/.vault"
           chmod 600 "$HOME/.vault"
 
+      - name: Start ssh-agent and add key
+        uses: webfactory/ssh-agent@v0.9.1
+        with:
+          ssh-private-key: ${{ secrets.DEPLOY_SSH_KEY }}
+
       - name: Run Ansible Airflow Playbook for QA
         working-directory: ansible-playbook-airflow
         run: |

@@ -1,0 +1,47 @@
+---
+
+name: QA Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  qa-deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        python-version: [ 3.12 ]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          cache: "pipenv"
+
+      - name: Install pipenv
+        run: curl https://raw.githubusercontent.com/pypa/pipenv/master/get-pipenv.py | python
+
+      - name: Install dependencies
+        run: pipenv install --dev
+
+      - name: Run Ansible Airflow Playbook for QA
+        run: |
+          cd ..
+          git clone --single-branch --branch qa https://github.com/tulibraries/ansible-playbook-airflow.git
+          cd ansible-playbook-airflow
+          pipenv install
+          pipenv run ansible-galaxy install -r requirements.yml
+          cp .github/.vault ~/.vault;
+          chmod +x ~/.vault
+          pipenv run ansible-playbook -i inventory/qa playbook.yml --tags "jumphost,role::airflow::dags" --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'

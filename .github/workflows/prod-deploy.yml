@@ -47,7 +47,9 @@ jobs:
           ref: main
 
       - name: Run Ansible Airflow Playbook for Prod
+        working-directory: ansible-playbook-airflow
         run: |
+
           pipenv run ansible-galaxy install -r requirements.yml
           cp .github/.vault ~/.vault;
           chmod +x ~/.vault

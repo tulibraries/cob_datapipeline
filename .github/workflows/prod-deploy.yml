@@ -18,6 +18,9 @@ env:
 jobs:
   prod-deploy:
     runs-on: ubuntu-latest
+    env:
+      ANSIBLE_VAULT_PASSWORD: ${{ vars.ANSIBLE_VAULT_PASSWORD }}
+
     timeout-minutes: 30
     strategy:
       matrix:

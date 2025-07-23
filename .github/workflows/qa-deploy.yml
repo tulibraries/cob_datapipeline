@@ -35,12 +35,15 @@ jobs:
       - name: Install dependencies
         run: pipenv install --dev
 
+      - name: Checkout ansible-playbook-airflow (private)
+        uses: actions/checkout@v3
+        with:
+          repository: your-org/ansible-playbook-airflow
+          token: ${{ secrets.MY_PAT }}
+          path: ansible-playbook-airflow
+
       - name: Run Ansible Airflow Playbook for QA
         run: |
-          cd ..
-          git clone --single-branch --branch qa https://github.com/tulibraries/ansible-playbook-airflow.git
-          cd ansible-playbook-airflow
-          pipenv install
           pipenv run ansible-galaxy install -r requirements.yml
           cp .github/.vault ~/.vault;
           chmod +x ~/.vault

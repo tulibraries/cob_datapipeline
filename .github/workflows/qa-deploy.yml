@@ -16,7 +16,7 @@ jobs:
   qa-deploy:
     runs-on: ubuntu-latest
     env:
-      ANSIBLE_VAULT_PASSWORD: ${{ vars.ANSIBLE_VAULT_PASSWORD }}
+      ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
 
     timeout-minutes: 30
     strategy:
@@ -50,6 +50,4 @@ jobs:
         working-directory: ansible-playbook-airflow
         run: |
           pipenv run ansible-galaxy install -r requirements.yml
-          cp "${GITHUB_WORKSPACE}/.github/.vault" "${HOME}/.vault"
-          chmod +x ~/.vault
-          pipenv run ansible-playbook -i inventory/qa playbook.yml --tags "jumphost,role::airflow::dags" --vault-password-file=~/.vault -e 'ansible_ssh_port=9229'
+          pipenv run ansible-playbook -i inventory/qa playbook.yml --tags "jumphost,role::airflow::dags" --vault-id @env:ANSIBLE_VAULT_PASSWORD -e 'ansible_ssh_port=9229'

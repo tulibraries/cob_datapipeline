@@ -39,11 +39,12 @@ jobs:
         run: pipenv install --dev
 
       - name: Checkout ansible-playbook-airflow (private)
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           repository: tulibraries/ansible-playbook-airflow
           token: ${{ secrets.MY_PAT }}
           path: ansible-playbook-airflow
+          ref: main
 
       - name: Run Ansible Airflow Playbook for Prod
         run: |

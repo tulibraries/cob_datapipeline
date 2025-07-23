@@ -46,8 +46,15 @@ jobs:
           path: ansible-playbook-airflow
           ref: main
 
+      - name: Dump vault password to disk
+        env:
+          ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
+        run: |
+          printf '%s' "${ANSIBLE_VAULT_PASSWORD}" > "$HOME/.vault"
+          chmod 600 "$HOME/.vault"
+
       - name: Run Ansible Airflow Playbook for Prod
         working-directory: ansible-playbook-airflow
         run: |
           pipenv run ansible-galaxy install -r requirements.yml
-          pipenv run ansible-playbook -i inventory/prod playbook.yml --tags "jumphost,role::airflow::dags" --vault-id ${{ secrets.ANSIBLE_VAULT_PASSWORD }} -e 'ansible_ssh_port=9229' -e cob_datapipeline_branch=$COB_DATAPIPELINE_BRANCH
+          pipenv run ansible-playbook -i inventory/prod playbook.yml --tags "jumphost,role::airflow::dags" --vault-password-file "$HOME/.vault" -e 'ansible_ssh_port=9229' -e cob_datapipeline_branch=$COB_DATAPIPELINE_BRANCH

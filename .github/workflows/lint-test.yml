@@ -6,9 +6,6 @@ on:
   push:
     branches-ignore:
       - main
-  pull_request:
-    types: [ opened, synchronize, reopened ]
-    branches: [ main ]
   workflow_dispatch: {}
 
 concurrency:

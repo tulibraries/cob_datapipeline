@@ -64,9 +64,10 @@ Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """
 
+AIRFLOW_HOME = "/opt/airflow"
 INDEX_GENCON = BashOperator(
     task_id="index_gencon",
-    bash_command="/opt/airflow/dags/cob_datapipeline/scripts/ingest_gencon.sh ",
+    bash_command="/dags/cob_datapipeline/scripts/ingest_gencon.sh ",
     retries=1,
     env={
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,

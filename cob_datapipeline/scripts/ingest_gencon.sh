@@ -14,8 +14,6 @@ export PATH="$AIRFLOW_USER_HOME/.rbenv/shims:$AIRFLOW_USER_HOME/.rbenv/bin:$PATH
 export SOLR_URL="${SOLR_WEB_URL//\/\////$SOLR_AUTH_USER:$SOLR_AUTH_PASSWORD@}"
 export GENCON_INDEX_PATH="$PWD/gencon_index"
 
-echo ">>> My Dreictory: $PWD"
-
 # Get the raw CSV files from S3
 aws s3 sync $GENCON_CSV_S3 $GENCON_TEMP_PATH --include "*.csv"
 

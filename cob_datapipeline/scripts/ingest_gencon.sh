@@ -2,19 +2,13 @@
 
 set -eo pipefail
 
-# export / set all environment variables passed here by task for pick-up by subprocess
-export AIRFLOW_USER_HOME="/home/airflow"
-export HOME=$AIRFLOW_USER_HOME
-
 source $HOME/.bashrc
 
-export PATH="$AIRFLOW_USER_HOME/.local/bin:$PATH"
-export PATH="$AIRFLOW_USER_HOME/.rbenv/shims:$AIRFLOW_USER_HOME/.rbenv/bin:$PATH"
-
+# Insert solr username and password into URL
 export SOLR_URL="${SOLR_WEB_URL//\/\////$SOLR_AUTH_USER:$SOLR_AUTH_PASSWORD@}"
-export GENCON_INDEX_PATH="$PWD/gencon_index"
 
 # Get the raw CSV files from S3
+mkdir -p $GENCON_TEMP_PATH
 aws s3 sync $GENCON_CSV_S3 $GENCON_TEMP_PATH --include "*.csv"
 
 if [[ ! -d "$GENCON_INDEX_PATH" ]]; then

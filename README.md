@@ -1,6 +1,6 @@
 # cob_datapipeline
 
-[![CircleCI](https://circleci.com/gh/tulibraries/cob_datapipeline.svg?style=svg)](https://circleci.com/gh/tulibraries/cob_datapipeline)
+[![Lint and Test](https://github.com/tulibraries/cob_datapipeline/actions/workflows/lint-test.yml/badge.svg)](https://github.com/tulibraries/cob_datapipeline/actions/workflows/lint-test.yml)
 ![pylint Score](https://mperlet.github.io/pybadge/badges/9.47.svg)
 
 **cob_datapipeline** is the repository that holds Airflow DAGs (Directed Acyclic Graphs, e.g., data processing workflows) along with related scripts for Temple University Libraries' Library Search  ([tul_cob](https://github.com/tulibraries/tul_cob)) indexing workflows.
@@ -50,7 +50,7 @@ This project uses the UNIX `make` command to build, run, stop, configure, and te
 - [Airflow Docker Development Setup](https://github.com/tulibraries/airflow-docker-dev-setup)
 - [Ansible Playbook Airflow](https://github.com/tulibraries/ansible-playbook-airflow)
 - [Apache Airflow](https://airflow.apache.org/docs/)
-- [CircleCI](https://circleci.com/docs/2.0/configuration-reference/)
+- [GitHub Actions](https://docs.github.com/actions)
 - [tulflow](https://github.com/tulibraries/tulflow)
 - [tul_cob](https://github.com/tulibraries/tul_cob)
 
@@ -76,7 +76,7 @@ Use `pytest` to run unit and functional tests on this project.
 $ pipenv run pytest
 ```
 
-`lint` and `pytest` are run automatically by CircleCI on each pull request.
+`lint` and `pytest` are run automatically by the GitHub Actions **Lint and Test** workflow on each pull request.
 
 ### Make Commands
 
@@ -88,4 +88,4 @@ Used to automatically check if a new dependency does not match upstream airflow 
 
 ## Deployment
 
-CircleCI checks (lints and tests) code and deploys to the QA server when development branches are merged into the `main` branch. Code is deployed to production when a new release is created. See the [CircleCI configuration file](cob_datapipeline/.circleci/config.yml) for details.
+GitHub Actions workflows lint, test, and deploy the project. Pull requests trigger the **Lint and Test** workflow. Pushes to `main` deploy to QA via `.github/workflows/qa-deploy.yml`, and tagged releases (`v*.*.*`) deploy to production via `.github/workflows/prod-deploy.yml`.

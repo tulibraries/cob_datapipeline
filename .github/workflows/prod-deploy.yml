@@ -52,6 +52,7 @@ jobs:
         env:
           ANSIBLE_VAULT_PASSWORD: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
         run: |
+          echo "::add-mask::$ANSIBLE_VAULT_PASSWORD"
           printf '%s' "${ANSIBLE_VAULT_PASSWORD}" > "$HOME/.vault"
           chmod 600 "$HOME/.vault"
 

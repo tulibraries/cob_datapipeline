@@ -23,8 +23,7 @@ AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
 
 SCHEDULE_INTERVAL = Variable.get("GENCON_INDEX_SCHEDULE_INTERVAL")
 
-GENCON_INDEX_VERSION = Variable.get("GENCON_INDEX_VERSION")
-GENCON_INDEX_PATH = Variable.get("GENCON_INDEX_PATH")
+GENCON_INDEX_BRANCH = Variable.get("GENCON_INDEX_BRANCH")
 GENCON_TEMP_PATH = Variable.get("GENCON_TEMP_PATH")
 GENCON_CSV_S3 = Variable.get("GENCON_CSV_S3")
 
@@ -64,23 +63,16 @@ Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """
 
-INGEST_GENCON_SCRIPT = os.path.join(
-    os.path.dirname(__file__),
-    "scripts",
-    "ingest_gencon.sh"
-)
-
 INDEX_GENCON = BashOperator(
     task_id="index_gencon",
-    bash_command=INGEST_GENCON_SCRIPT,
+    bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_gencon.sh",
     retries=1,
     env={
         "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
         "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
         "BUCKET": AIRFLOW_DATA_BUCKET,
-        "GIT_BRANCH": GENCON_INDEX_VERSION,
+        "GIT_BRANCH": GENCON_INDEX_BRANCH,
         "HOME": AIRFLOW_USER_HOME,
-        "GENCON_INDEX_PATH": GENCON_INDEX_PATH,
         "GENCON_TEMP_PATH": GENCON_TEMP_PATH,
         "GENCON_CSV_S3": GENCON_CSV_S3,
         "SOLR_AUTH_USER": SOLR_CONN.login if SOLR_CONN.login else "",

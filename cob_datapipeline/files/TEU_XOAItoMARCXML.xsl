@@ -491,6 +491,17 @@
                 <subfield code="z">Access online resource.</subfield>
             </datafield>
 
+            <!-- Local note to flag non-English material -->
+            
+            <xsl:if test="$thesisLanguage != 'eng'">
+                <datafield tag="902" ind1=" " ind2=" ">
+                    <subfield code="a">
+                        <xsl:text xml:space="preserve">Language check: </xsl:text>
+                        <xsl:text>'</xsl:text><xsl:value-of select="$thesisLanguage"/><xsl:text>'</xsl:text>
+                    </subfield>
+                </datafield>
+            </xsl:if>
+            
             <!-- Local note to flag embargoes -->
 
             <xsl:if test="$embargo">

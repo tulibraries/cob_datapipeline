@@ -7,7 +7,7 @@ verify_ssl = true
 aiobotocore = "==3.2.1"
 apache-airflow = "==2.11.2"
 apache-airflow-providers-amazon = "==9.22.0"
-apache-airflow-providers-sftp = "==5.7.0"
+apache-airflow-providers-sftp = "==5.7.1"
 apache-airflow-providers-slack = "==9.7.0"
 apache-airflow-providers-ssh = "==4.3.1"
 boto3 = "==1.42.61"

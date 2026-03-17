@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "4a523e145f11f3b0a1fe5f7c5d618836fb4651d205e5d9d3dd1f58a625c58fd2"
+            "sha256": "b59d8685b70f6bc0ee07d124272b59d2ee76ac41c24e0f86f57c0d98ba04a3c3"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -219,12 +219,12 @@
         },
         "apache-airflow-providers-amazon": {
             "hashes": [
-                "sha256:27f9bdc5c7cfbfc9d4e3808e61574bb5ee37187422b7e7a066de65688de7823e",
-                "sha256:f2d9fba7cf9f601c7c7518f5bbfe3012677868c6cc83b9977e59f342bf372a34"
+                "sha256:0454f27a333c29135084b84c7a4d0fa9549004296b5d60130b2182023d9851a1",
+                "sha256:21166c9b0160ce21af0ef380443fa10d73893accdb8b8052ded3d9a37fd50881"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==9.22.0"
+            "version": "==9.23.0"
         },
         "apache-airflow-providers-common-compat": {
             "hashes": [

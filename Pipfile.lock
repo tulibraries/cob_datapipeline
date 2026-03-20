@@ -3210,11 +3210,11 @@
         },
         "tulflow": {
             "hashes": [
-                "sha256:773c64693f778e762937f38afa4347986710786ba6dbf6b60bf2bfc6cd1445c9",
-                "sha256:d955a48215821bba745ac0c337bda0e8d381a5ba66289e38f630cde4f3e033e1"
+                "sha256:240cf17a376b48eb342771b5aba6a635ea90c73d15bf13fe872aacb4b0ea9dfb",
+                "sha256:53a09f3a8cf59087a16dcb7f6c7769d052afc39afa11831eb0e8122d6f959fc5"
             ],
             "index": "pypi",
-            "version": "==0.12.15"
+            "version": "==1.0.0"
         },
         "typing-extensions": {
             "hashes": [

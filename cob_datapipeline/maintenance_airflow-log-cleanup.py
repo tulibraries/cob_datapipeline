@@ -29,8 +29,6 @@ BASE_LOG_FOLDER = conf.get("logging", "BASE_LOG_FOLDER").rstrip("/")
 SCHEDULE = "@daily"
 # Who is listed as the owner of this DAG in the Airflow Web Server
 DAG_OWNER_NAME = "maintenance"
-# List of email address to send email alerts to if this job fails
-ALERT_EMAIL_ADDRESSES = ["svc.libdev@temple.edu"]
 # Length to retain the log files if not already provided in the conf. If this
 # is set to 30, the job will remove those files that are 30 days old or older
 DEFAULT_MAX_LOG_AGE_IN_DAYS = "{{ var.value.get('airflow_log_cleanup__max_log_age_in_days', 30) }}"
@@ -78,9 +76,6 @@ except Exception as e:
 default_args = {
     'owner': DAG_OWNER_NAME,
     'depends_on_past': False,
-    'email': ALERT_EMAIL_ADDRESSES,
-    'email_on_failure': False,
-    'email_on_retry': False,
     'start_date': START_DATE,
     'on_failure_callback': [slackpostonfail],
     'retries': 1,
@@ -191,19 +186,19 @@ if [ ! -f """ + str(LOG_CLEANUP_PROCESS_LOCK_FILE) + """ ]; then
     echo "Running Cleanup Process..."
 
     FIND_STATEMENT="find ${BASE_LOG_FOLDER}/*/* -type f -mtime +${MAX_LOG_AGE_IN_DAYS}"
-    DELETE_STMT="${FIND_STATEMENT} -exec rm -f {} \;"
+    DELETE_STMT="${FIND_STATEMENT} -exec rm -f {} \\;"
 
     cleanup "${FIND_STATEMENT}" "${DELETE_STMT}"
     CLEANUP_EXIT_CODE=$?
 
     FIND_STATEMENT="find ${BASE_LOG_FOLDER}/*/* -type d -empty"
-    DELETE_STMT="${FIND_STATEMENT} -prune -exec rm -rf {} \;"
+    DELETE_STMT="${FIND_STATEMENT} -prune -exec rm -rf {} \\;"
 
     cleanup "${FIND_STATEMENT}" "${DELETE_STMT}"
     CLEANUP_EXIT_CODE=$?
 
     FIND_STATEMENT="find ${BASE_LOG_FOLDER}/* -type d -empty"
-    DELETE_STMT="${FIND_STATEMENT} -prune -exec rm -rf {} \;"
+    DELETE_STMT="${FIND_STATEMENT} -prune -exec rm -rf {} \\;"
 
     cleanup "${FIND_STATEMENT}" "${DELETE_STMT}"
     CLEANUP_EXIT_CODE=$?

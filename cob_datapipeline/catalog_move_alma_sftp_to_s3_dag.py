@@ -22,7 +22,6 @@ DEFAULT_ARGS = {
     "depends_on_past": False,
     "start_date": pendulum.datetime(2018, 12, 13, tz="UTC"),
     "on_failure_callback": [slackpostonfail],
-    "email_on_retry": False,
     "on_failure_callback": [slackpostonfail],
     "retries": 5,
     "retry_delay": timedelta(minutes=5),

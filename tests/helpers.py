@@ -1,7 +1,7 @@
 """This module includes utility/helper methods to use in our tests."""
 
 from airflow.models import Connection
-from airflow.utils import timezone
+from airflow.sdk import timezone
 
 DEFAULT_DATE = timezone.datetime(2020, 1, 1)
 

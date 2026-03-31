@@ -4,6 +4,7 @@ import os
 import pendulum
 
 from datetime import timedelta
+from airflow.models import Variable
 from airflow.providers.standard.operators.bash import BashOperator
 from cob_datapipeline.notifiers import send_collection_notification
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
@@ -25,7 +26,7 @@ initialized here if not found (i.e. if this is a new installation) & defaults ex
 
 AIRFLOW_HOME = "{{ var.value.AIRFLOW_HOME }}"
 AIRFLOW_USER_HOME = "{{ var.value.AIRFLOW_USER_HOME }}"
-SCHEDULE = os.getenv("AZ_INDEX_SCHEDULE") or os.getenv("AZ_INDEX_SCHEDULE_INTERVAL")
+SCHEDULE = Variable.get("AZ_INDEX_SCHEDULE_INTERVAL")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 SOLR_CONN_ID = "SOLRCLOUD-WRITER"

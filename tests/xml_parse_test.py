@@ -1,12 +1,13 @@
 """Tests suite for XML parsing function primarily used by Catalog DAGs."""
 import unittest
 import io
-from tulflow import process
+import pandas
 import boto3
+
+from tulflow import process
 from cob_datapipeline.tasks import xml_parse
 from lxml import etree
 from moto import mock_aws
-import pandas
 
 NS = {
     "marc21": "http://www.loc.gov/MARC21/slim"

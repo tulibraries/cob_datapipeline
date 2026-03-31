@@ -1,5 +1,6 @@
 """Unit Tests for Basic Validation of All DAGs."""
 import unittest
+
 from airflow.models import DagBag
 
 class TestDagIntegrity(unittest.TestCase):

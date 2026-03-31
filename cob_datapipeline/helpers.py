@@ -1,9 +1,10 @@
 """Helper methods for dags"""
 import logging
+
 from tulflow import process
 from tulflow.solr_api_utils import SolrApiUtils
 from lxml import etree
-from airflow.models import Variable
+from airflow.sdk import Variable
 
 def determine_most_recent_date(files_list):
     # Expecting list of filenames in the format alma_bibs__2020050503_18470272620003811_new_1.xml
@@ -15,7 +16,7 @@ def determine_most_recent_date(files_list):
     return max([int(f.split("_")[date_position]) for f in files_list])
 
 
-def catalog_safety_check(**context):
+def catalog_safety_check():
     pre_prod_collection = Variable.get("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION", None)
     prod_collection = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION", None)
 
@@ -24,33 +25,32 @@ def catalog_safety_check(**context):
 
 def catalog_collection_name(configset, cob_index_version):
     default_name = f"{ configset }.{ cob_index_version }" + "-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"
-    configured_name = Variable.get("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION", default_name)
+    return (
+        "{% set configured = var.value.get('CATALOG_PRE_PRODUCTION_SOLR_COLLECTION') %}"
+        "{% if configured in [None, '', 'None'] %}"
+        f"{ default_name }"
+        "{% else %}"
+        "{{ configured }}"
+        "{% endif %}"
+    )
 
-    if (configured_name == None
-            or configured_name == "None"
-            or configured_name == ""):
-        return default_name
-
-
-    return configured_name
-
-def catalog_create_missing_collection(**context):
-    conn = context.get("conn")
+def catalog_create_missing_collection(**kwargs):
+    conn = kwargs.get("conn")
     sc = SolrApiUtils(
         solr_url=conn.host,
         auth_user=conn.login,
         auth_pass=conn.password,
     )
 
-    coll = context.get("collection")
+    coll = kwargs.get("collection")
     if sc.collection_exists(coll):
         logging.info(f"Collection {coll} already present. Skipping collection creation.")
         return
 
     sc.create_collection(
         collection=coll,
-        configset=context.get("configset"),
-        replicationFactor=context.get("replication_factor"),
+        configset=kwargs.get("configset"),
+        replicationFactor=kwargs.get("replication_factor"),
     )
 
 def cleanup_metadata(**op_kwargs):
@@ -84,8 +84,8 @@ def cleanup_metadata(**op_kwargs):
         transformed_xml = etree.tostring(collection, encoding="utf-8")
         process.generate_s3_object(transformed_xml, bucket, filename, access_id, access_secret)
 
-def choose_indexing_branch(**kwargs):
-    ti = kwargs['ti']
+def choose_indexing_branch(**context):
+    ti = context['ti']
     harvest_data = ti.xcom_pull(task_ids="oai_harvest")
     updates = harvest_data.get("updated", 0) > 0
     deletes = harvest_data.get("deleted", 0) > 0

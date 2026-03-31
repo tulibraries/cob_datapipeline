@@ -1,12 +1,11 @@
 # Airflow DAG to index Web Content into SolrCloud.
-from datetime import datetime, timedelta
-from tulflow import tasks
 import airflow
 import pendulum
+
+from datetime import timedelta
+from tulflow import tasks
 from airflow.models import Variable
-from airflow.hooks.base import BaseHook
-from airflow.operators.bash import BashOperator
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.bash import BashOperator
 from cob_datapipeline.notifiers import send_collection_notification
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.operators import\
@@ -24,21 +23,27 @@ check for existence of systemwide variables shared across tasks that can be
 initialized here if not found (i.e. if this is a new installation) & defaults exist
 """
 
-AIRFLOW_HOME = Variable.get("AIRFLOW_HOME")
-AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
-SCHEDULE_INTERVAL = Variable.get("WEB_CONTENT_SCHEDULE_INTERVAL")
+AIRFLOW_HOME = "{{ var.value.AIRFLOW_HOME }}"
+AIRFLOW_USER_HOME = "{{ var.value.AIRFLOW_USER_HOME }}"
+SCHEDULE = os.getenv("WEB_CONTENT_SCHEDULE") or os.getenv("WEB_CONTENT_SCHEDULE_INTERVAL")
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
-SOLR_CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
-SOLR_CONFIG = Variable.get("WEB_CONTENT_SOLR_CONFIG", deserialize_json=True)
+SOLR_CONN_ID = "SOLRCLOUD-WRITER"
 # {"configset": "tul_cob-web-2", "replication_factor": 4}
-CONFIGSET = SOLR_CONFIG.get("configset")
+CONFIGSET = "{{ var.json.WEB_CONTENT_SOLR_CONFIG.configset }}"
 ALIAS = CONFIGSET + "-prod"
-REPLICATION_FACTOR = SOLR_CONFIG.get("replication_factor")
-WEB_CONTENT_BRANCH = Variable.get("WEB_CONTENT_PROD_BRANCH")
+REPLICATION_FACTOR = "{{ var.json.WEB_CONTENT_SOLR_CONFIG.replication_factor }}"
+WEB_CONTENT_BRANCH = "{{ var.value.WEB_CONTENT_PROD_BRANCH }}"
+SOLR_WEB_URL = (
+    "{% set solr = conn.get('SOLRCLOUD-WRITER') %}"
+    "{{ '' if solr.host.startswith('http') else 'http://' }}{{ solr.host }}"
+    "{% if solr.port %}:{{ solr.port }}{% endif %}/solr/"
+    + CONFIGSET
+    + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"
+)
 
 # Manifold website creds
-WEB_CONTENT_BASE_URL = BaseHook.get_connection("library_website").host
+WEB_CONTENT_BASE_URL = "{{ conn.library_website.host }}"
 
 # CREATE DAG
 DEFAULT_ARGS = {
@@ -58,7 +63,7 @@ DAG = airflow.DAG(
     catchup=False,
     max_active_runs=1,
     render_template_as_native_obj=True,
-    schedule=SCHEDULE_INTERVAL
+    schedule=SCHEDULE
 )
 
 """
@@ -70,7 +75,7 @@ Tasks with custom logic are relegated to individual Python files.
 
 SET_COLLECTION_NAME = BashOperator(
     task_id="set_collection_name",
-    bash_command="echo " + pendulum.now().format("YYYY-MM-DD_HH-mm-ss"),
+    bash_command="echo {{ logical_date.strftime('%Y-%m-%d_%H-%M-%S') }}",
     dag=DAG
 )
 
@@ -78,12 +83,12 @@ GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
     DAG,
     ALIAS,
     "get_num_solr_docs_pre",
-    conn_id=SOLR_CONN.conn_id
+    conn_id=SOLR_CONN_ID
 )
 
 CREATE_COLLECTION = tasks.create_sc_collection(
     DAG,
-    SOLR_CONN.conn_id,
+    SOLR_CONN_ID,
     CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
     REPLICATION_FACTOR,
     CONFIGSET
@@ -94,9 +99,9 @@ INDEX_WEB_CONTENT = BashOperator(
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_web_content.sh ",
     env={
         "HOME": AIRFLOW_USER_HOME,
-        "SOLR_AUTH_PASSWORD": SOLR_CONN.password if SOLR_CONN.password else "",
-        "SOLR_AUTH_USER": SOLR_CONN.login if SOLR_CONN.login else "",
-        "SOLR_WEB_URL": tasks.get_solr_url(SOLR_CONN, CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"),
+        "SOLR_AUTH_PASSWORD": "{{ conn.get('SOLRCLOUD-WRITER').password or '' }}",
+        "SOLR_AUTH_USER": "{{ conn.get('SOLRCLOUD-WRITER').login or '' }}",
+        "SOLR_WEB_URL": SOLR_WEB_URL,
         "WEB_CONTENT_BASE_URL": WEB_CONTENT_BASE_URL,
         "WEB_CONTENT_BRANCH": WEB_CONTENT_BRANCH,
     },
@@ -107,12 +112,12 @@ GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
     DAG,
     CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
     "get_num_solr_docs_post",
-    conn_id=SOLR_CONN.conn_id
+    conn_id=SOLR_CONN_ID
 )
 
 SOLR_ALIAS_SWAP = tasks.swap_sc_alias(
     DAG,
-    SOLR_CONN.conn_id,
+    SOLR_CONN_ID,
     CONFIGSET +"-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
     ALIAS
 )

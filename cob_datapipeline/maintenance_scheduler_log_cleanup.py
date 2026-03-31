@@ -1,7 +1,7 @@
 """Module providing a function to remove old schedluer logs."""
 from datetime import datetime, timedelta
-from airflow import DAG
-from airflow.operators.bash import BashOperator
+from airflow.sdk import DAG
+from airflow.providers.standard.operators.bash import BashOperator
 
 default_args = {
     'owner': 'airflow',
@@ -15,7 +15,7 @@ with DAG(
     'maintenance_scheduler_log_cleanup',
     default_args=default_args,
     description='Remove folders older than 30 days from /var/lib/airflow/airflow-app/logs/scheduler',
-    schedule_interval='@daily',  # Runs once a day
+    schedule='@daily',
     catchup=False,
 ) as dag:
 

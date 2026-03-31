@@ -18,3 +18,7 @@ data
 constraints-*.txt
 requirements.txt
 project-dependencies.txt
+airflow.cfg
+airflow.db
+airflow.db-shm
+airflow.db-wal

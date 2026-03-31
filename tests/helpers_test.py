@@ -1,14 +1,14 @@
 """Unit Tests for helper methods used in DAGs."""
 import json
 import unittest
-from re import compile as re_compile
-import logging
 import boto3
-from lxml import etree
-from moto import mock_aws
 import requests_mock
 import airflow
-from airflow.hooks.base import BaseHook
+
+from re import compile as re_compile
+from lxml import etree
+from moto import mock_aws
+from airflow.sdk import BaseHook
 from unittest.mock import Mock
 from parameterized import parameterized
 from cob_datapipeline import helpers
@@ -33,27 +33,17 @@ class TestDetermineMostRecentDate(unittest.TestCase):
         self.assertEqual(None, helpers.catalog_safety_check())
 
     def test_catalog_collection_name(self):
-        # When CATALOG_PRE_PRODUCTION_SOLR_COLLECTION is defined.
-        airflow.models.Variable.set("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION", "BAR")
         name = helpers.catalog_collection_name(
             configset="bizz",
             cob_index_version="buzz")
-        self.assertEqual(name, "BAR")
-
-        # When CATALOG_PRE_PRODUCTION_SOLR_COLLECTION is defined but set to None
-        airflow.models.Variable.set("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION", None)
-        name = helpers.catalog_collection_name(
-            configset="bizz",
-            cob_index_version="buzz")
-        expected_name = "bizz.buzz-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"
-        self.assertEqual(name, expected_name)
-
-        # When CATALOG_PRE_PRODUCTION_SOLR_COLLECTION is not defined
-        airflow.models.Variable.delete("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION")
-        name = helpers.catalog_collection_name(
-            configset="bizz",
-            cob_index_version="buzz")
-        expected_name = "bizz.buzz-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"
+        expected_name = (
+            "{% set configured = var.value.get('CATALOG_PRE_PRODUCTION_SOLR_COLLECTION') %}"
+            "{% if configured in [None, '', 'None'] %}"
+            "bizz.buzz-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"
+            "{% else %}"
+            "{{ configured }}"
+            "{% endif %}"
+        )
         self.assertEqual(name, expected_name)
 
     @requests_mock.mock()

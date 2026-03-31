@@ -16,6 +16,7 @@ from cob_datapipeline.operators import DeleteAlias,\
 from tests.helpers import get_connection
 from tests.helpers import DEFAULT_DATE
 
+
 class DeleteAliasTest(unittest.TestCase):
 
     def test_correct_data(self):
@@ -30,6 +31,7 @@ class DeleteAliasTest(unittest.TestCase):
             solr_conn_id='solr_conn_id')
 
         self.assertEqual(task.data, {'name': 'foo', 'action': 'DELETEALIAS'})
+
 
 class DeleteAliasBatchTest(unittest.TestCase):
 
@@ -50,6 +52,7 @@ class DeleteAliasBatchTest(unittest.TestCase):
         self.assertEqual(task.skip_from_last, 0)
         self.assertTrue(task.rescue_failure)
         self.assertEqual(task.data, {'name': None, 'action': 'DELETEALIAS'})
+
 
 class DeleteAliasListVariableTest(unittest.TestCase):
 

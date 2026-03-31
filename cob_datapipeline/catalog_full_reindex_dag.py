@@ -1,14 +1,13 @@
 """Airflow DAG to perform a full re-index tul_cob catalog into Production SolrCloud Collection."""
-from datetime import datetime, timedelta
-from tulflow import tasks
 import airflow
+import os
 import pendulum
-from airflow.decorators import task_group
-from airflow.hooks.base import BaseHook
-from airflow.models import Variable
-from airflow.operators.empty import EmptyOperator
-from airflow.operators.bash import BashOperator
-from airflow.operators.python import PythonOperator
+
+from datetime import datetime, timedelta
+from airflow.sdk import task_group, Connection
+from airflow.providers.standard.operators.empty import EmptyOperator
+from airflow.providers.standard.operators.bash import BashOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from airflow.providers.http.operators.http import HttpOperator
 from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from cob_datapipeline.notifiers import send_collection_notification
@@ -29,40 +28,76 @@ Check for existence of systemwide variables shared across tasks that can be
 initialized here if not found (i.e. if this is a new installation)
 """
 
-AIRFLOW_HOME = Variable.get("AIRFLOW_HOME")
-AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
+AIRFLOW_HOME = "{{ var.value.AIRFLOW_HOME }}"
+AIRFLOW_USER_HOME = "{{ var.value.AIRFLOW_USER_HOME }}"
 
 # Get Solr URL & Collection Name for indexing info; error out if not entered
-SOLR_WRITER = BaseHook.get_connection("SOLRCLOUD-WRITER")
-SOLR_CLOUD = BaseHook.get_connection("SOLRCLOUD")
-CATALOG_SOLR_CONFIG = Variable.get("CATALOG_PRE_PRODUCTION_SOLR_CONFIG", deserialize_json=True)
-# {"configset": "tul_cob-catalog-0", "replication_factor": 4}
-CONFIGSET = CATALOG_SOLR_CONFIG.get("configset")
-COB_INDEX_VERSION = Variable.get("PRE_PRODUCTION_COB_INDEX_VERSION")
+CONFIGSET = "{{ var.json.CATALOG_PRE_PRODUCTION_SOLR_CONFIG.configset }}"
+COB_INDEX_VERSION = "{{ var.value.PRE_PRODUCTION_COB_INDEX_VERSION }}"
 COLLECTION_NAME = helpers.catalog_collection_name(
         configset=CONFIGSET,
         cob_index_version=COB_INDEX_VERSION)
-REPLICATION_FACTOR = CATALOG_SOLR_CONFIG.get("replication_factor")
+REPLICATION_FACTOR = "{{ var.json.CATALOG_PRE_PRODUCTION_SOLR_CONFIG.replication_factor }}"
 
 # Used to check the current number of
-PROD_COLLECTION_NAME = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION")
+PROD_COLLECTION_NAME = "{{ var.value.CATALOG_PRODUCTION_SOLR_COLLECTION }}"
 
 # Used to break up indexing into multiple processes.
 # Also used as a multiplier of the "prepare_alma_data" task group.
-CATALOG_INDEXING_MULTIPLIER = Variable.get("CATALOG_INDEXING_MULTIPLIER", 3)
+CATALOG_INDEXING_MULTIPLIER = int(os.getenv("CATALOG_INDEXING_MULTIPLIER", "3"))
 
 # Don't think we ever want to actually use this. Remove?
-LATEST_RELEASE = bool(Variable.get("CATALOG_PROD_LATEST_RELEASE"))
+LATEST_RELEASE = "{{ var.value.CATALOG_PROD_LATEST_RELEASE }}"
 
 # Get S3 data bucket variables
-AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
-AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
-ALMASFTP_S3_PREFIX = Variable.get("ALMASFTP_S3_PREFIX")
+AIRFLOW_DATA_BUCKET = "{{ var.value.AIRFLOW_DATA_BUCKET }}"
+ALMASFTP_S3_PREFIX = "{{ var.value.ALMASFTP_S3_PREFIX }}"
 # Namespace of the data transferred by the almasftp dag
-ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE = Variable.get("ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE")
-ALMASFTP_S3_ORIGINAL_BW_DATA_NAMESPACE = Variable.get("ALMASFTP_S3_ORIGINAL_BW_DATA_NAMESPACE")
+ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE = "{{ var.value.ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE }}"
+ALMASFTP_S3_ORIGINAL_BW_DATA_NAMESPACE = "{{ var.value.ALMASFTP_S3_ORIGINAL_BW_DATA_NAMESPACE }}"
 
-CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE = (datetime.strptime(ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE, '%Y%m%d%H') - timedelta(hours=24)).strftime("%Y-%m-%dT%H:%M:%SZ")
+CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE = (
+    datetime.strptime(
+        os.getenv("ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE", "2020060800"),
+        '%Y%m%d%H'
+    ) - timedelta(hours=24)
+).strftime("%Y-%m-%dT%H:%M:%SZ")
+CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE_TEMPLATE = (
+    "{{ "
+    "(macros.datetime.strptime(var.value.ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE, '%Y%m%d%H') "
+    "- macros.timedelta(hours=24)).strftime('%Y-%m-%dT%H:%M:%SZ') "
+    "}}"
+)
+SOLR_WRITER_URL = (
+    "{% set solr = conn.get('SOLRCLOUD-WRITER') %}"
+    "{{ '' if solr.host.startswith('http') else 'http://' }}{{ solr.host }}"
+    "{% if solr.port %}:{{ solr.port }}{% endif %}/solr/"
+    + COLLECTION_NAME
+)
+
+
+def create_collection_runtime(**kwargs):
+    conn = Connection.get("SOLRCLOUD")
+    replication_factor = kwargs.get("replication_factor")
+    if isinstance(replication_factor, str) and replication_factor.isdigit():
+        replication_factor = int(replication_factor)
+
+    helpers.catalog_create_missing_collection(
+        conn=conn,
+        collection=kwargs.get("collection"),
+        replication_factor=replication_factor,
+        configset=kwargs.get("configset"),
+    )
+
+
+def delete_collections_runtime(**kwargs):
+    DeleteCollectionListVariable(
+        task_id="delete_collections_runtime",
+        solr_conn_id=kwargs.get("solr_conn_id"),
+        list_variable=kwargs.get("list_variable"),
+        skip_from_last=kwargs.get("skip_from_last"),
+        skip_included=kwargs.get("skip_included"),
+    ).execute()
 
 # CREATE DAG
 DEFAULT_ARGS = {
@@ -148,12 +183,11 @@ with DAG as dag:
                 bucket=AIRFLOW_DATA_BUCKET,
                 prefix=prefix,
                 delimiter="/",
-                aws_conn_id=AIRFLOW_S3.conn_id,
+                aws_conn_id="AIRFLOW_S3",
                 )
         SPLIT_LIST = PythonOperator(
                     task_id="split_list",
                     python_callable=split_list_task,
-                    provide_context=True,
                 )
         GET_LIST >> SPLIT_LIST
 
@@ -166,7 +200,7 @@ with DAG as dag:
         bucket=AIRFLOW_DATA_BUCKET,
         prefix=ALMASFTP_S3_PREFIX + "/bw/" + ALMASFTP_S3_ORIGINAL_BW_DATA_NAMESPACE + "/alma_bibs__boundwith",
         delimiter="/",
-        aws_conn_id=AIRFLOW_S3.conn_id,
+        aws_conn_id="AIRFLOW_S3",
     )
 
 
@@ -176,8 +210,8 @@ with DAG as dag:
         execution_timeout=timedelta(minutes=30),
         retries=3,
         op_kwargs={
-            "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
-            "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
+            "AWS_ACCESS_KEY_ID": "{{ conn.AIRFLOW_S3.login }}",
+            "AWS_SECRET_ACCESS_KEY": "{{ conn.AIRFLOW_S3.password }}",
             "BUCKET": AIRFLOW_DATA_BUCKET,
             "DEST_FOLDER": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/lookup.tsv",
             "S3_KEYS": "{{ ti.xcom_pull(task_ids='list_boundwith_s3_data') }}",
@@ -193,8 +227,8 @@ with DAG as dag:
                 python_callable=xml_parse.prepare_alma_data,
                 retries=3,
                 op_kwargs={
-                    "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
-                    "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
+                    "AWS_ACCESS_KEY_ID": "{{ conn.AIRFLOW_S3.login }}",
+                    "AWS_SECRET_ACCESS_KEY": "{{ conn.AIRFLOW_S3.password }}",
                     "BUCKET": AIRFLOW_DATA_BUCKET,
                     "DEST_PREFIX": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}",
                     "LOOKUP_KEY": ALMASFTP_S3_PREFIX + "/" + DAG.dag_id + "/{{ ti.xcom_pull(task_ids='set_s3_namespace') }}/lookup.tsv",
@@ -208,9 +242,8 @@ with DAG as dag:
 
     CREATE_COLLECTION = PythonOperator(
         task_id="create_collection",
-        python_callable=helpers.catalog_create_missing_collection,
+        python_callable=create_collection_runtime,
         op_kwargs={
-            "conn": SOLR_CLOUD,
             "collection": COLLECTION_NAME,
             "replication_factor": REPLICATION_FACTOR,
             "configset": CONFIGSET,
@@ -223,19 +256,22 @@ with DAG as dag:
         value=COLLECTION_NAME,
     )
 
-    DELETE_COLLECTIONS = DeleteCollectionListVariable(
+    DELETE_COLLECTIONS = PythonOperator(
         task_id="delete_collections",
-        solr_conn_id='SOLRCLOUD',
-        list_variable="CATALOG_COLLECTIONS",
-        skip_from_last=3,
-        skip_included=[COLLECTION_NAME, PROD_COLLECTION_NAME],
+        python_callable=delete_collections_runtime,
+        op_kwargs={
+            "solr_conn_id": "SOLRCLOUD",
+            "list_variable": "CATALOG_COLLECTIONS",
+            "skip_from_last": 3,
+            "skip_included": [COLLECTION_NAME, PROD_COLLECTION_NAME],
+        },
     )
 
     GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
         DAG,
         COLLECTION_NAME,
         "get_num_solr_docs_pre",
-        conn_id=SOLR_CLOUD.conn_id
+        conn_id="SOLRCLOUD"
     )
 
     LIST_S3_MARC_FILES = list_s3_files.override(group_id="list_s3_marc_files")(
@@ -251,16 +287,16 @@ with DAG as dag:
                 bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
                 retries=3,
                 env={
-                    "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
-                    "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
+                    "AWS_ACCESS_KEY_ID": "{{ conn.AIRFLOW_S3.login }}",
+                    "AWS_SECRET_ACCESS_KEY": "{{ conn.AIRFLOW_S3.password }}",
                     "BUCKET": AIRFLOW_DATA_BUCKET,
                     "DATA": "{{ ti.xcom_pull(task_ids='list_s3_marc_files.split_list')[" + str(index) + "] | tojson }}",
                     "GIT_BRANCH": COB_INDEX_VERSION,
                     "HOME": AIRFLOW_USER_HOME,
-                    "LATEST_RELEASE": str(LATEST_RELEASE),
-                    "SOLR_AUTH_USER": SOLR_WRITER.login or "",
-                    "SOLR_AUTH_PASSWORD": SOLR_WRITER.password or "",
-                    "SOLR_URL": tasks.get_solr_url(SOLR_WRITER, COLLECTION_NAME),
+                    "LATEST_RELEASE": LATEST_RELEASE,
+                    "SOLR_AUTH_USER": "{{ conn.get('SOLRCLOUD-WRITER').login or '' }}",
+                    "SOLR_AUTH_PASSWORD": "{{ conn.get('SOLRCLOUD-WRITER').password or '' }}",
+                    "SOLR_URL": SOLR_WRITER_URL,
                     "TRAJECT_FULL_REINDEX": "yes",
                 },
             )
@@ -270,7 +306,7 @@ with DAG as dag:
     SOLR_COMMIT = HttpOperator(
         task_id="solr_commit",
         method="GET",
-        http_conn_id=SOLR_CLOUD.conn_id,
+        http_conn_id="SOLRCLOUD",
         endpoint= "/solr/" + COLLECTION_NAME + "/update?commit=true",
     )
 
@@ -280,7 +316,7 @@ with DAG as dag:
         op_kwargs={
             "UPDATE": {
                 "CATALOG_PRE_PRODUCTION_SOLR_COLLECTION": COLLECTION_NAME,
-                "CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE": CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE
+                "CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE": CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE_TEMPLATE
             }
         },
     )
@@ -289,7 +325,7 @@ with DAG as dag:
         DAG,
         COLLECTION_NAME,
         "get_num_solr_docs_post",
-        conn_id=SOLR_CLOUD.conn_id
+        conn_id="SOLRCLOUD"
     )
 
     SLACK_SUCCESS_POST = EmptyOperator(

@@ -24,7 +24,7 @@ class BatchSFTPToS3Operator(SFTPToS3Operator):
     :type xcom_id: str
     """
 
-    template_fields = ('s3_prefix','s3_key', 'sftp_path')
+    template_fields = ("s3_bucket", "s3_prefix", "s3_key", "sftp_path")
 
     def __init__(self,
                  s3_bucket,

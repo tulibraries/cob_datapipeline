@@ -1,22 +1,22 @@
 """Airflow DAG to move bw files from alma-sftp to s3 and archives the bw ftp files."""
-from datetime import datetime, timedelta
 import logging
 import pendulum
 import airflow
-from airflow.models import Variable
+
+from datetime import timedelta
 from airflow.providers.sftp.hooks.sftp import SFTPHook
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from cob_datapipeline.operators.batch_sftp_to_s3_operator import BatchSFTPToS3Operator
 from cob_datapipeline.helpers import determine_most_recent_date
 from cob_datapipeline.tasks.xml_parse import update_variables
 from airflow.providers.slack.notifications.slack import send_slack_notification
+
 
 slackpostonsuccess = send_slack_notification(channel="blacklight_project", username="airflow", text=":partygritty: {{ dag_run.logical_date }} DAG {{ dag.dag_id }} success: {{ ti.log_url }}")
 slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ dag_run.logical_date }} {{ ti.log_url }}")
 
 ALMA_SFTP_CONNECTION_ID = "ALMASFTP"
 S3_CONN_ID = "AIRFLOW_S3"
-S3_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
 
 # CREATE DAG
 DEFAULT_ARGS = {
@@ -58,7 +58,7 @@ GET_LIST_OF_FILES_TO_TRANSFER = PythonOperator(
 
 MOVE_FILES_TO_S3 = BatchSFTPToS3Operator(
     task_id="move_file_to_s3",
-    s3_bucket=S3_BUCKET,
+    s3_bucket="{{ var.value.AIRFLOW_DATA_BUCKET }}",
     s3_prefix="almasftp/bw/{{ ti.xcom_pull(task_ids='get_list_of_alma_sftp_files_to_transer', key='most_recent_date' )}}/",
     sftp_base_path="./",
     xcom_id="get_list_of_alma_sftp_files_to_transer",
@@ -81,12 +81,10 @@ def archive_files_in_sftp(**context):
         task_ids="get_list_of_alma_sftp_files_to_transer")
     archive_path = "bw-archive"
 
-    if archive_path not in sftp_conn.list_directory("./"):
-        # Revert when we upgrade to airflow version to includes this update:
-        # https://github.com/apache/airflow/commit/90ebbd7968d0a53fbc3158d1d322b32cef117f90
-        sftp_conn.create_directory(path=f"./{archive_path}", mode=int("777", 8))
-    elif str(most_recent_date) not in sftp_conn.list_directory(f"./{archive_path}"):
-        sftp_conn.create_directory(f"./{archive_path}/{most_recent_date}", mode=int("777", 8))
+    sftp_conn.create_directory(
+        path=f"./{archive_path}/{most_recent_date}",
+        mode=int("777", 8)
+    )
 
     count = 0
     for filename in list_of_files:

@@ -1,8 +1,16 @@
 """Unit Tests for the TUL Cob AZ Reindex SC DAG."""
 import os
 import unittest
-import airflow
+os.environ.setdefault("AZ_INDEX_SCHEDULE_INTERVAL", "@weekly")
+
+from airflow.models import TaskInstance as TI
+from airflow.models.dagrun import DagRun
+from airflow.settings import Session
+from airflow.utils.state import DagRunState, State
+from airflow.utils.types import DagRunType
+
 from cob_datapipeline.prod_az_reindex_dag import DAG
+from tests.helpers import DEFAULT_DATE
 
 class TestAZReindexDag(unittest.TestCase):
     """Primary Class for Testing the TUL Cob Reindex DAG."""
@@ -17,7 +25,7 @@ class TestAZReindexDag(unittest.TestCase):
 
     def test_dag_interval_is_variable(self):
         """Unit test that the DAG schedule is set by configuration."""
-        self.assertEqual(DAG.schedule_interval, "@weekly")
+        self.assertEqual(DAG.schedule, "@weekly")
 
     def test_dag_tasks_present(self):
         """Unit test that the DAG instance contains the expected tasks."""
@@ -54,12 +62,43 @@ class TestAZReindexDag(unittest.TestCase):
 
     def test_index_az_task(self):
         """Unit test that the DAG instance can find required solr indexing bash script."""
-        task = DAG.get_task("index_az")
-        airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
-        expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/ingest_databases.sh "
+        task = self.render_task("index_az", DEFAULT_DATE.replace(minute=2))
+        expected_bash_path = os.getcwd() + "/dags/cob_datapipeline/scripts/ingest_databases.sh "
         self.assertEqual(task.bash_command, expected_bash_path)
         self.assertEqual(task.env["HOME"], os.getcwd())
         self.assertEqual(task.env["AZ_BRANCH"], "AZ_BRANCH")
         self.assertEqual(task.env["AZ_CLIENT_ID"], "AZ_CLIENT_ID")
         self.assertEqual(task.env["AZ_CLIENT_SECRET"], "AZ_CLIENT_SECRET")
-        self.assertEqual(task.env["SOLR_AZ_URL"], "http://127.0.0.1:8983/solr/tul_cob-az-0-{{ ti.xcom_pull(task_ids='set_collection_name') }}")
+        self.assertEqual(task.env["SOLR_AZ_URL"], "http://127.0.0.1:8983/solr/tul_cob-az-0-collection_test")
+
+    def render_task(self, task_id, logical_date):
+        """Method to render templated fields for a task."""
+        session = Session()
+        run_id = f"test_run_{task_id}_{logical_date.minute}"
+        session.add(DagRun(
+            dag_id=DAG.dag_id,
+            run_id=run_id,
+            logical_date=logical_date,
+            run_after=logical_date,
+            state=DagRunState.RUNNING,
+            run_type=DagRunType.MANUAL,
+        ))
+        session.commit()
+
+        task = DAG.get_task(task_id)
+        task_instance = TI(
+            task=task,
+            run_id=run_id,
+            dag_version_id=None,
+            state=State.SUCCESS,
+        )
+        set_collection_ti = TI(
+            task=DAG.get_task("set_collection_name"),
+            run_id=run_id,
+            dag_version_id=None,
+            state=State.SUCCESS,
+        )
+        set_collection_ti.xcom_push(key="return_value", value="collection_test")
+        context = task_instance.get_template_context()
+        task.render_template_fields(context)
+        return task

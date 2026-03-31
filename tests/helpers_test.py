@@ -8,7 +8,7 @@ import airflow
 from re import compile as re_compile
 from lxml import etree
 from moto import mock_aws
-from airflow.sdk import BaseHook
+from airflow.models import Connection
 from unittest.mock import Mock
 from parameterized import parameterized
 from cob_datapipeline import helpers
@@ -48,7 +48,11 @@ class TestDetermineMostRecentDate(unittest.TestCase):
 
     @requests_mock.mock()
     def test_catalog_create_missing(self, request_mock):
-        conn = BaseHook.get_connection("SOLRCLOUD")
+        conn = Connection(
+            conn_id="SOLRCLOUD",
+            conn_type="http",
+            host="https://testhost",
+        )
 
         # When collection present.
         response = json.dumps({

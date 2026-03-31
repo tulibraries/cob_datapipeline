@@ -4,7 +4,7 @@ import logging
 from tulflow import process
 from tulflow.solr_api_utils import SolrApiUtils
 from lxml import etree
-from airflow.sdk import Variable
+from airflow.models import Variable
 
 def determine_most_recent_date(files_list):
     # Expecting list of filenames in the format alma_bibs__2020050503_18470272620003811_new_1.xml
@@ -17,8 +17,8 @@ def determine_most_recent_date(files_list):
 
 
 def catalog_safety_check():
-    pre_prod_collection = Variable.get("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION", None)
-    prod_collection = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION", None)
+    pre_prod_collection = Variable.get("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION", default_var=None)
+    prod_collection = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION", default_var=None)
 
     if pre_prod_collection == prod_collection and pre_prod_collection != None:
         raise Exception("The pre production collection cannot be equal to the production collection.")

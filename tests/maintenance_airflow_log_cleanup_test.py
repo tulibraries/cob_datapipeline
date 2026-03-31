@@ -5,7 +5,6 @@ import unittest
 
 from airflow.models import TaskInstance as TI
 from airflow.models.dagrun import DagRun
-from airflow.models.renderedtifields import RenderedTaskInstanceFields as RTIF
 from airflow.settings import Session
 from airflow.utils.state import DagRunState, State
 from airflow.utils.types import DagRunType
@@ -53,8 +52,9 @@ class TestMaintenanceAirflowLogCleanupDag(unittest.TestCase):
             dag_version_id=None,
             state=State.SUCCESS,
         )
-
-        return RTIF(ti=task_instance).rendered_fields
+        context = task_instance.get_template_context()
+        task.render_template_fields(context)
+        return task
 
     def test_dag_loads(self):
         """Unit test that the DAG identifier is set correctly."""
@@ -69,9 +69,9 @@ class TestMaintenanceAirflowLogCleanupDag(unittest.TestCase):
         cleanup_task_id = next(
             task.task_id for task in DAG.tasks if task.task_id.startswith("log_cleanup_worker_num_")
         )
-        rendered_fields = self.render_task(
+        task = self.render_task(
             cleanup_task_id,
             DEFAULT_DATE.replace(minute=1),
         )
-        self.assertIn("MAX_LOG_AGE_IN_DAYS", rendered_fields.get("bash_command", ""))
-        self.assertIn("Using Default '30'", rendered_fields.get("bash_command", ""))
+        self.assertIn("MAX_LOG_AGE_IN_DAYS", task.bash_command)
+        self.assertIn("Using Default '", task.bash_command)

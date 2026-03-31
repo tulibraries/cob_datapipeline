@@ -83,7 +83,7 @@ class DeleteAliasListVariableTest(unittest.TestCase):
             reason='OK')
 
 
-        with patch('airflow.hooks.base.BaseHook.get_connection',
+        with patch('airflow.sdk.bases.hook.BaseHook.get_connection',
                    side_effect=get_connection):
             aliases = ['fool']
             ListVariable.set('fool', aliases)

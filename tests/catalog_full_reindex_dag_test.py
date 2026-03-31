@@ -153,7 +153,7 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             status_code=200,
             text='OK')
 
-        with DAG, patch('airflow.hooks.base.BaseHook.get_connection',
+        with DAG, patch('airflow.sdk.bases.hook.BaseHook.get_connection',
                    side_effect=get_connection):
 
             self._render_task("verify_prod_collection").execute(None)
@@ -168,7 +168,7 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             reason='Not Found',
             text='Boo')
 
-        with DAG, patch('airflow.hooks.base.BaseHook.get_connection',
+        with DAG, patch('airflow.sdk.bases.hook.BaseHook.get_connection',
                 side_effect=get_connection), self.assertRaises(airflow.exceptions.AirflowException):
 
             self._render_task("verify_prod_collection").execute(None)

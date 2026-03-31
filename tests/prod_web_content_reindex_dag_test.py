@@ -1,6 +1,7 @@
 """Unit Tests for the Prod TUL Cob Web Content Index DAG."""
 import os
 import unittest
+from unittest.mock import patch
 os.environ.setdefault("WEB_CONTENT_SCHEDULE_INTERVAL", "@weekly")
 
 from airflow.models import TaskInstance as TI
@@ -91,13 +92,7 @@ class TestProdWebContentReindexDag(unittest.TestCase):
             dag_version_id=None,
             state=State.SUCCESS,
         )
-        set_collection_ti = TI(
-            task=DAG.get_task("set_collection_name"),
-            run_id=run_id,
-            dag_version_id=None,
-            state=State.SUCCESS,
-        )
-        set_collection_ti.xcom_push(key="return_value", value="collection_test")
         context = task_instance.get_template_context()
-        task.render_template_fields(context)
+        with patch.object(context["ti"], "xcom_pull", return_value="collection_test"):
+            task.render_template_fields(context)
         return task

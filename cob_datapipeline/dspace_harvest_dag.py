@@ -33,7 +33,7 @@ DEFAULT_HARVEST_UNTIL_DATE = '{{ logical_date.strftime("%Y-%m-%dT%H:%M:%SZ") }}'
 DSPACE_HARVEST_UNTIL_DATE = "{{ var.value.get('DSPACE_HARVEST_UNTIL_DATE', logical_date.strftime('%Y-%m-%dT%H:%M:%SZ')) }}"
 DSPACE_OAI_MD_PREFIX = "{{ var.json.DSPACE_OAI_CONFIG.md_prefix }}"
 DSPACE_OAI_ENDPOINT = "{{ var.json.DSPACE_OAI_CONFIG.endpoint }}"
-DSPACE_OAI_INCLUDED_SETS = "{{ var.json.DSPACE_OAI_CONFIG.included_sets }}"
+DSPACE_OAI_INCLUDED_SETS = "{{ var.json.DSPACE_OAI_CONFIG.get('included_sets', [var.json.DSPACE_OAI_CONFIG.setspec]) }}"
 
 # CREATE DAG
 DEFAULT_ARGS = {

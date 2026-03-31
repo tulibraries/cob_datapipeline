@@ -3,7 +3,6 @@ import unittest
 
 from airflow.models import TaskInstance as TI
 from airflow.models.dagrun import DagRun
-from airflow.models.renderedtifields import RenderedTaskInstanceFields as RTIF
 from airflow.settings import Session
 from airflow.utils.state import DagRunState, State
 from airflow.utils.types import DagRunType
@@ -67,23 +66,25 @@ class TestDspaceHarvestDag(unittest.TestCase):
             dag_version_id=None,
             state=State.SUCCESS
         )
-
-        return task, RTIF(ti=task_instance).rendered_fields
+        context = task_instance.get_template_context()
+        task.render_template_fields(context)
+        return task
 
     def test_oai_harvest_task(self):
         """Unit test that oai_harvest dag has kwargs."""
-        _, rendered_fields = self.render_task(
+        task = self.render_task(
             "oai_harvest",
             DEFAULT_DATE.replace(minute=1),
         )
-        rendered_kwargs = rendered_fields.get("op_kwargs", {})
+        rendered_kwargs = task.op_kwargs
         self.assertEqual(rendered_kwargs.get("bucket_name"), "test_bucket")
         self.assertEqual(rendered_kwargs.get("oai_endpoint"), "foobar")
+        self.assertEqual(rendered_kwargs.get("included_sets"), ["col_20.500.12613_11"])
 
     def test_s3_to_sftp_bucket_renders_from_variable(self):
         """Unit test that s3_to_sftp resolves the S3 bucket from the Airflow Variable."""
-        _, rendered_fields = self.render_task(
+        task = self.render_task(
             "s3_to_sftp",
             DEFAULT_DATE.replace(minute=2),
         )
-        self.assertEqual(rendered_fields.get("s3_bucket"), "test_bucket")
+        self.assertEqual(task.s3_bucket, "test_bucket")

@@ -7,7 +7,6 @@ airflow trigger_dag --conf '[curly-braces]"maxLogAgeInDays":30[curly-braces]' ai
 """
 import os
 import logging
-import airflow
 import jinja2
 import pendulum
 

@@ -4,7 +4,6 @@ import os
 import pendulum
 
 from datetime import timedelta
-from airflow.models import Variable
 from airflow.providers.standard.operators.bash import BashOperator
 from cob_datapipeline.notifiers import send_collection_notification
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs

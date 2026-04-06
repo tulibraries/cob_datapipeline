@@ -174,7 +174,11 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             self._render_task("verify_prod_collection").execute(None)
 
     def test_we_calculate_correct_harvest_from_date(self):
-        self.assertEqual(CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE, "2020-06-07T00:00:00Z" )
+        task = self._render_task("update_variables")
+        self.assertEqual(
+            task.op_kwargs["UPDATE"]["CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE"],
+            "2020-06-07T00:00:00Z",
+        )
 
 
 

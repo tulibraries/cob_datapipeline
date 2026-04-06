@@ -1,9 +1,9 @@
 """Airflow DAG to index GENCON Databases into Solr."""
 import airflow
-import os
 import pendulum
 
 from datetime import timedelta
+from airflow.models import Variable
 from airflow.providers.standard.operators.bash import BashOperator
 
 """
@@ -16,7 +16,7 @@ initialized here if not found (i.e. if this is a new installation) & defaults ex
 AIRFLOW_HOME = "{{ var.value.AIRFLOW_HOME }}"
 AIRFLOW_USER_HOME = "{{ var.value.AIRFLOW_USER_HOME }}"
 
-SCHEDULE = os.getenv("GENCON_INDEX_SCHEDULE") or os.getenv("GENCON_INDEX_SCHEDULE_INTERVAL")
+SCHEDULE = Variable.get("GENCON_INDEX_SCHEDULE")
 
 GENCON_INDEX_BRANCH = "{{ var.value.GENCON_INDEX_BRANCH }}"
 GENCON_TEMP_PATH = "{{ var.value.GENCON_TEMP_PATH }}"

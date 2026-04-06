@@ -8,7 +8,6 @@ TEST_AIRFLOW_HOME = tempfile.mkdtemp(prefix="cob_airflow_home_", dir="/tmp")
 
 os.environ["AIRFLOW_HOME"] = TEST_AIRFLOW_HOME
 os.environ["AIRFLOW__CORE__UNIT_TEST_MODE"] = "True"
-os.environ["GENCON_INDEX_SCHEDULE"] = "@monthly"
 
 from airflow.models import Variable, Connection
 from airflow import settings
@@ -82,6 +81,7 @@ Variable.set("WEB_CONTENT_CONFIGSET", "tul_cob-web-1")
 Variable.set("WEB_CONTENT_CORE", "WEB_CONTENT_CORE")
 Variable.set("WEB_CONTENT_SOLR_CONFIG", {"configset": "tul_cob-web-2", "replication_factor": 4}, serialize_json=True)
 Variable.set("WEB_CONTENT_SCHEDULE_INTERVAL", "@weekly")
+Variable.set("GENCON_INDEX_SCHEDULE", "@monthly")
 Variable.set("GENCON_INDEX_BRANCH", "main")
 Variable.set("GENCON_TEMP_PATH", "/tmp/gencon")
 Variable.set("GENCON_CSV_S3", "s3://tulib-airflow-prod/gencon")

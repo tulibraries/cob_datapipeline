@@ -1,10 +1,9 @@
 """Airflow DAG to perform a full re-index tul_cob catalog into Production SolrCloud Collection."""
 import airflow
-import os
 import pendulum
 
-from datetime import datetime, timedelta
-from airflow.sdk import task_group, Connection
+from datetime import timedelta
+from airflow.sdk import task_group, Connection, Variable
 from airflow.providers.standard.operators.empty import EmptyOperator
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.providers.standard.operators.python import PythonOperator
@@ -44,7 +43,7 @@ PROD_COLLECTION_NAME = "{{ var.value.CATALOG_PRODUCTION_SOLR_COLLECTION }}"
 
 # Used to break up indexing into multiple processes.
 # Also used as a multiplier of the "prepare_alma_data" task group.
-CATALOG_INDEXING_MULTIPLIER = int(os.getenv("CATALOG_INDEXING_MULTIPLIER", "3"))
+CATALOG_INDEXING_MULTIPLIER = int(Variable.get("CATALOG_INDEXING_MULTIPLIER", default="3"))
 
 # Don't think we ever want to actually use this. Remove?
 LATEST_RELEASE = "{{ var.value.CATALOG_PROD_LATEST_RELEASE }}"
@@ -57,14 +56,8 @@ ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE = "{{ var.value.ALMASFTP_S3_ORIGINAL_DATA_NA
 ALMASFTP_S3_ORIGINAL_BW_DATA_NAMESPACE = "{{ var.value.ALMASFTP_S3_ORIGINAL_BW_DATA_NAMESPACE }}"
 
 CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE = (
-    datetime.strptime(
-        os.getenv("ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE", "2020060800"),
-        '%Y%m%d%H'
-    ) - timedelta(hours=24)
-).strftime("%Y-%m-%dT%H:%M:%SZ")
-CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE_TEMPLATE = (
     "{{ "
-    "(macros.datetime.strptime(var.value.ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE, '%Y%m%d%H') "
+    "(macros.datetime.strptime(var.value.get('ALMASFTP_S3_ORIGINAL_DATA_NAMESPACE', '2020060800'), '%Y%m%d%H') "
     "- macros.timedelta(hours=24)).strftime('%Y-%m-%dT%H:%M:%SZ') "
     "}}"
 )
@@ -316,7 +309,7 @@ with DAG as dag:
         op_kwargs={
             "UPDATE": {
                 "CATALOG_PRE_PRODUCTION_SOLR_COLLECTION": COLLECTION_NAME,
-                "CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE": CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE_TEMPLATE
+                "CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE": CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE
             }
         },
     )

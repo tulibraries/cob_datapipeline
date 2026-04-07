@@ -35,11 +35,10 @@ ALIAS = CONFIGSET + "-prod"
 REPLICATION_FACTOR = "{{ var.json.WEB_CONTENT_SOLR_CONFIG.replication_factor }}"
 WEB_CONTENT_BRANCH = "{{ var.value.WEB_CONTENT_PROD_BRANCH }}"
 SOLR_WEB_URL = (
-    "{% set solr = conn.get('SOLRCLOUD-WRITER') %}"
-    "{{ '' if solr.host.startswith('http') else 'http://' }}{{ solr.host }}"
-    "{% if solr.port %}:{{ solr.port }}{% endif %}/solr/"
-    + CONFIGSET
-    + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}"
+    tasks.get_solr_url_template(
+        "SOLRCLOUD-WRITER",
+        CONFIGSET + "-{{ ti.xcom_pull(task_ids='set_collection_name') }}",
+    )
 )
 
 # Manifold website creds

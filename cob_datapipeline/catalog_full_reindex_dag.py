@@ -4,6 +4,7 @@ import pendulum
 
 from datetime import timedelta
 from airflow.sdk import task_group, Connection, Variable
+from tulflow import tasks
 from airflow.providers.standard.operators.empty import EmptyOperator
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.providers.standard.operators.python import PythonOperator
@@ -62,10 +63,7 @@ CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE = (
     "}}"
 )
 SOLR_WRITER_URL = (
-    "{% set solr = conn.get('SOLRCLOUD-WRITER') %}"
-    "{{ '' if solr.host.startswith('http') else 'http://' }}{{ solr.host }}"
-    "{% if solr.port %}:{{ solr.port }}{% endif %}/solr/"
-    + COLLECTION_NAME
+    tasks.get_solr_url_template("SOLRCLOUD-WRITER", COLLECTION_NAME)
 )
 
 

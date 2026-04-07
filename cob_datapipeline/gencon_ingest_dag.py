@@ -3,6 +3,7 @@ import airflow
 import pendulum
 
 from datetime import timedelta
+from tulflow import tasks
 from airflow.models import Variable
 from airflow.providers.standard.operators.bash import BashOperator
 
@@ -28,10 +29,7 @@ AIRFLOW_DATA_BUCKET = "{{ var.value.AIRFLOW_DATA_BUCKET }}"
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 CONFIGSET = "{{ var.json.GENCON_SOLR_CONFIG.configset }}"
 SOLR_WEB_URL = (
-    "{% set solr = conn.get('SOLRCLOUD-WRITER') %}"
-    "{{ '' if solr.host.startswith('http') else 'http://' }}{{ solr.host }}"
-    "{% if solr.port %}:{{ solr.port }}{% endif %}/solr/"
-    + CONFIGSET
+    tasks.get_solr_url_template("SOLRCLOUD-WRITER", CONFIGSET)
 )
 
 # CREATE DAG

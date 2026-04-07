@@ -5,7 +5,7 @@ import airflow
 
 from datetime import timedelta
 from airflow.timetables.trigger import CronTriggerTimetable
-from tulflow import harvest
+from tulflow import harvest, tasks
 from airflow.providers.http.operators.http import HttpOperator
 from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from airflow.providers.standard.operators.bash import BashOperator
@@ -60,10 +60,7 @@ COB_INDEX_VERSION = "{{ var.value.PROD_COB_INDEX_VERSION }}"
 # Get Solr URL & Collection Name for indexing info; error out if not entered
 COLLECTION = "{{ var.value.CATALOG_PRODUCTION_SOLR_COLLECTION }}"
 SOLR_WRITER_URL = (
-    "{% set solr = conn.get('SOLRCLOUD-WRITER') %}"
-    "{{ '' if solr.host.startswith('http') else 'http://' }}{{ solr.host }}"
-    "{% if solr.port %}:{{ solr.port }}{% endif %}/solr/"
-    + COLLECTION
+    tasks.get_solr_url_template("SOLRCLOUD-WRITER", COLLECTION)
 )
 
 # Get S3 data bucket variables

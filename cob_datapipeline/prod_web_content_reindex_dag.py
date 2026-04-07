@@ -6,6 +6,7 @@ from datetime import timedelta
 from tulflow import tasks
 from airflow.models import Variable
 from airflow.providers.standard.operators.bash import BashOperator
+from cob_datapipeline import helpers
 from cob_datapipeline.notifiers import send_collection_notification
 from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
 from cob_datapipeline.operators import\
@@ -95,9 +96,8 @@ INDEX_WEB_CONTENT = BashOperator(
     task_id="index_web_content",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_web_content.sh ",
     env={
+        **helpers.solr_auth_env(),
         "HOME": AIRFLOW_USER_HOME,
-        "SOLR_AUTH_PASSWORD": "{{ conn.get('SOLRCLOUD-WRITER').password or '' }}",
-        "SOLR_AUTH_USER": "{{ conn.get('SOLRCLOUD-WRITER').login or '' }}",
         "SOLR_WEB_URL": SOLR_WEB_URL,
         "WEB_CONTENT_BASE_URL": WEB_CONTENT_BASE_URL,
         "WEB_CONTENT_BRANCH": WEB_CONTENT_BRANCH,

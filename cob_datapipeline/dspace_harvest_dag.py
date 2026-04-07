@@ -64,8 +64,7 @@ OAI_HARVEST = PythonOperator(
     task_id='oai_harvest',
     python_callable=harvest.oai_to_s3,
     op_kwargs={
-        "access_id": "{{ conn.AIRFLOW_S3.login }}",
-        "access_secret": "{{ conn.AIRFLOW_S3.password }}",
+        **helpers.airflow_s3_access_kwargs(),
         "bucket_name": AIRFLOW_DATA_BUCKET,
         "harvest_from_date": DSPACE_HARVEST_FROM_DATE,
         "harvest_until_date": DSPACE_HARVEST_UNTIL_DATE,
@@ -84,8 +83,7 @@ CLEANUP_DATA = PythonOperator(
     op_kwargs={
         "source_prefix": DAG.dag_id + "/" + S3_NAME_SPACE + "/new-updated",
         "destination_prefix": DAG.dag_id + "/" + S3_NAME_SPACE + "/cleaned",
-        "access_id": "{{ conn.AIRFLOW_S3.login }}",
-        "access_secret": "{{ conn.AIRFLOW_S3.password }}",
+        **helpers.airflow_s3_access_kwargs(),
         "bucket_name": AIRFLOW_DATA_BUCKET,
         "records_per_file": 1000,
         "timestamp": f"{ S3_NAME_SPACE }"
@@ -97,8 +95,7 @@ XSL_TRANSFORM = BashOperator(
     task_id="xsl_transform",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/transform.sh ",
     env={**os.environ, **{
-        "AWS_ACCESS_KEY_ID": "{{ conn.AIRFLOW_S3.login }}",
-        "AWS_SECRET_ACCESS_KEY": "{{ conn.AIRFLOW_S3.password }}",
+        **helpers.airflow_s3_env(),
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "DAG_ID": DAG.dag_id,
         "DAG_TS": S3_NAME_SPACE,

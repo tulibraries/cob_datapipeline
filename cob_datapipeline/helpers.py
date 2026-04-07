@@ -16,6 +16,27 @@ def determine_most_recent_date(files_list):
     return max([int(f.split("_")[date_position]) for f in files_list])
 
 
+def airflow_s3_access_kwargs():
+    return {
+        "access_id": "{{ conn.AIRFLOW_S3.login }}",
+        "access_secret": "{{ conn.AIRFLOW_S3.password }}",
+    }
+
+
+def airflow_s3_env():
+    return {
+        "AWS_ACCESS_KEY_ID": "{{ conn.AIRFLOW_S3.login }}",
+        "AWS_SECRET_ACCESS_KEY": "{{ conn.AIRFLOW_S3.password }}",
+    }
+
+
+def solr_auth_env(conn_id="SOLRCLOUD-WRITER"):
+    return {
+        "SOLR_AUTH_USER": "{{ conn.get('" + conn_id + "').login or '' }}",
+        "SOLR_AUTH_PASSWORD": "{{ conn.get('" + conn_id + "').password or '' }}",
+    }
+
+
 def catalog_safety_check():
     pre_prod_collection = Variable.get("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION", default_var=None)
     prod_collection = Variable.get("CATALOG_PRODUCTION_SOLR_COLLECTION", default_var=None)

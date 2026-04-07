@@ -3687,12 +3687,12 @@
         },
         "pytest": {
             "hashes": [
-                "sha256:711ffd45bf766d5264d487b917733b453d917afd2b0ad65223959f59089f875b",
-                "sha256:75186651a92bd89611d1d9fc20f0b4345fd827c41ccd5c299a868a05d70edf11"
+                "sha256:2c5efc453d45394fdd706ade797c0a81091eccd1d6e4bccfcd476e2b8e0ab5d9",
+                "sha256:b86ada508af81d19edeb213c681b1d48246c1a91d304c6c81a427674c17eb91c"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==9.0.2"
+            "version": "==9.0.3"
         },
         "python-daemon": {
             "hashes": [
@@ -4350,11 +4350,11 @@
         },
         "sqlglot": {
             "hashes": [
-                "sha256:ef4a67cc6f66a8043085eb8ea95fa9541c1625dffa9145ad4e9815a7ba60a199",
-                "sha256:f23d9ee9427ef9d20df15f9b0ffa57d9eb45e52b012219a349d1e6b50ed926d1"
+                "sha256:1106779f1900e15fd67e813e2571c4be32818b462f239909c1c2df16be74e334",
+                "sha256:e24d349e22b60632a0ec0633e15a41c951f67b01b60390ad8e2fb0548f35f440"
             ],
             "markers": "python_version >= '3.9'",
-            "version": "==30.2.1"
+            "version": "==30.3.0"
         },
         "sqlparse": {
             "hashes": [
@@ -4446,11 +4446,11 @@
         },
         "tulflow": {
             "hashes": [
-                "sha256:75fb4369686eb8c2ab28fca01a4feb9644dbbc35d9af95093d719d554dea7941",
-                "sha256:ad1c3d03a0ec4b54eec5bb280a781f3fe05d5687ed52e066bae9dd7fdbfb2020"
+                "sha256:00bcaed219adea5f6c0ac52d494a7561a9e4c1bd52044f8f760ff855c8bcfbd4",
+                "sha256:50bf126399a11933ef39c90cdd8036f972f99ddb22fd62f79e0ecf5c9cedb05c"
             ],
             "index": "pypi",
-            "version": "==1.0.1"
+            "version": "==1.0.2"
         },
         "typer": {
             "hashes": [

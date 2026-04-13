@@ -1,24 +1,24 @@
-from airflow.decorators import dag, task
-from airflow.hooks.base import BaseHook
+from airflow.sdk import dag, task, Connection
 from datetime import datetime
 from tulflow.solr_api_utils import SolrApiUtils
-from airflow.operators.empty import EmptyOperator
+from airflow.providers.standard.operators.empty import EmptyOperator
 from airflow.providers.slack.notifications.slack import send_slack_notification
 from airflow.providers.ssh.operators.ssh import SSHOperator
-import pdb
 
 slackpostonsuccess = send_slack_notification(channel="infra_alerts", username="airflow", text=":partygritty: {{ dag_run.logical_date }} DAG {{ dag.dag_id }} success: {{ ti.log_url }}")
 slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ dag_run.logical_date }} {{ ti.log_url }}")
 
-CONN = BaseHook.get_connection("SOLRCLOUD-WRITER")
-DB = SolrApiUtils(
-        solr_url=CONN.host,
-        auth_user=CONN.login,
-        auth_pass=CONN.password,)
+def get_solr_db():
+    conn = Connection.get("SOLRCLOUD-WRITER")
+    return SolrApiUtils(
+        solr_url=conn.host,
+        auth_user=conn.login,
+        auth_pass=conn.password,
+    )
 
 def backup_collection(collection: str):
     backup_path = f"/solr/admin/collections?action=BACKUP&name={collection}&collection={collection}&location=/srv/backups"
-    response = DB.get_from_solr_api(backup_path)
+    response = get_solr_db().get_from_solr_api(backup_path)
     if response.status_code == 200:
         print(f"Successfully backed up collection: {collection}")
     else:
@@ -28,7 +28,7 @@ def backup_collection(collection: str):
 @dag(
         dag_id="backup_collections",
         start_date=datetime(2023, 9, 17),
-        schedule_interval="0 6 * * *",
+        schedule="0 6 * * *",
         catchup=False,
         on_failure_callback=[slackpostonfail],
         default_args={ "retries": 2 },
@@ -38,7 +38,7 @@ def backup_collections_dag():
     # Task to get the list of collections
     @task
     def get_collections():
-        return DB.get_collections()
+        return get_solr_db().get_collections()
 
     # Task to iterate over the collections and trigger backups
     @task

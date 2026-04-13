@@ -5,15 +5,16 @@ airflow trigger_dag --conf '[curly-braces]"maxLogAgeInDays":30[curly-braces]' ai
 --conf options:
     maxLogAgeInDays:<INT> - Optional
 """
-from airflow.models import DAG, Variable
-from airflow.configuration import conf
-from airflow.operators.bash import BashOperator
-from airflow.operators.empty import EmptyOperator
-from datetime import timedelta
 import os
 import logging
-import airflow
 import jinja2
+import pendulum
+
+from airflow.sdk import DAG
+from airflow.configuration import conf
+from airflow.providers.standard.operators.bash import BashOperator
+from airflow.providers.standard.operators.empty import EmptyOperator
+from datetime import timedelta
 from airflow.providers.slack.notifications.slack import send_slack_notification
 
 slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ logical_date }} {{ ti.log_url }}")
@@ -21,19 +22,15 @@ slackpostonfail = send_slack_notification(channel="infra_alerts", username="airf
 
 # airflow-log-cleanup
 DAG_ID = os.path.basename(__file__).replace(".pyc", "").replace(".py", "")
-START_DATE = airflow.utils.dates.days_ago(1)
+START_DATE = pendulum.datetime(2025, 1, 1, tz="UTC")
 BASE_LOG_FOLDER = conf.get("logging", "BASE_LOG_FOLDER").rstrip("/")
 # How often to Run. @daily - Once a day at Midnight
-SCHEDULE_INTERVAL = "@daily"
+SCHEDULE = "@daily"
 # Who is listed as the owner of this DAG in the Airflow Web Server
 DAG_OWNER_NAME = "maintenance"
-# List of email address to send email alerts to if this job fails
-ALERT_EMAIL_ADDRESSES = ["svc.libdev@temple.edu"]
 # Length to retain the log files if not already provided in the conf. If this
 # is set to 30, the job will remove those files that are 30 days old or older
-DEFAULT_MAX_LOG_AGE_IN_DAYS = Variable.get(
-    "airflow_log_cleanup__max_log_age_in_days", 30
-)
+DEFAULT_MAX_LOG_AGE_IN_DAYS = "{{ var.value.get('airflow_log_cleanup__max_log_age_in_days', 30) }}"
 # Whether the job should delete the logs or not. Included if you want to
 # temporarily avoid deleting the logs
 ENABLE_DELETE = True
@@ -51,9 +48,7 @@ DIRECTORIES_TO_DELETE = [
     "prod_web_content_reindex",
     "maintenance_airflow-log-cleanup",
 ]
-ENABLE_DELETE_CHILD_LOG = Variable.get(
-    "airflow_log_cleanup__enable_delete_child_log", "False"
-)
+ENABLE_DELETE_CHILD_LOG = "{{ var.value.get('airflow_log_cleanup__enable_delete_child_log', 'False') }}"
 LOG_CLEANUP_PROCESS_LOCK_FILE = "/tmp/airflow_log_cleanup_worker_" + "{{params.directory}}" + ".lock"
 logging.info("ENABLE_DELETE_CHILD_LOG  " + ENABLE_DELETE_CHILD_LOG)
 
@@ -64,25 +59,22 @@ if not BASE_LOG_FOLDER or BASE_LOG_FOLDER.strip() == "":
         "appropriate directory path."
     )
 
-if ENABLE_DELETE_CHILD_LOG.lower() == "true":
-    try:
-        CHILD_PROCESS_LOG_DIRECTORY = conf.get(
-            "scheduler", "CHILD_PROCESS_LOG_DIRECTORY"
-        )
-        if CHILD_PROCESS_LOG_DIRECTORY != ' ':
-            DIRECTORIES_TO_DELETE.append(CHILD_PROCESS_LOG_DIRECTORY)
-    except Exception as e:
-        logging.exception(
-            "Could not obtain CHILD_PROCESS_LOG_DIRECTORY from " +
-            "Airflow Configurations: " + str(e)
-        )
+CHILD_PROCESS_LOG_DIRECTORY = None
+try:
+    CHILD_PROCESS_LOG_DIRECTORY = conf.get(
+        "scheduler", "CHILD_PROCESS_LOG_DIRECTORY"
+    )
+    if CHILD_PROCESS_LOG_DIRECTORY != ' ':
+        DIRECTORIES_TO_DELETE.append(CHILD_PROCESS_LOG_DIRECTORY)
+except Exception as e:
+    logging.exception(
+        "Could not obtain CHILD_PROCESS_LOG_DIRECTORY from " +
+        "Airflow Configurations: " + str(e)
+    )
 
 default_args = {
     'owner': DAG_OWNER_NAME,
     'depends_on_past': False,
-    'email': ALERT_EMAIL_ADDRESSES,
-    'email_on_failure': False,
-    'email_on_retry': False,
     'start_date': START_DATE,
     'on_failure_callback': [slackpostonfail],
     'retries': 1,
@@ -92,7 +84,7 @@ default_args = {
 dag = DAG(
     DAG_ID,
     default_args=default_args,
-    schedule_interval=SCHEDULE_INTERVAL,
+    schedule=SCHEDULE,
     start_date=START_DATE,
     template_undefined=jinja2.Undefined
 )
@@ -110,13 +102,15 @@ log_cleanup = """
 echo "Getting Configurations..."
 BASE_LOG_FOLDER="{{params.base_log_folder}}/{{params.directory}}"
 WORKER_SLEEP_TIME="{{params.sleep_time}}"
+ENABLE_DELETE_CHILD_LOG="{{ var.value.get('airflow_log_cleanup__enable_delete_child_log', 'False') }}"
+CHILD_PROCESS_LOG_DIRECTORY="{{ params.child_process_log_directory }}"
 
 sleep ${WORKER_SLEEP_TIME}s
 
 MAX_LOG_AGE_IN_DAYS="{{dag_run.conf.maxLogAgeInDays}}"
 if [ "${MAX_LOG_AGE_IN_DAYS}" == "" ]; then
-    echo "maxLogAgeInDays conf variable isn't included. Using Default '""" + str(DEFAULT_MAX_LOG_AGE_IN_DAYS) + """'."
-    MAX_LOG_AGE_IN_DAYS='""" + str(DEFAULT_MAX_LOG_AGE_IN_DAYS) + """'
+    echo "maxLogAgeInDays conf variable isn't included. Using Default '${DEFAULT_MAX_LOG_AGE_IN_DAYS}'."
+    MAX_LOG_AGE_IN_DAYS="${DEFAULT_MAX_LOG_AGE_IN_DAYS}"
 fi
 ENABLE_DELETE=""" + str("true" if ENABLE_DELETE else "false") + """
 echo "Finished Getting Configurations"
@@ -126,6 +120,12 @@ echo "Configurations:"
 echo "BASE_LOG_FOLDER:      '${BASE_LOG_FOLDER}'"
 echo "MAX_LOG_AGE_IN_DAYS:  '${MAX_LOG_AGE_IN_DAYS}'"
 echo "ENABLE_DELETE:        '${ENABLE_DELETE}'"
+echo "ENABLE_DELETE_CHILD_LOG: '${ENABLE_DELETE_CHILD_LOG}'"
+
+if [ "${BASE_LOG_FOLDER}" = "${CHILD_PROCESS_LOG_DIRECTORY}" ] && [ "${ENABLE_DELETE_CHILD_LOG,,}" != "true" ]; then
+    echo "Skipping child process log cleanup."
+    exit 0
+fi
 
 cleanup() {
     echo "Executing Find Statement: $1"
@@ -185,19 +185,19 @@ if [ ! -f """ + str(LOG_CLEANUP_PROCESS_LOCK_FILE) + """ ]; then
     echo "Running Cleanup Process..."
 
     FIND_STATEMENT="find ${BASE_LOG_FOLDER}/*/* -type f -mtime +${MAX_LOG_AGE_IN_DAYS}"
-    DELETE_STMT="${FIND_STATEMENT} -exec rm -f {} \;"
+    DELETE_STMT="${FIND_STATEMENT} -exec rm -f {} \\;"
 
     cleanup "${FIND_STATEMENT}" "${DELETE_STMT}"
     CLEANUP_EXIT_CODE=$?
 
     FIND_STATEMENT="find ${BASE_LOG_FOLDER}/*/* -type d -empty"
-    DELETE_STMT="${FIND_STATEMENT} -prune -exec rm -rf {} \;"
+    DELETE_STMT="${FIND_STATEMENT} -prune -exec rm -rf {} \\;"
 
     cleanup "${FIND_STATEMENT}" "${DELETE_STMT}"
     CLEANUP_EXIT_CODE=$?
 
     FIND_STATEMENT="find ${BASE_LOG_FOLDER}/* -type d -empty"
-    DELETE_STMT="${FIND_STATEMENT} -prune -exec rm -rf {} \;"
+    DELETE_STMT="${FIND_STATEMENT} -prune -exec rm -rf {} \\;"
 
     cleanup "${FIND_STATEMENT}" "${DELETE_STMT}"
     CLEANUP_EXIT_CODE=$?
@@ -233,6 +233,7 @@ for log_cleanup_id in range(1, NUMBER_OF_WORKERS + 1):
                 "directory": str(directory),
                 "sleep_time": int(log_cleanup_id)*3,
                 "base_log_folder": str(BASE_LOG_FOLDER),
+                "child_process_log_directory": str(CHILD_PROCESS_LOG_DIRECTORY or ""),
                 },
             dag=dag)
 

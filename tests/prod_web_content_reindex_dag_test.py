@@ -1,9 +1,17 @@
 """Unit Tests for the Prod TUL Cob Web Content Index DAG."""
 import os
 import unittest
-import airflow
-import pendulum
+from unittest.mock import patch
+os.environ.setdefault("WEB_CONTENT_SCHEDULE_INTERVAL", "@weekly")
+
+from airflow.models import TaskInstance as TI
+from airflow.models.dagrun import DagRun
+from airflow.settings import Session
+from airflow.utils.state import DagRunState, State
+from airflow.utils.types import DagRunType
+
 from cob_datapipeline.prod_web_content_reindex_dag import DAG
+from tests.helpers import DEFAULT_DATE
 
 class TestProdWebContentReindexDag(unittest.TestCase):
     """Primary Class for Testing the TUL Cob Web Content DAG."""
@@ -18,7 +26,7 @@ class TestProdWebContentReindexDag(unittest.TestCase):
 
     def test_dag_interval_is_variable(self):
         """Unit test that the DAG schedule is set by configuration"""
-        self.assertEqual(DAG.schedule_interval, "@weekly")
+        self.assertEqual(DAG.schedule, "@weekly")
 
     def test_dag_tasks_present(self):
         """Unit test that the DAG instance contains the expected tasks."""
@@ -55,11 +63,36 @@ class TestProdWebContentReindexDag(unittest.TestCase):
 
     def test_index_web_content_task(self):
         """Unit test that the DAG instance can find required solr indexing bash script."""
-        task = DAG.get_task("index_web_content")
-        airflow_home = airflow.models.Variable.get("AIRFLOW_HOME")
-        expected_bash_path = airflow_home + "/dags/cob_datapipeline/scripts/ingest_web_content.sh "
+        task = self.render_task("index_web_content", DEFAULT_DATE.replace(minute=1))
+        expected_bash_path = os.getcwd() + "/dags/cob_datapipeline/scripts/ingest_web_content.sh "
         self.assertEqual(task.bash_command, expected_bash_path)
         self.assertEqual(task.env["HOME"], os.getcwd())
-        self.assertIn("http://127.0.0.1:8983/solr/tul_cob-web-2", task.env["SOLR_WEB_URL"])
+        self.assertEqual(task.env["SOLR_WEB_URL"], "http://127.0.0.1:8983/solr/tul_cob-web-2-collection_test")
         self.assertIn("http://127.0.0.2", task.env["WEB_CONTENT_BASE_URL"])
         self.assertEqual(task.env["WEB_CONTENT_BRANCH"], "WEB_CONTENT_BRANCH")
+
+    def render_task(self, task_id, logical_date):
+        """Method to render templated fields for a task."""
+        session = Session()
+        run_id = f"test_run_{task_id}_{logical_date.minute}"
+        session.add(DagRun(
+            dag_id=DAG.dag_id,
+            run_id=run_id,
+            logical_date=logical_date,
+            run_after=logical_date,
+            state=DagRunState.RUNNING,
+            run_type=DagRunType.MANUAL,
+        ))
+        session.commit()
+
+        task = DAG.get_task(task_id)
+        task_instance = TI(
+            task=task,
+            run_id=run_id,
+            dag_version_id=None,
+            state=State.SUCCESS,
+        )
+        context = task_instance.get_template_context()
+        with patch.object(context["ti"], "xcom_pull", return_value="collection_test"):
+            task.render_template_fields(context)
+        return task

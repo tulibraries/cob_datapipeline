@@ -1,15 +1,22 @@
 """Unit Tests for the TUL Cob Catalog Full Reindex DAG."""
-import os
 import unittest
-from unittest.mock import patch
-import requests
 import requests_mock
 import airflow
+import uuid
+
+from datetime import datetime, timezone
+from airflow.providers.standard.operators.python import PythonOperator
+from airflow.models import TaskInstance as TI
+from airflow.models.dagrun import DagRun
+from airflow.settings import Session
+from airflow.utils.state import DagRunState, State
+from airflow.utils.types import DagRunType
+from unittest.mock import patch
+from tests.helpers import get_connection
 from cob_datapipeline.catalog_full_reindex_dag import DAG,\
         CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE, \
         split_list
         
-from tests.helpers import get_connection
 
 class TestCatalogFullReindexDag(unittest.TestCase):
     """Unit Tests for solrcloud catalog full reindex dag file."""
@@ -97,6 +104,47 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             upstream_tasks.sort()
             self.assertEqual(upstream_tasks, upstream_list)
 
+    def _render_task(self, task_id):
+        session = Session()
+        run_id = f"{task_id}_{uuid.uuid4()}"
+        logical_date = datetime.now(timezone.utc)
+        session.add(DagRun(
+            dag_id=DAG.dag_id,
+            run_id=run_id,
+            logical_date=logical_date,
+            run_after=logical_date,
+            state=DagRunState.RUNNING,
+            run_type=DagRunType.MANUAL,
+        ))
+        session.commit()
+
+        task = DAG.get_task(task_id)
+        task_instance = TI(
+            task=task,
+            run_id=run_id,
+            dag_version_id=None,
+            state=State.SUCCESS
+        )
+        task.render_template_fields(task_instance.get_template_context())
+        return task
+
+    def test_delete_collections_is_runtime_wrapper(self):
+        task = DAG.get_task("delete_collections")
+        self.assertIsInstance(task, PythonOperator)
+        self.assertEqual(task.python_callable.__name__, "delete_collections_runtime")
+
+    def test_verify_prod_collection_endpoint_renders(self):
+        task = self._render_task("verify_prod_collection")
+        self.assertEqual(task.endpoint, "/okcomputer/solr/foo")
+
+    def test_create_collection_name_renders(self):
+        task = self._render_task("create_collection")
+        self.assertEqual(task.op_kwargs["collection"], "FOO")
+
+    def test_solr_commit_endpoint_renders(self):
+        task = self._render_task("solr_commit")
+        self.assertEqual(task.endpoint, "/solr/FOO/update?commit=true")
+
     @requests_mock.mock()
     def test_verify_prod_collection_task(self, mock_request):
 
@@ -105,10 +153,10 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             status_code=200,
             text='OK')
 
-        with DAG, patch('airflow.hooks.base.BaseHook.get_connection',
+        with DAG, patch('airflow.sdk.bases.hook.BaseHook.get_connection',
                    side_effect=get_connection):
 
-            DAG.get_task("verify_prod_collection").execute(None)
+            self._render_task("verify_prod_collection").execute(None)
 
 
     @requests_mock.mock()
@@ -120,13 +168,17 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             reason='Not Found',
             text='Boo')
 
-        with DAG, patch('airflow.hooks.base.BaseHook.get_connection',
+        with DAG, patch('airflow.sdk.bases.hook.BaseHook.get_connection',
                 side_effect=get_connection), self.assertRaises(airflow.exceptions.AirflowException):
 
-            DAG.get_task("verify_prod_collection").execute(None)
+            self._render_task("verify_prod_collection").execute(None)
 
     def test_we_calculate_correct_harvest_from_date(self):
-        self.assertEqual(CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE, "2020-06-07T00:00:00Z" )
+        task = self._render_task("update_variables")
+        self.assertEqual(
+            task.op_kwargs["UPDATE"]["CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE"],
+            "2020-06-07T00:00:00Z",
+        )
 
 
 
@@ -176,4 +228,3 @@ class TestSplitListFunction(unittest.TestCase):
         self.assertEqual(result, expected_output)
 if __name__ == '__main__':
     unittest.main()
-

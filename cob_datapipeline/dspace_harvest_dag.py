@@ -1,16 +1,15 @@
 """Airflow DAG to harvest DSpace electronic theses and dissertations"""
-from datetime import datetime, timedelta
 import os
 import pendulum
+import airflow
+
+from datetime import timedelta
 from tulflow import harvest
 from cob_datapipeline import helpers
-from airflow.hooks.base import BaseHook
-from airflow.models import Variable
-from airflow.operators.bash import BashOperator
-from airflow.operators.python import PythonOperator
+from airflow.providers.standard.operators.bash import BashOperator
+from airflow.providers.standard.operators.python import PythonOperator
 from airflow.providers.amazon.aws.operators.s3 import S3ListOperator
 from cob_datapipeline.operators.batch_s3_to_sftp_operator import BatchS3ToSFTPOperator
-import airflow
 from airflow.providers.slack.notifications.slack import send_slack_notification
 
 slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ dag_run.logical_date }} {{ ti.log_url }}")
@@ -21,30 +20,26 @@ check for existence of systemwide variables shared across tasks that can be
 initialized here if not found (i.e. if this is a new installation)
 """
 
-AIRFLOW_HOME = Variable.get("AIRFLOW_HOME")
-AIRFLOW_USER_HOME = Variable.get("AIRFLOW_USER_HOME")
+AIRFLOW_HOME = "{{ var.value.AIRFLOW_HOME }}"
+AIRFLOW_USER_HOME = "{{ var.value.AIRFLOW_USER_HOME }}"
 
 # Get S3 data bucket variables
-AIRFLOW_S3 = BaseHook.get_connection("AIRFLOW_S3")
-AIRFLOW_DATA_BUCKET = Variable.get("AIRFLOW_DATA_BUCKET")
+AIRFLOW_DATA_BUCKET = "{{ var.value.AIRFLOW_DATA_BUCKET }}"
 S3_NAME_SPACE = '{{ logical_date.strftime("%Y-%m-%d_%H-%M-%S") }}'
 
 # OAI Harvest Variables
-DSPACE_HARVEST_FROM_DATE = Variable.get("DSPACE_HARVEST_FROM_DATE")
+DSPACE_HARVEST_FROM_DATE = "{{ var.value.DSPACE_HARVEST_FROM_DATE }}"
 DEFAULT_HARVEST_UNTIL_DATE = '{{ logical_date.strftime("%Y-%m-%dT%H:%M:%SZ") }}'
-DSPACE_HARVEST_UNTIL_DATE = Variable.get("DSPACE_HARVEST_UNTIL_DATE", default_var=DEFAULT_HARVEST_UNTIL_DATE)
-DSPACE_OAI_CONFIG = Variable.get("DSPACE_OAI_CONFIG", deserialize_json=True)
-DSPACE_OAI_MD_PREFIX = DSPACE_OAI_CONFIG.get("md_prefix")
-DSPACE_OAI_ENDPOINT = DSPACE_OAI_CONFIG.get("endpoint")
-DSPACE_OAI_INCLUDED_SETS = DSPACE_OAI_CONFIG.get("included_sets")
+DSPACE_HARVEST_UNTIL_DATE = "{{ var.value.get('DSPACE_HARVEST_UNTIL_DATE', logical_date.strftime('%Y-%m-%dT%H:%M:%SZ')) }}"
+DSPACE_OAI_MD_PREFIX = "{{ var.json.DSPACE_OAI_CONFIG.md_prefix }}"
+DSPACE_OAI_ENDPOINT = "{{ var.json.DSPACE_OAI_CONFIG.endpoint }}"
+DSPACE_OAI_INCLUDED_SETS = "{{ var.json.DSPACE_OAI_CONFIG.get('included_sets', [var.json.DSPACE_OAI_CONFIG.setspec]) }}"
 
 # CREATE DAG
 DEFAULT_ARGS = {
     'owner': 'cob',
     'depends_on_past': False,
     'start_date': pendulum.datetime(2018, 12, 13, tz="UTC"),
-    'email_on_failure': False,
-    'email_on_retry': False,
     "on_failure_callback": [slackpostonfail],
     'retries': 5,
     'retry_delay': timedelta(minutes=5),
@@ -55,6 +50,7 @@ DAG = airflow.DAG(
     default_args=DEFAULT_ARGS,
     catchup=False,
     max_active_runs=1,
+    render_template_as_native_obj=True,
     schedule=None
 )
 
@@ -68,8 +64,7 @@ OAI_HARVEST = PythonOperator(
     task_id='oai_harvest',
     python_callable=harvest.oai_to_s3,
     op_kwargs={
-        "access_id": AIRFLOW_S3.login,
-        "access_secret": AIRFLOW_S3.password,
+        **helpers.airflow_s3_access_kwargs(),
         "bucket_name": AIRFLOW_DATA_BUCKET,
         "harvest_from_date": DSPACE_HARVEST_FROM_DATE,
         "harvest_until_date": DSPACE_HARVEST_UNTIL_DATE,
@@ -88,8 +83,7 @@ CLEANUP_DATA = PythonOperator(
     op_kwargs={
         "source_prefix": DAG.dag_id + "/" + S3_NAME_SPACE + "/new-updated",
         "destination_prefix": DAG.dag_id + "/" + S3_NAME_SPACE + "/cleaned",
-        "access_id": AIRFLOW_S3.login,
-        "access_secret": AIRFLOW_S3.password,
+        **helpers.airflow_s3_access_kwargs(),
         "bucket_name": AIRFLOW_DATA_BUCKET,
         "records_per_file": 1000,
         "timestamp": f"{ S3_NAME_SPACE }"
@@ -101,8 +95,7 @@ XSL_TRANSFORM = BashOperator(
     task_id="xsl_transform",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/transform.sh ",
     env={**os.environ, **{
-        "AWS_ACCESS_KEY_ID": AIRFLOW_S3.login,
-        "AWS_SECRET_ACCESS_KEY": AIRFLOW_S3.password,
+        **helpers.airflow_s3_env(),
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "DAG_ID": DAG.dag_id,
         "DAG_TS": S3_NAME_SPACE,
@@ -119,7 +112,7 @@ LIST_S3_FILES = S3ListOperator(
     task_id="list_s3_files",
     bucket=AIRFLOW_DATA_BUCKET,
     prefix=DAG.dag_id + "/" + S3_NAME_SPACE + "/transformed/",
-    aws_conn_id=AIRFLOW_S3.conn_id,
+    aws_conn_id="AIRFLOW_S3",
     dag=DAG
 )
 
@@ -128,7 +121,7 @@ S3_TO_SFTP = BatchS3ToSFTPOperator(
     sftp_conn_id="DSPACESFTP",
     xcom_id="list_s3_files",
     sftp_base_path="production/",
-    aws_conn_id=AIRFLOW_S3.conn_id,
+    aws_conn_id="AIRFLOW_S3",
     s3_bucket=AIRFLOW_DATA_BUCKET,
     s3_prefix="dspace_harvest/" + S3_NAME_SPACE + "/transformed",
     dag=DAG

@@ -1,20 +1,21 @@
 # pylint: disable=missing-docstring,line-too-long
 
-import datetime
 import unittest
 from unittest.mock import patch
 import requests_mock
-from airflow.models import DAG
-from airflow.models.taskinstance import TaskInstance as TI
+from airflow.models import DAG, TaskInstance as TI
+from airflow.models.dagrun import DagRun
 from airflow.models.renderedtifields import RenderedTaskInstanceFields as RTIF
-from airflow.utils.state import State
-from airflow import settings
+from airflow.settings import Session
+from airflow.utils.state import DagRunState, State
+from airflow.utils.types import DagRunType
 from cob_datapipeline.models import ListVariable
 from cob_datapipeline.operators import DeleteAlias,\
         DeleteAliasBatch,\
         DeleteAliasListVariable
 from tests.helpers import get_connection
 from tests.helpers import DEFAULT_DATE
+
 
 class DeleteAliasTest(unittest.TestCase):
 
@@ -30,6 +31,7 @@ class DeleteAliasTest(unittest.TestCase):
             solr_conn_id='solr_conn_id')
 
         self.assertEqual(task.data, {'name': 'foo', 'action': 'DELETEALIAS'})
+
 
 class DeleteAliasBatchTest(unittest.TestCase):
 
@@ -50,6 +52,7 @@ class DeleteAliasBatchTest(unittest.TestCase):
         self.assertEqual(task.skip_from_last, 0)
         self.assertTrue(task.rescue_failure)
         self.assertEqual(task.data, {'name': None, 'action': 'DELETEALIAS'})
+
 
 class DeleteAliasListVariableTest(unittest.TestCase):
 
@@ -80,7 +83,7 @@ class DeleteAliasListVariableTest(unittest.TestCase):
             reason='OK')
 
 
-        with patch('airflow.hooks.base.BaseHook.get_connection',
+        with patch('airflow.sdk.bases.hook.BaseHook.get_connection',
                    side_effect=get_connection):
             aliases = ['fool']
             ListVariable.set('fool', aliases)
@@ -94,22 +97,24 @@ class DeleteAliasListVariableTest(unittest.TestCase):
             self.assertEqual(ListVariable.get('fool'), [])
 
     def test_execute_with_existing_templated_value(self):
-        session = settings.Session()
         dag = DAG(dag_id='test_dag_2', start_date=DEFAULT_DATE)
-        data_interval= (DEFAULT_DATE, DEFAULT_DATE + datetime.timedelta(days=1))
-        with dag:
-            dag_run = dag.create_dagrun(
-                    run_id="test_execute_with_existing_templated_value", state=State.SUCCESS,
-                    data_interval=data_interval,
-                    execution_date=DEFAULT_DATE, start_date=DEFAULT_DATE,
-                    session=session,
-                    )
-            task = DeleteAliasListVariable(
-                task_id='test_task',
-                list_variable='{{task_instance.task_id}}',
-                solr_conn_id='solr_conn_id',
-                dag=dag)
-            task_instance = TI(task=task, run_id=dag_run.run_id, state=State.SUCCESS)
-            rendered_ti_fields = RTIF(ti=task_instance)
+        run_id = "test_execute_with_existing_templated_value"
+        session = Session()
+        session.add(DagRun(
+            dag_id=dag.dag_id,
+            run_id=run_id,
+            logical_date=DEFAULT_DATE,
+            run_after=DEFAULT_DATE,
+            state=DagRunState.RUNNING,
+            run_type=DagRunType.MANUAL,
+        ))
+        session.commit()
+        task = DeleteAliasListVariable(
+            task_id='test_task',
+            list_variable='{{task_instance.task_id}}',
+            solr_conn_id='solr_conn_id',
+            dag=dag)
+        task_instance = TI(task=task, run_id=run_id, dag_version_id=None, state=State.SUCCESS)
+        rendered_ti_fields = RTIF(ti=task_instance)
 
-            self.assertEqual(rendered_ti_fields.rendered_fields.get('list_variable'), 'test_task')
+        self.assertEqual(rendered_ti_fields.rendered_fields.get('list_variable'), 'test_task')

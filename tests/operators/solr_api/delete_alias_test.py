@@ -5,7 +5,6 @@ from unittest.mock import patch
 import requests_mock
 from airflow.models import DAG, TaskInstance as TI
 from airflow.models.dagrun import DagRun
-from airflow.models.renderedtifields import RenderedTaskInstanceFields as RTIF
 from airflow.settings import Session
 from airflow.utils.state import DagRunState, State
 from airflow.utils.types import DagRunType
@@ -13,8 +12,7 @@ from cob_datapipeline.models import ListVariable
 from cob_datapipeline.operators import DeleteAlias,\
         DeleteAliasBatch,\
         DeleteAliasListVariable
-from tests.helpers import get_connection
-from tests.helpers import DEFAULT_DATE
+from tests.helpers import DEFAULT_DATE, get_connection, get_rendered_task_fields
 
 
 class DeleteAliasTest(unittest.TestCase):
@@ -115,6 +113,5 @@ class DeleteAliasListVariableTest(unittest.TestCase):
             solr_conn_id='solr_conn_id',
             dag=dag)
         task_instance = TI(task=task, run_id=run_id, dag_version_id=None, state=State.SUCCESS)
-        rendered_ti_fields = RTIF(ti=task_instance)
 
-        self.assertEqual(rendered_ti_fields.rendered_fields.get('list_variable'), 'test_task')
+        self.assertEqual(get_rendered_task_fields(task_instance).get('list_variable'), 'test_task')

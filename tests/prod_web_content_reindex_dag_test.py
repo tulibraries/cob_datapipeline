@@ -11,7 +11,7 @@ from airflow.utils.state import DagRunState, State
 from airflow.utils.types import DagRunType
 
 from cob_datapipeline.prod_web_content_reindex_dag import DAG
-from tests.helpers import DEFAULT_DATE
+from tests.helpers import DEFAULT_DATE, get_runtime_template_context
 
 class TestProdWebContentReindexDag(unittest.TestCase):
     """Primary Class for Testing the TUL Cob Web Content DAG."""
@@ -92,7 +92,7 @@ class TestProdWebContentReindexDag(unittest.TestCase):
             dag_version_id=None,
             state=State.SUCCESS,
         )
-        context = task_instance.get_template_context()
+        context = get_runtime_template_context(task_instance)
         with patch.object(context["ti"], "xcom_pull", return_value="collection_test"):
             task.render_template_fields(context)
         return task

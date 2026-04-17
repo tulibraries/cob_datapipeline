@@ -8,7 +8,7 @@ from airflow.utils.state import DagRunState, State
 from airflow.utils.types import DagRunType
 
 from cob_datapipeline.dspace_harvest_dag import DAG
-from tests.helpers import DEFAULT_DATE
+from tests.helpers import DEFAULT_DATE, render_task_instance_fields
 
 class TestDspaceHarvestDag(unittest.TestCase):
     """Unit Tests for the DSpace harvest DAG"""
@@ -66,9 +66,7 @@ class TestDspaceHarvestDag(unittest.TestCase):
             dag_version_id=None,
             state=State.SUCCESS
         )
-        context = task_instance.get_template_context()
-        task.render_template_fields(context)
-        return task
+        return render_task_instance_fields(task_instance)
 
     def test_oai_harvest_task(self):
         """Unit test that oai_harvest dag has kwargs."""

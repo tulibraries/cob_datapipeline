@@ -2,13 +2,12 @@
 import unittest
 from airflow.models import DAG, TaskInstance as TI
 from airflow.models.dagrun import DagRun
-from airflow.models.renderedtifields import RenderedTaskInstanceFields as RTIF
 from airflow.settings import Session
 from airflow.utils.state import DagRunState, State
 from airflow.utils.types import DagRunType
 from cob_datapipeline.operators import PushVariable
 from cob_datapipeline.models import ListVariable
-from tests.helpers import DEFAULT_DATE
+from tests.helpers import DEFAULT_DATE, get_rendered_task_fields
 
 
 class PushVariableTest(unittest.TestCase):
@@ -64,6 +63,5 @@ class PushVariableTest(unittest.TestCase):
 
         task = PushVariable(dag=dag, task_id='test_task', name='foo', value='{{task_instance.task_id}}')
         task_instance = TI(task=task, run_id=run_id, dag_version_id=None, state=State.SUCCESS)
-        rendered_ti_fields = RTIF(ti=task_instance)
 
-        self.assertEqual(rendered_ti_fields.rendered_fields.get('value'), 'test_task')
+        self.assertEqual(get_rendered_task_fields(task_instance).get('value'), 'test_task')

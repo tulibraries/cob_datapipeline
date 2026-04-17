@@ -3,13 +3,12 @@ import unittest
 
 from airflow.models import TaskInstance as TI
 from airflow.models.dagrun import DagRun
-from airflow.models.renderedtifields import RenderedTaskInstanceFields as RTIF
 from airflow.settings import Session
 from airflow.utils.state import DagRunState, State
 from airflow.utils.types import DagRunType
 
 from cob_datapipeline.boundwith_move_alma_sftp_to_s3_dag import DAG
-from tests.helpers import DEFAULT_DATE
+from tests.helpers import DEFAULT_DATE, get_rendered_task_fields
 
 
 class TestMoveAlmaSFTPBwToS3Dag(unittest.TestCase):
@@ -60,9 +59,7 @@ class TestMoveAlmaSFTPBwToS3Dag(unittest.TestCase):
             state=State.SUCCESS
         )
 
-        rendered_ti_fields = RTIF(ti=task_instance)
-
         self.assertEqual(
-            rendered_ti_fields.rendered_fields.get("s3_bucket"),
+            get_rendered_task_fields(task_instance).get("s3_bucket"),
             "test_bucket"
         )

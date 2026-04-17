@@ -12,7 +12,7 @@ from airflow.settings import Session
 from airflow.utils.state import DagRunState, State
 from airflow.utils.types import DagRunType
 from unittest.mock import patch
-from tests.helpers import get_connection
+from tests.helpers import get_connection, render_task_instance_fields
 from cob_datapipeline.catalog_full_reindex_dag import DAG,\
         CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE, \
         split_list
@@ -125,7 +125,7 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             dag_version_id=None,
             state=State.SUCCESS
         )
-        task.render_template_fields(task_instance.get_template_context())
+        render_task_instance_fields(task_instance)
         return task
 
     def test_delete_collections_is_runtime_wrapper(self):

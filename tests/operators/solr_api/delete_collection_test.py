@@ -10,7 +10,6 @@ import requests_mock
 from airflow.models import DAG
 from airflow.models.dagrun import DagRun
 from airflow.models.taskinstance import TaskInstance as TI
-from airflow.models.renderedtifields import RenderedTaskInstanceFields as RTIF
 from airflow.settings import Session
 from airflow.utils.state import DagRunState, State
 from airflow.utils.types import DagRunType
@@ -18,7 +17,7 @@ from airflow.utils.types import DagRunType
 from cob_datapipeline.models import ListVariable
 from cob_datapipeline.operators import DeleteCollection,\
         DeleteCollectionBatch, DeleteCollectionListVariable
-from tests.helpers import get_connection, DEFAULT_DATE
+from tests.helpers import DEFAULT_DATE, get_connection, get_rendered_task_fields
 
 
 def logged_messages(mock_info):
@@ -465,6 +464,5 @@ class DeleteCollectionListVariableTest(unittest.TestCase):
             solr_conn_id='solr_conn_id',
             dag=dag)
         task_instance = TI(task=task, run_id=run_id, dag_version_id=None, state=State.SUCCESS)
-        rendered_ti_fields = RTIF(ti=task_instance)
 
-        self.assertEqual(rendered_ti_fields.rendered_fields.get('list_variable'), 'test_task')
+        self.assertEqual(get_rendered_task_fields(task_instance).get('list_variable'), 'test_task')

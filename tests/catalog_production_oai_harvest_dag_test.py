@@ -4,13 +4,12 @@ import unittest
 
 from airflow.models import TaskInstance as TI
 from airflow.models.dagrun import DagRun
-from airflow.models.renderedtifields import RenderedTaskInstanceFields as RTIF
 from airflow.settings import Session
 from airflow.utils.state import DagRunState, State
 from airflow.utils.types import DagRunType
 
 from cob_datapipeline.catalog_production_oai_harvest_dag import DAG
-from tests.helpers import DEFAULT_DATE
+from tests.helpers import DEFAULT_DATE, get_rendered_task_fields
 
 class TestCatalogProductionOaiHarvest(unittest.TestCase):
     """Unit Tests for solrcloud catalog production oai harvest dag file."""
@@ -37,7 +36,7 @@ class TestCatalogProductionOaiHarvest(unittest.TestCase):
             state=State.SUCCESS,
         )
 
-        return task, RTIF(ti=task_instance).rendered_fields
+        return task, get_rendered_task_fields(task_instance)
 
     def test_index_deletes_oai_marc(self):
         task, rendered_fields = self.render_task(

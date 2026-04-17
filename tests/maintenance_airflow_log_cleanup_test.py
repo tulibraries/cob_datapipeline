@@ -9,7 +9,7 @@ from airflow.settings import Session
 from airflow.utils.state import DagRunState, State
 from airflow.utils.types import DagRunType
 
-from tests.helpers import DEFAULT_DATE
+from tests.helpers import DEFAULT_DATE, render_task_instance_fields
 
 
 MODULE_PATH = os.path.join(
@@ -52,9 +52,7 @@ class TestMaintenanceAirflowLogCleanupDag(unittest.TestCase):
             dag_version_id=None,
             state=State.SUCCESS,
         )
-        context = task_instance.get_template_context()
-        task.render_template_fields(context)
-        return task
+        return render_task_instance_fields(task_instance)
 
     def test_dag_loads(self):
         """Unit test that the DAG identifier is set correctly."""

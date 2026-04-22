@@ -96,7 +96,7 @@ CREATE_COLLECTION = tasks.create_sc_collection(
 INDEX_DATABASES = BashOperator(
     task_id="index_az",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_databases.sh ",
-    env={**os.environ, **{
+    env={**{
         **helpers.solr_auth_env(),
         "HOME": AIRFLOW_USER_HOME,
         "SOLR_AZ_URL": SOLR_AZ_URL,

@@ -32,6 +32,27 @@ class TestDetermineMostRecentDate(unittest.TestCase):
         airflow.models.Variable.set("CATALOG_PRE_PRODUCTION_SOLR_COLLECTION", "BAR")
         self.assertEqual(None, helpers.catalog_safety_check())
 
+    def test_solr_reindex_safety_check(self):
+        self.assertRaises(
+            Exception,
+            helpers.solr_reindex_safety_check,
+            alias="foo-prod",
+            collection="foo-prod",
+        )
+        self.assertRaises(
+            Exception,
+            helpers.solr_reindex_safety_check,
+            alias="",
+            collection="foo-2020",
+        )
+        self.assertEqual(
+            None,
+            helpers.solr_reindex_safety_check(
+                alias="foo-prod",
+                collection="foo-2020",
+            ),
+        )
+
     def test_catalog_collection_name(self):
         name = helpers.catalog_collection_name(
             configset="bizz",

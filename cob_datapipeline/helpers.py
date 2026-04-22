@@ -44,6 +44,21 @@ def catalog_safety_check():
     if pre_prod_collection == prod_collection and pre_prod_collection != None:
         raise Exception("The pre production collection cannot be equal to the production collection.")
 
+
+def solr_collection_safety_check(collection):
+    if collection in [None, "", "None"]:
+        raise Exception("The Solr collection cannot be blank.")
+
+
+def solr_reindex_safety_check(alias, collection):
+    if alias in [None, "", "None"]:
+        raise Exception("The Solr alias cannot be blank.")
+
+    solr_collection_safety_check(collection)
+
+    if alias == collection:
+        raise Exception("The Solr alias cannot be equal to the target collection.")
+
 def catalog_collection_name(configset, cob_index_version):
     default_name = f"{ configset }.{ cob_index_version }" + "-{{ ti.xcom_pull(task_ids='set_s3_namespace') }}"
     return (

@@ -12,7 +12,7 @@ export PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH"
 : "${GENCON_TEMP_PATH:?GENCON_TEMP_PATH must be set}"
 : "${GENCON_CSV_S3:?GENCON_CSV_S3 must be set}"
 : "${GIT_BRANCH:?GIT_BRANCH must be set}"
-: "${SOLR_WEB_URL:?SOLR_WEB_URL must be set}"
+: "${SOLR_URL:?SOLR_URL must be set}"
 
 for required_command in aws git bundle ruby; do
   if ! command -v "$required_command" >/dev/null 2>&1; then
@@ -20,9 +20,6 @@ for required_command in aws git bundle ruby; do
     exit 1
   fi
 done
-
-# Insert solr username and password into URL
-export SOLR_URL="${SOLR_WEB_URL//\/\////$SOLR_AUTH_USER:$SOLR_AUTH_PASSWORD@}"
 
 # Get the raw CSV files from S3
 mkdir -p "$GENCON_TEMP_PATH"
@@ -46,4 +43,4 @@ fi
 bundle config set force_ruby_platform true
 bundle install --without=debug
 
-ruby harvest_all.rb
+bundle exec ruby harvest_all.rb

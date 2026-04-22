@@ -1,4 +1,5 @@
 # PyTest Configuration file.
+import json
 import os
 import shutil
 import subprocess
@@ -11,11 +12,57 @@ os.environ["AIRFLOW__CORE__UNIT_TEST_MODE"] = "True"
 
 from airflow.models import Variable, Connection
 from airflow import settings
+from airflow.exceptions import AirflowNotFoundException
 from airflow.settings import Session
+from airflow.sdk.execution_time import context as sdk_context
+from airflow.sdk.execution_time.comms import ErrorResponse
+from airflow.sdk.exceptions import AirflowRuntimeError, ErrorType
 from airflow.utils import db
+
+
+def _sdk_test_get_variable(key, deserialize_json):
+    variable = Session.query(Variable).filter(Variable.key == key).one_or_none()
+    if variable is None or variable.val is None:
+        raise AirflowRuntimeError(
+            ErrorResponse(
+                error=ErrorType.VARIABLE_NOT_FOUND,
+                detail={"message": f"Variable {key} not found"},
+            )
+        )
+
+    if deserialize_json:
+        return json.loads(variable.val)
+
+    return variable.val
+
+
+def _sdk_test_set_variable(key, value, description=None, serialize_json=False):
+    Variable.set(
+        key,
+        value,
+        description=description,
+        serialize_json=serialize_json,
+    )
+
+
+def _sdk_test_delete_variable(key):
+    Variable.delete(key)
+
+
+def _sdk_test_get_connection(conn_id):
+    connection = Session.query(Connection).filter(Connection.conn_id == conn_id).one_or_none()
+    if connection is None:
+        raise AirflowNotFoundException(f"The conn_id `{conn_id}` isn't defined")
+
+    return connection
 
 settings.initialize()
 db.initdb()
+
+sdk_context._get_variable = _sdk_test_get_variable
+sdk_context._set_variable = _sdk_test_set_variable
+sdk_context._delete_variable = _sdk_test_delete_variable
+sdk_context._get_connection = _sdk_test_get_connection
 
 Session.query(Connection).delete()
 Session.commit()

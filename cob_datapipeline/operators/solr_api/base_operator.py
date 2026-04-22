@@ -17,14 +17,15 @@
 """
 This module holds classes associated to the Solr Collections API
 """
+import json
 
 from json import JSONDecodeError
 from re import match
 from typing import Dict, Optional, Sequence
-from airflow.models import BaseOperator
 from airflow.providers.http.hooks.http import HttpHook
 from cob_datapipeline.exceptions import SafetyCheckException
 from cob_datapipeline.models import ListVariable
+from airflow.sdk import BaseOperator
 
 def get_failed_reason(response):
     """

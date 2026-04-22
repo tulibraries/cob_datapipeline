@@ -1,10 +1,13 @@
-"""Python Functions to Parse Boundwith Files for Child Identification & XML Updates."""
+"""
+Python Functions to Parse Boundwith Files for Child Identification & XML Updates.
+"""
 import ast
 import csv
 from datetime import datetime
 import io
 import logging
 import re
+
 from lxml import etree
 import pandas
 from tulflow import process
@@ -14,7 +17,18 @@ from airflow.models import Variable
 NS = {
     "marc21": "http://www.loc.gov/MARC21/slim",
     "oai": "http://www.openarchives.org/OAI/2.0/"
-    }
+}
+
+
+def _normalize_s3_keys(value):
+    if value is None:
+        return []
+    if isinstance(value, list):
+        return value
+    if isinstance(value, str):
+        return ast.literal_eval(value)
+    raise TypeError(f"Unexpected S3_KEYS type: {type(value).__name__}")
+
 
 def update_variables(**kwargs):
     """For a given dictionary of variables, update them in Airflow."""
@@ -22,11 +36,13 @@ def update_variables(**kwargs):
     for key, value in update_dict.items():
         Variable.set(key, value)
 
+
 def parse_dates_from_s3_keys(**kwargs):
     """Given a list of Alma SFTP S3 Keys, Parse Names & return Earliest Date."""
     prefix = kwargs.get("SOURCE_FOLDER")
+    s3_keys = _normalize_s3_keys(kwargs.get("S3_KEYS"))
 
-    keys = [key for key in ast.literal_eval(kwargs.get("S3_KEYS")) if key.startswith(prefix)]
+    keys = [key for key in s3_keys if key.startswith(prefix)]
     datestamps = set()
     for key in keys:
         datestamp_re = re.compile(r"alma_bibs__(.*)_.*")
@@ -38,6 +54,7 @@ def parse_dates_from_s3_keys(**kwargs):
     oldest_datestamp = min(datestamps)
     return datetime.strptime(oldest_datestamp, "%Y-%m-%dT%H:%M:%Sz")
 
+
 def prepare_boundwiths(**kwargs):
     """Grab Boundwith Files and Generate Child Lookup."""
     access_id = kwargs.get("AWS_ACCESS_KEY_ID")
@@ -45,8 +62,9 @@ def prepare_boundwiths(**kwargs):
     bucket = kwargs.get("BUCKET")
     bw_prefix = kwargs.get("SOURCE_FOLDER")
     lookup_prefix = kwargs.get("DEST_FOLDER")
+    s3_keys = _normalize_s3_keys(kwargs.get("S3_KEYS"))
 
-    bw_keys = [key for key in ast.literal_eval(kwargs.get("S3_KEYS")) if key.startswith(bw_prefix)]
+    bw_keys = [key for key in s3_keys if key.startswith(bw_prefix)]
     csv_in_mem = io.StringIO()
     lookup_csv = csv.DictWriter(csv_in_mem, fieldnames=["child_id", "parent_id", "parent_xml"])
     lookup_csv.writeheader()
@@ -67,6 +85,7 @@ def prepare_boundwiths(**kwargs):
         access_secret
     )
 
+
 def prepare_oai_boundwiths(**kwargs):
     """Grab Boundwith Files and Generate Child Lookup."""
     access_id = kwargs.get("AWS_ACCESS_KEY_ID")
@@ -74,8 +93,9 @@ def prepare_oai_boundwiths(**kwargs):
     bucket = kwargs.get("BUCKET")
     bw_prefix = kwargs.get("SOURCE_FOLDER")
     lookup_prefix = kwargs.get("DEST_FOLDER")
+    s3_keys = _normalize_s3_keys(kwargs.get("S3_KEYS"))
 
-    bw_keys = [key for key in ast.literal_eval(kwargs.get("S3_KEYS")) if key.startswith(bw_prefix)]
+    bw_keys = [key for key in s3_keys if key.startswith(bw_prefix)]
     csv_in_mem = io.StringIO()
     lookup_csv = csv.DictWriter(csv_in_mem, fieldnames=["child_id", "parent_id", "parent_xml"])
     lookup_csv.writeheader()
@@ -95,14 +115,13 @@ def prepare_oai_boundwiths(**kwargs):
         access_secret
     )
 
+
 def boundwith_record_process(record, lookup_csv):
     """Once desired MARC/XML record is found, iterate over it & update lookup CSV."""
-    # Get Parent XML nodes of interest
     parent_id = process.get_record_001(record)
     parent_xml_items = record.xpath("marc21:datafield[@tag='ITM']", namespaces=NS)
     parent_xml_hldgs = record.xpath("marc21:datafield[@tag='HLD']", namespaces=NS)
     parent_xml_new_field = process.generate_bw_parent_field(parent_id)
-    # Generate Parent XML string (bytes) to be injected into Child Records
     parent_xml_str = b""
     for parent_xml_item in parent_xml_items:
         if parent_xml_item is not None:
@@ -112,7 +131,6 @@ def boundwith_record_process(record, lookup_csv):
             parent_xml_str += etree.tostring(parent_xml_hldg, encoding="utf-8") + b"||"
     parent_xml_str += etree.tostring(parent_xml_new_field, encoding="utf-8")
     parent_xml_str = parent_xml_str.rstrip()
-    # Gather Children Identifiers, Verify they are MMS Identifiers, & Add to Lookup
     children_ids = record.xpath(
         "marc21:datafield[@tag='774']//marc21:subfield[@code='w']",
         namespaces=NS
@@ -126,6 +144,7 @@ def boundwith_record_process(record, lookup_csv):
                 "parent_xml": parent_xml_str.decode("utf-8")
             })
 
+
 def prepare_alma_data(**kwargs):
     """Update XML records by injecting parent xml when record 001 is in lookup child_id column."""
     access_id = kwargs.get("AWS_ACCESS_KEY_ID")
@@ -135,17 +154,13 @@ def prepare_alma_data(**kwargs):
     lookup_key = kwargs.get("LOOKUP_KEY")
     src_prefix = kwargs.get("SOURCE_PREFIX")
     src_suffix = kwargs.get("SOURCE_SUFFIX")
-    s3_keys = ast.literal_eval(kwargs.get("S3_KEYS"))
+    s3_keys = _normalize_s3_keys(kwargs.get("S3_KEYS"))
 
-    # Generate list of S3 keys we want to index
     alma_keys = [key for key in s3_keys if key.startswith(src_prefix) and key.endswith(src_suffix)]
 
-    # Read Boundwith Lookup file into Memory, with child_id column as array
     csv_data = process.get_s3_content(bucket, lookup_key, access_id, access_secret)
     lookup_csv = pandas.read_csv(io.BytesIO(csv_data), header=0)
 
-    # Process filtered set of keys to untar, ungzip, add MARC21 XML namespaces,
-    # & inject parent XML if the record is an identified (via lookup) child record.
     logging.info("Starting to iterate over S3 objects")
     for key in alma_keys:
         logging.info("Loading s3 key %s", key)
@@ -154,7 +169,7 @@ def prepare_alma_data(**kwargs):
         src_xml = process.add_marc21xml_root_ns(src_data)
         for record in src_xml.findall("{http://www.loc.gov/MARC21/slim}record"):
             record_id = process.get_record_001(record)
-            parent_txt = lookup_csv.loc[lookup_csv.child_id == int(record_id), 'parent_xml'].values
+            parent_txt = lookup_csv.loc[lookup_csv.child_id == int(record_id), "parent_xml"].values
             if len(set(parent_txt)) >= 1:
                 logging.info("Child XML record found %s", record_id)
                 for parent_node in parent_txt[0].split("||"):

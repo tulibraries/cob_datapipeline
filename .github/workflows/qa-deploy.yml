@@ -41,7 +41,7 @@ jobs:
           repository: tulibraries/ansible-playbook-airflow
           token: ${{ secrets.MY_PAT }}
           path: ansible-playbook-airflow
-          ref: qa
+          ref: main
 
       - name: Dump vault password to disk
         env:

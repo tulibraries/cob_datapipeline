@@ -24,8 +24,7 @@ import logging
 
 from json.decoder import JSONDecodeError
 from typing import Any, Optional
-from airflow.utils.session import provide_session
-from airflow.models import Variable
+from airflow.sdk import Variable
 
 log = logging.getLogger(__name__)
 
@@ -41,47 +40,41 @@ class ListVariable(Variable):
     @classmethod
     def get(cls,
             key: str,
-            default_var: Any =__NO_DEFAULT_SENTINEL,
+            default_var: Any = __NO_DEFAULT_SENTINEL,
             deserialize_json: bool = False):
         try:
             list_var = super().get(
                 key,
-                default_var=[],
+                default=[],
                 deserialize_json=True)
 
         except JSONDecodeError:
             list_var = super().get(
                 key,
-                default_var=default_var,
+                default=default_var,
                 deserialize_json=deserialize_json)
 
-        if list_var  in ['', None, 'None']:
+        if list_var in ["", None, "None"]:
             return []
 
         return list_var
 
     @classmethod
-    @provide_session
     def set(cls,
             key,
-            value: Any,  # type: Any
+            value: Any,
             description: Optional[str] = None,
-            serialize_json: bool = True,
-            session=None):
-        # pylint: disable=too-many-arguments
+            serialize_json: bool = True):
         super().set(
             key,
             value,
             serialize_json=serialize_json,
-            description=description,
-            session=session)
+            description=description)
 
     @classmethod
-    @provide_session
     def push(cls,
              key,
              value,
-             session=None,
              skip_blank=False,
              description: Optional[str] = None,
              unique=False):
@@ -89,12 +82,11 @@ class ListVariable(Variable):
         """
         Get the list variable, push a value into it, then reset it.
         """
-        if value in [None, ''] and skip_blank:
-            log.info('Skipping empty value push.')
+        if value in [None, ""] and skip_blank:
+            log.info("Skipping empty value push.")
             return
 
         list_var = cls.get(key)
         if (value not in list_var) or not unique:
             list_var.append(value)
-
             cls.set(key, list_var)

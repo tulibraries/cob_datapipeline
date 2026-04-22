@@ -20,7 +20,7 @@
 """
 This module contains the PushVariable airflow operator.
 """
-from airflow.models import BaseOperator
+from airflow.sdk import BaseOperator
 from cob_datapipeline.models import ListVariable
 
 class PushVariable(BaseOperator):
@@ -46,23 +46,22 @@ class PushVariable(BaseOperator):
     :type value: bool
     """
 
-    template_fields = ['value']
+    template_fields = ["value"]
 
     def __init__(
-            self,
-            name,
-            *args,
-            value=None,
-            skip_blank=True,
-            unique=True,
-            **kwargs):
-
+        self,
+        name,
+        *args,
+        value=None,
+        skip_blank=True,
+        unique=True,
+        **kwargs,
+    ):
         super().__init__(*args, **kwargs)
         self.name = name
         self.value = value
         self.skip_blank = skip_blank
         self.unique = unique
-
 
     def execute(self, context=None):
         ListVariable.push(

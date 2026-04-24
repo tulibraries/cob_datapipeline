@@ -94,7 +94,7 @@ CLEANUP_DATA = PythonOperator(
 XSL_TRANSFORM = BashOperator(
     task_id="xsl_transform",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/transform.sh ",
-    env={**os.environ, **{
+    env={
         **helpers.airflow_s3_env(),
         "BUCKET": AIRFLOW_DATA_BUCKET,
         "DAG_ID": DAG.dag_id,
@@ -104,7 +104,7 @@ XSL_TRANSFORM = BashOperator(
         "SOURCE": "cleaned",
         "XSL_FILENAME": AIRFLOW_HOME + "/dags/cob_datapipeline/files/TEU_XOAItoMARCXML.xsl",
         "BATCH_TRANSFORM": AIRFLOW_HOME + "/dags/cob_datapipeline/files/batch_transform.xsl"
-    }},
+    },
     dag=DAG
 )
 

@@ -18,7 +18,7 @@ def get_solr_db():
 
 def backup_collection(collection: str):
     backup_path = f"/solr/admin/collections?action=BACKUP&name={collection}&collection={collection}&location=/srv/backups"
-    response = get_solr_db().get_from_solr_api(backup_path)
+    response = get_solr_db().get_from_solr_api(backup_path, timeout=(10, 900))
     if response.status_code == 200:
         print(f"Successfully backed up collection: {collection}")
     else:

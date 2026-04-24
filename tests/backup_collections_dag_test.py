@@ -81,12 +81,13 @@ class TestBackupCollectionsDAG(unittest.TestCase):
 
         # Ensure that the collections were backed up
         mock_get_from_solr_api.assert_any_call(
-            "/solr/admin/collections?action=BACKUP&name=collection1&collection=collection1&location=/srv/backups"
+            "/solr/admin/collections?action=BACKUP&name=collection1&collection=collection1&location=/srv/backups",
+            timeout=(10, 900),
         )
         mock_get_from_solr_api.assert_any_call(
-            "/solr/admin/collections?action=BACKUP&name=collection2&collection=collection2&location=/srv/backups"
+            "/solr/admin/collections?action=BACKUP&name=collection2&collection=collection2&location=/srv/backups",
+            timeout=(10, 900),
         )
-
         # Ensure success callback is triggered
         self.assertEqual(mock_get_from_solr_api.call_count, 2)
 

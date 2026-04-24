@@ -178,7 +178,7 @@ LIST_UPDATED_FILES = S3ListOperator(
 INDEX_UPDATES_OAI_MARC = BashOperator(
     task_id="index_updates_oai_marc",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
-    env={**os.environ, **{
+    env={
         **helpers.airflow_s3_env(),
         **helpers.solr_auth_env(),
         "BUCKET": AIRFLOW_DATA_BUCKET,
@@ -188,8 +188,8 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "SOLR_URL": SOLR_WRITER_URL,
         "ALMAOAI_LAST_HARVEST_FROM_DATE": CATALOG_LAST_HARVEST_FROM_DATE,
         "COMMAND": "ingest",
-        "DATA": "{{ ti.xcom_pull(task_ids='list_updated_files') | tojson }}",
-    }},
+        "DATA": '\'{{ ti.xcom_pull(task_ids="list_updated_files") | tojson }}\'',
+    },
     trigger_rule="none_failed_min_one_success",
     execution_timeout=timedelta(hours=24),
     dag=DAG
@@ -207,7 +207,7 @@ LIST_DELETED_FILES = S3ListOperator(
 INDEX_DELETES_OAI_MARC = BashOperator(
     task_id="index_deletes_oai_marc",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_marc.sh ",
-    env={**os.environ, **{
+    env={
         **helpers.airflow_s3_env(),
         **helpers.solr_auth_env(),
         "BUCKET": AIRFLOW_DATA_BUCKET,
@@ -216,8 +216,8 @@ INDEX_DELETES_OAI_MARC = BashOperator(
         "LATEST_RELEASE": "false",
         "SOLR_URL": SOLR_WRITER_URL,
         "COMMAND": "delete --suppress",
-        "DATA": "{{ ti.xcom_pull(task_ids='list_deleted_files') | tojson }}",
-    }},
+        "DATA": '\'{{ ti.xcom_pull(task_ids="list_deleted_files") | tojson }}\'',
+    },
     trigger_rule="none_failed_min_one_success",
     dag=DAG
 )

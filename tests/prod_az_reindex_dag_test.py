@@ -68,9 +68,12 @@ class TestAZReindexDag(unittest.TestCase):
         self.assertEqual(task.bash_command, expected_bash_path)
         self.assertEqual(task.env["HOME"], os.getcwd())
         self.assertEqual(task.env["AZ_BRANCH"], "AZ_BRANCH")
-        self.assertEqual(task.env["AZ_CLIENT_ID"], "AZ_CLIENT_ID")
+        self.assertEqual(task.env["AZ_CLIENT_ID"], "12345")
+        self.assertIsInstance(task.env["AZ_CLIENT_ID"], str)
         self.assertEqual(task.env["AZ_CLIENT_SECRET"], "AZ_CLIENT_SECRET")
         self.assertEqual(task.env["SOLR_AZ_URL"], "http://127.0.0.1:8983/solr/tul_cob-az-0-collection_test")
+        for key, value in task.env.items():
+            self.assertIsInstance(value, str, key)
 
     def render_task(self, task_id, logical_date):
         """Method to render templated fields for a task."""

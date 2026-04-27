@@ -43,9 +43,9 @@ SOLR_AZ_URL = (
 )
 
 #Databases AZ Springshare creds
-AZ_CLIENT_ID = "{{ var.value.AZ_CLIENT_ID }}"
-AZ_CLIENT_SECRET = "{{ var.value.AZ_CLIENT_SECRET }}"
-AZ_BRANCH = "{{ var.value.AZ_PROD_BRANCH }}"
+AZ_CLIENT_ID = "{{ var.value.AZ_CLIENT_ID | string | tojson }}"
+AZ_CLIENT_SECRET = "{{ var.value.AZ_CLIENT_SECRET | string | tojson }}"
+AZ_BRANCH = "{{ var.value.AZ_PROD_BRANCH | string | tojson }}"
 
 # CREATE DAG
 DEFAULT_ARGS = {
@@ -96,14 +96,14 @@ CREATE_COLLECTION = tasks.create_sc_collection(
 INDEX_DATABASES = BashOperator(
     task_id="index_az",
     bash_command=AIRFLOW_HOME + "/dags/cob_datapipeline/scripts/ingest_databases.sh ",
-    env={**{
+    env={
         **helpers.solr_auth_env(),
         "HOME": AIRFLOW_USER_HOME,
         "SOLR_AZ_URL": SOLR_AZ_URL,
         "AZ_CLIENT_ID": AZ_CLIENT_ID,
         "AZ_CLIENT_SECRET": AZ_CLIENT_SECRET,
         "AZ_BRANCH": AZ_BRANCH,
-    }},
+    },
     dag=DAG
 )
 

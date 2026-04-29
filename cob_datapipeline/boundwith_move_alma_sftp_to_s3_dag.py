@@ -68,9 +68,6 @@ MOVE_FILES_TO_S3 = BatchSFTPToS3Operator(
 def archive_files_in_sftp(**context):
     """Move sftp files into the archive folder"""
     sftp_conn = SFTPHook(ssh_conn_id=ALMA_SFTP_CONNECTION_ID)
-    # Paramiko is the underlying package used for SSH/SFTP conns
-    # the paramiko client exposes a lot more core SFTP functionality
-    paramiko_conn = sftp_conn.get_conn()
 
     most_recent_date = context["task_instance"].xcom_pull(
         task_ids="get_list_of_alma_sftp_files_to_transer",
@@ -79,16 +76,18 @@ def archive_files_in_sftp(**context):
         task_ids="get_list_of_alma_sftp_files_to_transer")
     archive_path = "bw-archive"
 
-    sftp_conn.create_directory(
-        path=f"./{archive_path}/{most_recent_date}",
-        mode=int("777", 8)
-    )
-
     count = 0
-    for filename in list_of_files:
-        logging.info(f"Moving {filename} to {archive_path}/{most_recent_date}/{filename}")
-        paramiko_conn.rename(f"{filename}", f"{archive_path}/{most_recent_date}/{filename}")
-        count += 1
+    with sftp_conn.get_managed_conn() as paramiko_conn:
+        # Keep the hook helpers and raw rename calls on one open SFTP connection.
+        sftp_conn.create_directory(
+            path=f"./{archive_path}/{most_recent_date}",
+            mode=int("777", 8)
+        )
+
+        for filename in list_of_files:
+            logging.info(f"Moving {filename} to {archive_path}/{most_recent_date}/{filename}")
+            paramiko_conn.rename(f"{filename}", f"{archive_path}/{most_recent_date}/{filename}")
+            count += 1
     return count
 
 ARCHIVE_FILES_IN_SFTP = PythonOperator(

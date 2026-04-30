@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5d61f09c52164a1108b1539702eef0c64426b9667fdad8d501ceee97cb47b18a"
+            "sha256": "2953fe183c7758ad2650e1e6e5661b00742c33f40f8112ead8b30cdf4b8f8b9a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -251,12 +251,12 @@
         },
         "apache-airflow-providers-amazon": {
             "hashes": [
-                "sha256:5c3b597ad9dd399c579fcf61c75401820f8ff283f8f5e42511eda59dd4110323",
-                "sha256:dce283129605723988bcf4254bbb00b2452c479e8f6e64c3c8e6fe52b8681819"
+                "sha256:4e9cef36bf79cf05ee0f67778e202084009e91652e1239f29bbbf12d458950bd",
+                "sha256:88aaa3426f2baebae00d84c220af27fb438ea780734036c81b4e6d8c96a008c8"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==9.25.0"
+            "version": "==9.26.0"
         },
         "apache-airflow-providers-common-compat": {
             "hashes": [
@@ -1744,11 +1744,11 @@
         },
         "mako": {
             "hashes": [
-                "sha256:071eb4ab4c5010443152255d77db7faa6ce5916f35226eb02dc34479b6858069",
-                "sha256:e372c6e333cf004aa736a15f425087ec977e1fcbd2966aae7f17c8dc1da27a77"
+                "sha256:8f61569480282dbf557145ce441e4ba888be453c30989f879f0d652e39f53ea9",
+                "sha256:9f778e93289bd410bb35daadeb4fc66d95a746f0b75777b942088b7fd7af550a"
             ],
             "markers": "python_version >= '3.8'",
-            "version": "==1.3.11"
+            "version": "==1.3.12"
         },
         "markdown-it-py": {
             "hashes": [

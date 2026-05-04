@@ -1902,12 +1902,12 @@
         },
         "moto": {
             "hashes": [
-                "sha256:d9f20ae3cf29c44f93c1f8f06c8f48d5560e5dc027816ef1d0d2059741ffcfbe",
-                "sha256:e5b2c378296e4da50ce5a3c355a1743c8d6d396ea41122f5bb2a40f9b9a8cc0e"
+                "sha256:be592dd93cc016a94afe2e2cae5de59c2df1cdd9d017c497d9a81e507ebe7fc8",
+                "sha256:d728d5c9c431e0f1043d907bebd663b09a9105c62380991068598a3799373a85"
             ],
             "index": "pypi",
-            "markers": "python_version >= '3.9'",
-            "version": "==5.1.22"
+            "markers": "python_version >= '3.10'",
+            "version": "==5.2.0"
         },
         "msgpack": {
             "hashes": [

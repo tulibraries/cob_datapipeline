@@ -22,5 +22,6 @@ set -e
 git clone https://github.com/tulibraries/cob_web_index.git --branch=$WEB_CONTENT_BRANCH
 cd cob_web_index
 bundle config set force_ruby_platform true
-bundle install --without=debug
+bundle config set --local without "debug"
+bundle install
 bundle exec cob_web_index ingest $DELETE_SWITCH

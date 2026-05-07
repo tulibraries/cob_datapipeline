@@ -16,7 +16,8 @@ git clone https://github.com/tulibraries/cob_index.git tmp/cob_index --branch=$G
 cd tmp/cob_index
 gem install bundler
 bundle config set force_ruby_platform true
-bundle install --without=debug
+bundle config set --local without "debug"
+bundle install
 
 # force Ruby’s external/internal encodings to UTF-8
 export RUBYOPT='-E UTF-8'

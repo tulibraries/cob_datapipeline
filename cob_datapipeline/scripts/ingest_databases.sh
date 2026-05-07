@@ -18,5 +18,6 @@ set -e
 git clone https://github.com/tulibraries/cob_az_index.git --branch=$AZ_BRANCH
 cd cob_az_index
 bundle config set force_ruby_platform true
-bundle install --without=debug
+bundle config set --local without "debug"
+bundle install
 bundle exec cob_az_index ingest $AZ_DELETE_SWITCH

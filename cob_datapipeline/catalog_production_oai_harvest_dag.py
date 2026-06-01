@@ -183,7 +183,7 @@ INDEX_UPDATES_OAI_MARC = BashOperator(
         "DATA": '\'{{ ti.xcom_pull(task_ids="list_updated_files") | tojson }}\'',
         },
     trigger_rule="none_failed_min_one_success",
-    execution_timeout=timedelta(hours=24),
+    execution_timeout=timedelta(hours=48),
     dag=DAG
 )
 

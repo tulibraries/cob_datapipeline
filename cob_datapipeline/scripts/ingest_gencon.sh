@@ -44,4 +44,5 @@ bundle config set force_ruby_platform true
 bundle config set --local without "debug"
 bundle install
 
-bundle exec ruby harvest_all.rb
+bundle exec gencon_index harvest_all --directory="$GENCON_TEMP_PATH" --pattern='*.csv' --mapfile=solr_map.yml --solr-url="$SOLR_URL"
+bundle exec gencon_index commit --solr-url="$SOLR_URL"

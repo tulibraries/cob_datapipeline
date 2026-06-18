@@ -51,4 +51,3 @@ bundle config set --local without "debug"
 bundle install
 
 bundle exec gencon_index harvest_all --directory="$GENCON_TEMP_PATH" --pattern='*.csv' --mapfile=solr_map.yml --solr-url="$SOLR_INGEST_URL"
-bundle exec gencon_index commit --solr-url="$SOLR_INGEST_URL"

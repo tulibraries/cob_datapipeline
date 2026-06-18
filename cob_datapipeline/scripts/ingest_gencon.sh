@@ -14,6 +14,12 @@ export PATH="$HOME/.rbenv/shims:$HOME/.rbenv/bin:$PATH"
 : "${GIT_BRANCH:?GIT_BRANCH must be set}"
 : "${SOLR_URL:?SOLR_URL must be set}"
 
+SOLR_INGEST_URL="$SOLR_URL"
+if [[ -n "${SOLR_AUTH_USER:-}" && -n "${SOLR_AUTH_PASSWORD:-}" ]]; then
+  SOLR_INGEST_URL="$(ruby -ruri -e 'uri = URI(ARGV.fetch(0)); uri.user = ARGV.fetch(1); uri.password = ARGV.fetch(2); puts uri.to_s' \
+    "$SOLR_URL" "$SOLR_AUTH_USER" "$SOLR_AUTH_PASSWORD")"
+fi
+
 for required_command in aws git bundle ruby; do
   if ! command -v "$required_command" >/dev/null 2>&1; then
     echo "Error: required command '$required_command' is not available in PATH."
@@ -44,5 +50,5 @@ bundle config set force_ruby_platform true
 bundle config set --local without "debug"
 bundle install
 
-bundle exec gencon_index harvest_all --directory="$GENCON_TEMP_PATH" --pattern='*.csv' --mapfile=solr_map.yml --solr-url="$SOLR_URL"
-bundle exec gencon_index commit --solr-url="$SOLR_URL"
+bundle exec gencon_index harvest_all --directory="$GENCON_TEMP_PATH" --pattern='*.csv' --mapfile=solr_map.yml --solr-url="$SOLR_INGEST_URL"
+bundle exec gencon_index commit --solr-url="$SOLR_INGEST_URL"

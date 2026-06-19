@@ -44,8 +44,4 @@ bundle config set force_ruby_platform true
 bundle config set --local without "debug"
 bundle install
 
-export GENCON_TEMP_PATH
-export SOLR_USER="${SOLR_AUTH_USER:-}"
-export SOLR_PASSWORD="${SOLR_AUTH_PASSWORD:-}"
-export SOLR_URL
 bundle exec gencon_index harvest_all

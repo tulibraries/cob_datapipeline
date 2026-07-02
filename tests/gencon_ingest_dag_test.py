@@ -3,6 +3,7 @@ import os
 import unittest
 from unittest.mock import patch
 
+from requests.auth import HTTPBasicAuth
 from airflow.models import TaskInstance as TI
 from airflow.models.dagrun import DagRun
 from airflow.settings import Session
@@ -82,6 +83,11 @@ class TestGenconIngestDag(unittest.TestCase):
         task = self.render_task("safety_check", DEFAULT_DATE.replace(minute=2))
         self.assertEqual(task.op_kwargs["alias"], "gencon50-v3.0.1-prod")
         self.assertEqual(task.op_kwargs["collection"], "gencon50-v3.0.1-collection_test")
+
+    def test_solr_doc_count_tasks_use_basic_auth(self):
+        """Unit test that Solr count tasks explicitly use connection auth."""
+        self.assertIs(DAG.get_task("get_num_solr_docs_pre").auth_type, HTTPBasicAuth)
+        self.assertIs(DAG.get_task("get_num_solr_docs_post").auth_type, HTTPBasicAuth)
 
     def render_task(self, task_id, logical_date):
         """Method to render templated fields for a task."""

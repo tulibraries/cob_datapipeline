@@ -3,8 +3,10 @@ import airflow
 import pendulum
 
 from datetime import timedelta
+from requests.auth import HTTPBasicAuth
 from tulflow import tasks
 from airflow.models import Variable
+from airflow.providers.http.operators.http import HttpOperator
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.providers.slack.notifications.slack import send_slack_notification
@@ -15,7 +17,6 @@ from cob_datapipeline.operators import (
     DeleteCollectionListVariable,
     PushVariable,
 )
-from cob_datapipeline.tasks.task_solr_get_num_docs import task_solrgetnumdocs
 
 slackpostonsuccess = send_collection_notification(channel="gen-con")
 slackpostonfail = send_slack_notification(
@@ -76,11 +77,22 @@ Tasks with all logic contained in a single operator can be declared here.
 Tasks with custom logic are relegated to individual Python files.
 """
 
-GET_NUM_SOLR_DOCS_PRE = task_solrgetnumdocs(
-    DAG,
-    ALIAS,
-    "get_num_solr_docs_pre",
-    conn_id=SOLR_CONN_ID,
+GET_NUM_SOLR_DOCS_PRE = HttpOperator(
+    task_id="get_num_solr_docs_pre",
+    method="GET",
+    http_conn_id=SOLR_CONN_ID,
+    auth_type=HTTPBasicAuth,
+    endpoint="/solr/" + ALIAS + "/select",
+    data={
+        "defType": "edismax",
+        "facet": "false",
+        "indent": "on",
+        "q": "*:*",
+        "wt": "json",
+        "rows": "0",
+    },
+    headers={},
+    dag=DAG,
 )
 
 SET_COLLECTION_NAME = BashOperator(
@@ -124,11 +136,22 @@ INDEX_GENCON = BashOperator(
     dag=DAG,
 )
 
-GET_NUM_SOLR_DOCS_POST = task_solrgetnumdocs(
-    DAG,
-    COLLECTION,
-    "get_num_solr_docs_post",
-    conn_id=SOLR_CONN_ID,
+GET_NUM_SOLR_DOCS_POST = HttpOperator(
+    task_id="get_num_solr_docs_post",
+    method="GET",
+    http_conn_id=SOLR_CONN_ID,
+    auth_type=HTTPBasicAuth,
+    endpoint="/solr/" + COLLECTION + "/select",
+    data={
+        "defType": "edismax",
+        "facet": "false",
+        "indent": "on",
+        "q": "*:*",
+        "wt": "json",
+        "rows": "0",
+    },
+    headers={},
+    dag=DAG,
 )
 
 SOLR_ALIAS_SWAP = tasks.swap_sc_alias(

@@ -4,7 +4,6 @@ import pendulum
 
 from datetime import timedelta
 from tulflow import tasks
-from airflow.models import Variable
 from airflow.providers.standard.operators.bash import BashOperator
 from airflow.providers.standard.operators.python import PythonOperator
 from airflow.providers.slack.notifications.slack import send_slack_notification
@@ -33,8 +32,6 @@ initialized here if not found (i.e. if this is a new installation) & defaults ex
 
 AIRFLOW_HOME = "{{ var.value.AIRFLOW_HOME }}"
 AIRFLOW_USER_HOME = "{{ var.value.AIRFLOW_USER_HOME }}"
-
-SCHEDULE = Variable.get("GENCON_INDEX_SCHEDULE")
 
 GENCON_INDEX_BRANCH = "{{ var.value.GENCON_INDEX_BRANCH }}"
 GENCON_TEMP_PATH = "{{ var.value.GENCON_TEMP_PATH }}"
@@ -67,7 +64,7 @@ DAG = airflow.DAG(
     catchup=False,
     max_active_runs=1,
     render_template_as_native_obj=True,
-    schedule=SCHEDULE,
+    schedule=None,
 )
 
 """

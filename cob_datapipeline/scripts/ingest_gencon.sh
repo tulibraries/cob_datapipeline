@@ -44,4 +44,4 @@ bundle config set force_ruby_platform true
 bundle config set --local without "debug"
 bundle install
 
-bundle exec ruby harvest_all.rb
+bundle exec gencon_index harvest_all

@@ -186,11 +186,12 @@
         },
         "aiosmtplib": {
             "hashes": [
-                "sha256:2504a23b2b63c9de6bc4ea719559a38996dba68f73f6af4eb97be20ee4c5e6c4",
-                "sha256:368029440645b486b69db7029208a7a78c6691b90d24a5332ddba35d9109d55b"
+                "sha256:9d384f0c3d8906f745c1cf6819f073145bb2de8b10407905f5e2ee3389bfe6c7",
+                "sha256:d9a35e9d170bc1a9f66e2fdfe7fd212f7eebb8c1581c621f79395d0bcaba7a68"
             ],
+            "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==5.1.0"
+            "version": "==5.1.1"
         },
         "aiosqlite": {
             "hashes": [

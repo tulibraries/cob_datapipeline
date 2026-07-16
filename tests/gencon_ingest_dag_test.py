@@ -24,9 +24,9 @@ class TestGenconIngestDag(unittest.TestCase):
         """Unit test that the DAG identifier is set correctly."""
         self.assertEqual(DAG.dag_id, "gencon_index")
 
-    def test_dag_interval_is_variable(self):
-        """Unit test that the DAG schedule is set by configuration."""
-        self.assertEqual(DAG.schedule, "@monthly")
+    def test_dag_has_no_schedule(self):
+        """Unit test that the DAG only runs when triggered manually."""
+        self.assertIsNone(DAG.schedule)
 
     def test_dag_tasks_present(self):
         """Unit test that the DAG instance contains the expected tasks."""

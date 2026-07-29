@@ -6,7 +6,7 @@ verify_ssl = true
 [dev-packages]
 aiobotocore = "==3.7.0"
 apache-airflow = "==3.3.0"
-apache-airflow-providers-amazon = "==9.31.0"
+apache-airflow-providers-amazon = "==9.33.0"
 apache-airflow-providers-fab = "==3.7.1"
 apache-airflow-providers-sftp = "==5.8.2"
 apache-airflow-providers-slack = "==9.10.2"

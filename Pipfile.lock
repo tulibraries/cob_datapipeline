@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f6fad21daf14b1caf2caaa1a4eabe6af46c1cbc2bd92803987485ceaec9ecc89"
+            "sha256": "77515d20fd27f22f9e4c0226a856eb8f17c44f2dc3a7fc00d641b1ef1fc4d072"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -291,12 +291,12 @@
         },
         "apache-airflow-providers-fab": {
             "hashes": [
-                "sha256:4ba3b70915b45fcc23a9daf4a7cb307083b504fe9252f479865e10547ab7ffc4",
-                "sha256:f3e72804721b9c56a3300bb9ba8dcce980a1892335e8dae3e070e943fb33e17c"
+                "sha256:82a85c9f7e94848e2b07ff64267634c8fc400b09a0a53a437e64d004ace6cba5",
+                "sha256:a4f34430c1800b55fd18b322146c7453c828ec9bdf2c76e2f8912e05b5d0b6f4"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==3.7.1"
+            "version": "==3.7.3"
         },
         "apache-airflow-providers-http": {
             "hashes": [
@@ -932,11 +932,11 @@
         },
         "flask-appbuilder": {
             "hashes": [
-                "sha256:a5f6f34aa4ae0092a9eeb5051dc210869d9360429a429b0be88416c2616e1281",
-                "sha256:c5a134870fc0b780ac8d9de15fea8c470613ebe44feeddf01a2c18d2c066e144"
+                "sha256:0527623394b40b859ff47056e3621a61eefaaa16ccf188f272c64294307587ca",
+                "sha256:9dcae59cd15e5a284175d65c682529a6a73b7ba9d53d408e4796ec062d05472a"
             ],
             "markers": "python_version ~= '3.7'",
-            "version": "==5.2.1"
+            "version": "==5.2.2"
         },
         "flask-babel": {
             "hashes": [
@@ -956,11 +956,11 @@
         },
         "flask-limiter": {
             "hashes": [
-                "sha256:b94c9e9584df98209542686947cf647f1ede35ed7e4ab564934a2bb9ed46b143",
-                "sha256:f9e3e3d0c4acd0d1ffbfa729e17198dd1042f4d23c130ae160044fc930e21300"
+                "sha256:ca11608fc7eec43dcea606964ca07c3bd4ec1ae89043a0f67f717899a4f48106",
+                "sha256:e1ae13e06e6b3e39a4902e7d240b901586b25932c2add7bd5f5eeb4bdc11111b"
             ],
             "markers": "python_version >= '3.10'",
-            "version": "==3.12"
+            "version": "==4.1.1"
         },
         "flask-login": {
             "hashes": [
@@ -3116,11 +3116,11 @@
         },
         "rich": {
             "hashes": [
-                "sha256:439594978a49a09530cff7ebc4b5c7103ef57baf48d5ea3184f21d9a2befa098",
-                "sha256:6049d5e6ec054bf2779ab3358186963bac2ea89175919d699e378b99738c2a90"
+                "sha256:33bd4ef74232fb73fe9279a257718407f169c09b78a87ad3d296f548e27de0bb",
+                "sha256:edd07a4824c6b40189fb7ac9bc4c52536e9780fbbfbddf6f1e2502c31b068c36"
             ],
-            "markers": "python_full_version >= '3.8.0'",
-            "version": "==13.9.4"
+            "markers": "python_full_version >= '3.9.0'",
+            "version": "==15.0.0"
         },
         "rich-argparse": {
             "hashes": [
@@ -3685,11 +3685,11 @@
                 "standard"
             ],
             "hashes": [
-                "sha256:5d38af6cd620f2ae3849fb44fd4879e0890aa1febe8d47eb355fb45d93fe6a5b",
-                "sha256:f6f4b69b657c312f516dd2d268ab9ae6f254b11e4bac504f37b2ab58b24dd0b0"
+                "sha256:3d887809810b89ed33501bcf0a9aba469b06ecd608158efce04bd6b48d8c9b08",
+                "sha256:ca8876ad6c1983f394157c168b39d52f6dd56dabf5602fa0982751cffc2293ae"
             ],
             "markers": "python_version >= '3.10'",
-            "version": "==0.51.0"
+            "version": "==0.52.0"
         },
         "uvloop": {
             "hashes": [

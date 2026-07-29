@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "f6fad21daf14b1caf2caaa1a4eabe6af46c1cbc2bd92803987485ceaec9ecc89"
+            "sha256": "2aedda43b482e2bf3bfc071888c333e84029281ab697accaf6017c3c4b11ade2"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -334,12 +334,12 @@
         },
         "apache-airflow-providers-ssh": {
             "hashes": [
-                "sha256:b2b7d0ebf3003285d246e690d92959ca09f6d83098b9c031ff3a55c8c7a16e98",
-                "sha256:ed739d216c11faf51c1beb219759cf3bf88fcf0a0c96a9b173d3cf51eb76d2f2"
+                "sha256:565c454dfc3e3d47becd2dec8edd6df614f2d399b0ba5dd084a2577b62fec2c5",
+                "sha256:7cd256bbf0e3424646eddb3ebaa50f13a6ef01648e49643333acb9f330be92df"
             ],
             "index": "pypi",
             "markers": "python_version >= '3.10'",
-            "version": "==5.0.3"
+            "version": "==5.0.4"
         },
         "apache-airflow-providers-standard": {
             "hashes": [
@@ -3685,11 +3685,11 @@
                 "standard"
             ],
             "hashes": [
-                "sha256:5d38af6cd620f2ae3849fb44fd4879e0890aa1febe8d47eb355fb45d93fe6a5b",
-                "sha256:f6f4b69b657c312f516dd2d268ab9ae6f254b11e4bac504f37b2ab58b24dd0b0"
+                "sha256:3d887809810b89ed33501bcf0a9aba469b06ecd608158efce04bd6b48d8c9b08",
+                "sha256:ca8876ad6c1983f394157c168b39d52f6dd56dabf5602fa0982751cffc2293ae"
             ],
             "markers": "python_version >= '3.10'",
-            "version": "==0.51.0"
+            "version": "==0.52.0"
         },
         "uvloop": {
             "hashes": [

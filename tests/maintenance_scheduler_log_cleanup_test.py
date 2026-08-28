@@ -1,4 +1,5 @@
 """Unit Tests for the maintenance scheduler log cleanup DAG."""
+
 import unittest
 
 from cob_datapipeline.maintenance_scheduler_log_cleanup import dag as DAG
@@ -16,7 +17,14 @@ class TestMaintenanceSchedulerLogCleanupDag(unittest.TestCase):
         self.assertEqual(DAG.schedule, "@daily")
 
     def test_cleanup_task(self):
-        """Unit test that the cleanup task contains the expected find command."""
+        """Unit test that the cleanup task contains the expected commands."""
         task = DAG.get_task("cleanup_old_folders")
-        self.assertIn("/var/lib/airflow/airflow-app/logs/scheduler", task.bash_command)
+
+        self.assertIn(
+            "/var/lib/airflow/airflow-app/logs/scheduler",
+            task.bash_command,
+        )
         self.assertIn("-mtime +30", task.bash_command)
+        self.assertIn('[ -L "$LOG_DIR/latest" ]', task.bash_command)
+        self.assertIn('[ ! -e "$LOG_DIR/latest" ]', task.bash_command)
+        self.assertIn('rm "$LOG_DIR/latest"', task.bash_command)

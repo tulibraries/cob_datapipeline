@@ -22,6 +22,7 @@ with DAG(
     cleanup_old_folders = BashOperator(
         task_id='cleanup_old_folders',
         bash_command=(
+            "set -e; "
             "LOG_DIR=/var/lib/airflow/airflow-app/logs/scheduler; "
             "find \"$LOG_DIR\" "
             "-mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf {} +; "

@@ -40,7 +40,7 @@ class BatchSFTPToS3Operator(SFTPToS3Operator):
         self.sftp_base_path= sftp_base_path
         self.s3_bucket = s3_bucket
         self.s3_prefix = s3_prefix
-        self.s3_conn_id = s3_conn_id
+        self.aws_conn_id = s3_conn_id
 
     def execute(self, context):
         count = 0

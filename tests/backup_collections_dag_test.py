@@ -1,3 +1,4 @@
+from base64 import b64encode
 import os
 import requests_mock
 import unittest
@@ -163,20 +164,26 @@ class TestBackupCollectionsDAG(unittest.TestCase):
     def test_delete_old_backups_does_not_delete_recent_points(self, mock_get_solr_db):
         solr_db = MagicMock()
         mock_get_solr_db.return_value = solr_db
-        solr_db.get_from_solr_api.return_value = self._solr_response(
-            {
-                "responseHeader": {"status": 0},
-                "backups": [
-                    {"backupId": 1, "startTime": "2024-02-20T00:00:00Z"},
-                ],
-            }
-        )
+        solr_db.get_from_solr_api.side_effect = [
+            self._solr_response(
+                {
+                    "responseHeader": {"status": 0},
+                    "backups": [
+                        {"backupId": 1, "startTime": "2024-02-20T00:00:00Z"},
+                    ],
+                }
+            ),
+            self._solr_response({"responseHeader": {"status": 0}}),
+        ]
 
         backup_module.delete_old_backups(
             "collection1", now=datetime(2024, 3, 1, tzinfo=timezone.utc)
         )
 
-        solr_db.get_from_solr_api.assert_called_once()
+        self.assertEqual(solr_db.get_from_solr_api.call_count, 2)
+        self.assertIn(
+            "purgeUnused=true", solr_db.get_from_solr_api.call_args_list[1].args[0]
+        )
 
     @patch("cob_datapipeline.backup_collections_dag.get_solr_db")
     def test_delete_old_backups_fails_before_deleting_on_list_error(
@@ -191,11 +198,60 @@ class TestBackupCollectionsDAG(unittest.TestCase):
 
         solr_db.get_from_solr_api.assert_called_once()
 
-    def test_cleanup_runs_after_backup_task(self):
-        backup_task = self.dag.get_task("backup_collections")
+    @patch("cob_datapipeline.backup_collections_dag.get_solr_db")
+    def test_delete_old_backups_retries_purge_after_previous_failure(
+        self, mock_get_solr_db
+    ):
+        solr_db = MagicMock()
+        mock_get_solr_db.return_value = solr_db
+        solr_db.get_from_solr_api.side_effect = [
+            self._solr_response(
+                {
+                    "responseHeader": {"status": 0},
+                    "backups": [
+                        {"backupId": 1, "startTime": "2024-01-01T00:00:00Z"},
+                        {"backupId": 2, "startTime": "2024-02-20T00:00:00Z"},
+                    ],
+                }
+            ),
+            self._solr_response({"responseHeader": {"status": 0}}),
+            self._solr_response({}, status_code=500),
+            self._solr_response({"responseHeader": {"status": 0}, "backups": []}),
+            self._solr_response({"responseHeader": {"status": 0}}),
+        ]
+        now = datetime(2024, 3, 1, tzinfo=timezone.utc)
+
+        with self.assertRaises(RuntimeError):
+            backup_module.delete_old_backups("collection1", now=now)
+
+        backup_module.delete_old_backups("collection1", now=now)
+
+        self.assertIn(
+            "purgeUnused=true", solr_db.get_from_solr_api.call_args_list[4].args[0]
+        )
+
+    @patch("cob_datapipeline.backup_collections_dag.delete_old_backups")
+    def test_cleanup_uses_backup_inventory_names(self, mock_delete_old_backups):
         cleanup_task = self.dag.get_task("delete_old_solr_backups")
 
-        self.assertIn(backup_task, cleanup_task.upstream_list)
+        cleanup_task.python_callable(b64encode(b"retired_collection\n").decode())
+        cleanup_task.python_callable(b"retired_collection\n")
+
+        self.assertEqual(mock_delete_old_backups.call_count, 2)
+        mock_delete_old_backups.assert_called_with("retired_collection")
+
+    def test_backup_inventory_runs_between_backup_and_cleanup(self):
+        backup_task = self.dag.get_task("backup_collections")
+        inventory_task = self.dag.get_task("list_solr_backup_names")
+        cleanup_task = self.dag.get_task("delete_old_solr_backups")
+
+        self.assertIn(backup_task, inventory_task.upstream_list)
+        self.assertIn(inventory_task, cleanup_task.upstream_list)
+        self.assertEqual(
+            inventory_task.command,
+            "sudo find /backups/ -mindepth 1 -maxdepth 1 -type d "
+            "-printf '%f\\n' | sort -u",
+        )
 
     @staticmethod
     def _solr_response(payload, status_code=200):

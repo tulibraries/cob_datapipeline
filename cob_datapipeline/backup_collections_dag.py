@@ -1,3 +1,4 @@
+from base64 import b64decode
 from datetime import datetime, timedelta, timezone
 from urllib.parse import urlencode
 
@@ -5,6 +6,7 @@ from airflow.sdk import dag, task, Connection
 from tulflow.solr_api_utils import SolrApiUtils
 from airflow.providers.standard.operators.empty import EmptyOperator
 from airflow.providers.slack.notifications.slack import send_slack_notification
+from airflow.providers.ssh.operators.ssh import SSHOperator
 
 
 BACKUP_LOCATION = "/srv/backups"
@@ -51,54 +53,56 @@ def _solr_response_json(response, operation: str):
     return payload
 
 
-def delete_old_backups(collection: str, now=None):
+def _decode_backup_names(backup_names):
+    if isinstance(backup_names, bytes):
+        return backup_names.decode("utf-8").splitlines()
+    return b64decode(backup_names).decode("utf-8").splitlines()
+
+
+def delete_old_backups(backup_name: str, now=None):
     solr_db = get_solr_db()
-    list_path = _backup_api_path("LISTBACKUP", collection)
+    list_path = _backup_api_path("LISTBACKUP", backup_name)
     list_response = solr_db.get_from_solr_api(list_path, timeout=(10, 900))
     backup_points = _solr_response_json(
-        list_response, f"list backups for collection {collection}"
+        list_response, f"list backups for {backup_name}"
     ).get("backups", [])
 
-    if not backup_points:
-        return
+    old_points = []
+    if backup_points:
+        current_time = now or datetime.now(timezone.utc)
+        if current_time.tzinfo is None:
+            current_time = current_time.replace(tzinfo=timezone.utc)
+        cutoff = current_time - timedelta(days=BACKUP_RETENTION_DAYS)
+        parsed_points = []
+        for backup_point in backup_points:
+            backup_id = backup_point["backupId"]
+            start_time = datetime.fromisoformat(
+                backup_point["startTime"].replace("Z", "+00:00")
+            )
+            if start_time.tzinfo is None:
+                start_time = start_time.replace(tzinfo=timezone.utc)
+            parsed_points.append((start_time, backup_id, backup_point))
 
-    current_time = now or datetime.now(timezone.utc)
-    if current_time.tzinfo is None:
-        current_time = current_time.replace(tzinfo=timezone.utc)
-    cutoff = current_time - timedelta(days=BACKUP_RETENTION_DAYS)
-    parsed_points = []
-    for backup_point in backup_points:
-        backup_id = backup_point["backupId"]
-        start_time = datetime.fromisoformat(
-            backup_point["startTime"].replace("Z", "+00:00")
-        )
-        if start_time.tzinfo is None:
-            start_time = start_time.replace(tzinfo=timezone.utc)
-        parsed_points.append((start_time, backup_id, backup_point))
-
-    newest_backup_id = max(parsed_points, key=lambda point: point[0])[1]
-    old_points = [
-        backup_point
-        for start_time, backup_id, backup_point in parsed_points
-        if start_time < cutoff and backup_id != newest_backup_id
-    ]
+        newest_backup_id = max(parsed_points, key=lambda point: point[0])[1]
+        old_points = [
+            backup_point
+            for start_time, backup_id, backup_point in parsed_points
+            if start_time < cutoff and backup_id != newest_backup_id
+        ]
 
     for backup_point in old_points:
         delete_path = _backup_api_path(
-            "DELETEBACKUP", collection, backupId=backup_point["backupId"]
+            "DELETEBACKUP", backup_name, backupId=backup_point["backupId"]
         )
         delete_response = solr_db.get_from_solr_api(delete_path, timeout=(10, 900))
         _solr_response_json(
             delete_response,
-            f"delete backup {backup_point['backupId']} for collection {collection}",
+            f"delete backup {backup_point['backupId']} for {backup_name}",
         )
 
-    if old_points:
-        purge_path = _backup_api_path("DELETEBACKUP", collection, purgeUnused="true")
-        purge_response = solr_db.get_from_solr_api(purge_path, timeout=(10, 900))
-        _solr_response_json(
-            purge_response, f"purge unused backup files for collection {collection}"
-        )
+    purge_path = _backup_api_path("DELETEBACKUP", backup_name, purgeUnused="true")
+    purge_response = solr_db.get_from_solr_api(purge_path, timeout=(10, 900))
+    _solr_response_json(purge_response, f"purge unused backup files for {backup_name}")
 
 # Define the DAG using TaskFlow API
 @dag(
@@ -122,11 +126,21 @@ def backup_collections_dag():
         for collection in collections:
             backup_collection(collection)
 
+    list_backup_names = SSHOperator(
+        task_id="list_solr_backup_names",
+        ssh_conn_id="SOLR_NETWORKED_DRIVE",
+        command=(
+            "sudo find /backups/ -mindepth 1 -maxdepth 1 -type d "
+            "-printf '%f\\n' | sort -u"
+        ),
+        cmd_timeout=None,
+    )
+
     # Delete only backup points older than the retention period.
     @task
-    def delete_old_solr_backups(collections: list):
-        for collection in collections:
-            delete_old_backups(collection)
+    def delete_old_solr_backups(backup_names):
+        for backup_name in _decode_backup_names(backup_names):
+            delete_old_backups(backup_name)
 
     # Post Success
     success = EmptyOperator(
@@ -137,8 +151,8 @@ def backup_collections_dag():
     # Set up the task dependencies
     collections = get_collections()
     backup_task = backup_collections(collections)
-    delete_task = delete_old_solr_backups(collections)
-    backup_task >> delete_task >> success
+    delete_task = delete_old_solr_backups(list_backup_names.output)
+    backup_task >> list_backup_names >> delete_task >> success
 
 
 # Instantiate the DAG

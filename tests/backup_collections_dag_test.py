@@ -1,9 +1,11 @@
 import os
 import requests_mock
 import unittest
+from datetime import datetime, timezone
 
 from unittest.mock import patch, MagicMock
 
+import cob_datapipeline.backup_collections_dag as backup_module
 from cob_datapipeline.backup_collections_dag import backup_collections_dag as DAG
 
 
@@ -90,6 +92,116 @@ class TestBackupCollectionsDAG(unittest.TestCase):
         )
         # Ensure success callback is triggered
         self.assertEqual(mock_get_from_solr_api.call_count, 2)
+
+    @patch("cob_datapipeline.backup_collections_dag.get_solr_db")
+    def test_delete_old_backups_deletes_expired_points_and_purges_files(
+        self, mock_get_solr_db
+    ):
+        solr_db = MagicMock()
+        mock_get_solr_db.return_value = solr_db
+        solr_db.get_from_solr_api.side_effect = [
+            self._solr_response(
+                {
+                    "responseHeader": {"status": 0},
+                    "backups": [
+                        {"backupId": 1, "startTime": "2024-01-01T00:00:00Z"},
+                        {"backupId": 2, "startTime": "2024-02-20T00:00:00Z"},
+                    ],
+                }
+            ),
+            self._solr_response({"responseHeader": {"status": 0}}),
+            self._solr_response({"responseHeader": {"status": 0}}),
+        ]
+
+        backup_module.delete_old_backups(
+            "collection1", now=datetime(2024, 3, 1, tzinfo=timezone.utc)
+        )
+
+        calls = solr_db.get_from_solr_api.call_args_list
+        self.assertEqual(calls[0].args[0], (
+            "/solr/admin/collections?action=LISTBACKUP&name=collection1"
+            "&location=%2Fsrv%2Fbackups"
+        ))
+        self.assertEqual(calls[1].args[0], (
+            "/solr/admin/collections?action=DELETEBACKUP&name=collection1"
+            "&location=%2Fsrv%2Fbackups&backupId=1"
+        ))
+        self.assertEqual(calls[2].args[0], (
+            "/solr/admin/collections?action=DELETEBACKUP&name=collection1"
+            "&location=%2Fsrv%2Fbackups&purgeUnused=true"
+        ))
+
+    @patch("cob_datapipeline.backup_collections_dag.get_solr_db")
+    def test_delete_old_backups_keeps_newest_point_when_all_are_expired(
+        self, mock_get_solr_db
+    ):
+        solr_db = MagicMock()
+        mock_get_solr_db.return_value = solr_db
+        solr_db.get_from_solr_api.side_effect = [
+            self._solr_response(
+                {
+                    "responseHeader": {"status": 0},
+                    "backups": [
+                        {"backupId": 1, "startTime": "2024-01-01T00:00:00Z"},
+                        {"backupId": 2, "startTime": "2024-01-02T00:00:00Z"},
+                    ],
+                }
+            ),
+            self._solr_response({"responseHeader": {"status": 0}}),
+            self._solr_response({"responseHeader": {"status": 0}}),
+        ]
+
+        backup_module.delete_old_backups(
+            "collection1", now=datetime(2024, 3, 1, tzinfo=timezone.utc)
+        )
+
+        delete_call = solr_db.get_from_solr_api.call_args_list[1]
+        self.assertIn("backupId=1", delete_call.args[0])
+        self.assertNotIn("backupId=2", delete_call.args[0])
+
+    @patch("cob_datapipeline.backup_collections_dag.get_solr_db")
+    def test_delete_old_backups_does_not_delete_recent_points(self, mock_get_solr_db):
+        solr_db = MagicMock()
+        mock_get_solr_db.return_value = solr_db
+        solr_db.get_from_solr_api.return_value = self._solr_response(
+            {
+                "responseHeader": {"status": 0},
+                "backups": [
+                    {"backupId": 1, "startTime": "2024-02-20T00:00:00Z"},
+                ],
+            }
+        )
+
+        backup_module.delete_old_backups(
+            "collection1", now=datetime(2024, 3, 1, tzinfo=timezone.utc)
+        )
+
+        solr_db.get_from_solr_api.assert_called_once()
+
+    @patch("cob_datapipeline.backup_collections_dag.get_solr_db")
+    def test_delete_old_backups_fails_before_deleting_on_list_error(
+        self, mock_get_solr_db
+    ):
+        solr_db = MagicMock()
+        mock_get_solr_db.return_value = solr_db
+        solr_db.get_from_solr_api.return_value = self._solr_response({}, status_code=500)
+
+        with self.assertRaises(RuntimeError):
+            backup_module.delete_old_backups("collection1")
+
+        solr_db.get_from_solr_api.assert_called_once()
+
+    def test_cleanup_runs_after_backup_task(self):
+        backup_task = self.dag.get_task("backup_collections")
+        cleanup_task = self.dag.get_task("delete_old_solr_backups")
+
+        self.assertIn(backup_task, cleanup_task.upstream_list)
+
+    @staticmethod
+    def _solr_response(payload, status_code=200):
+        response = MagicMock(status_code=status_code)
+        response.json.return_value = payload
+        return response
 
 
 if __name__ == "__main__":

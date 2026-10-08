@@ -1,9 +1,16 @@
+from base64 import b64decode
+from datetime import datetime, timedelta, timezone
+from urllib.parse import urlencode
+
 from airflow.sdk import dag, task, Connection
-from datetime import datetime
 from tulflow.solr_api_utils import SolrApiUtils
 from airflow.providers.standard.operators.empty import EmptyOperator
 from airflow.providers.slack.notifications.slack import send_slack_notification
 from airflow.providers.ssh.operators.ssh import SSHOperator
+
+
+BACKUP_LOCATION = "/srv/backups"
+BACKUP_RETENTION_DAYS = 30
 
 slackpostonsuccess = send_slack_notification(channel="infra_alerts", username="airflow", text=":partygritty: {{ dag_run.logical_date }} DAG {{ dag.dag_id }} success: {{ ti.log_url }}")
 slackpostonfail = send_slack_notification(channel="infra_alerts", username="airflow", text=":poop: Task failed: {{ dag.dag_id }} {{ ti.task_id }} {{ dag_run.logical_date }} {{ ti.log_url }}")
@@ -17,12 +24,85 @@ def get_solr_db():
     )
 
 def backup_collection(collection: str):
-    backup_path = f"/solr/admin/collections?action=BACKUP&name={collection}&collection={collection}&location=/srv/backups"
+    backup_path = f"/solr/admin/collections?action=BACKUP&name={collection}&collection={collection}&location={BACKUP_LOCATION}"
     response = get_solr_db().get_from_solr_api(backup_path, timeout=(10, 900))
     if response.status_code == 200:
         print(f"Successfully backed up collection: {collection}")
     else:
         raise Exception(f"Failed to back up collection: {collection}")
+
+
+def _backup_api_path(action: str, collection: str, **params):
+    query = {
+        "action": action,
+        "name": collection,
+        "location": BACKUP_LOCATION,
+        **params,
+    }
+    return "/solr/admin/collections?" + urlencode(query)
+
+
+def _solr_response_json(response, operation: str):
+    if response.status_code != 200:
+        raise RuntimeError(f"Failed to {operation}: HTTP {response.status_code}")
+
+    payload = response.json()
+    response_header = payload.get("responseHeader", {})
+    if response_header.get("status", 0) != 0:
+        raise RuntimeError(f"Failed to {operation}: {payload}")
+    return payload
+
+
+def _decode_backup_names(backup_names):
+    if isinstance(backup_names, bytes):
+        return backup_names.decode("utf-8").splitlines()
+    return b64decode(backup_names).decode("utf-8").splitlines()
+
+
+def delete_old_backups(backup_name: str, now=None):
+    solr_db = get_solr_db()
+    list_path = _backup_api_path("LISTBACKUP", backup_name)
+    list_response = solr_db.get_from_solr_api(list_path, timeout=(10, 900))
+    backup_points = _solr_response_json(
+        list_response, f"list backups for {backup_name}"
+    ).get("backups", [])
+
+    old_points = []
+    if backup_points:
+        current_time = now or datetime.now(timezone.utc)
+        if current_time.tzinfo is None:
+            current_time = current_time.replace(tzinfo=timezone.utc)
+        cutoff = current_time - timedelta(days=BACKUP_RETENTION_DAYS)
+        parsed_points = []
+        for backup_point in backup_points:
+            backup_id = backup_point["backupId"]
+            start_time = datetime.fromisoformat(
+                backup_point["startTime"].replace("Z", "+00:00")
+            )
+            if start_time.tzinfo is None:
+                start_time = start_time.replace(tzinfo=timezone.utc)
+            parsed_points.append((start_time, backup_id, backup_point))
+
+        newest_backup_id = max(parsed_points, key=lambda point: point[0])[1]
+        old_points = [
+            backup_point
+            for start_time, backup_id, backup_point in parsed_points
+            if start_time < cutoff and backup_id != newest_backup_id
+        ]
+
+    for backup_point in old_points:
+        delete_path = _backup_api_path(
+            "DELETEBACKUP", backup_name, backupId=backup_point["backupId"]
+        )
+        delete_response = solr_db.get_from_solr_api(delete_path, timeout=(10, 900))
+        _solr_response_json(
+            delete_response,
+            f"delete backup {backup_point['backupId']} for {backup_name}",
+        )
+
+    purge_path = _backup_api_path("DELETEBACKUP", backup_name, purgeUnused="true")
+    purge_response = solr_db.get_from_solr_api(purge_path, timeout=(10, 900))
+    _solr_response_json(purge_response, f"purge unused backup files for {backup_name}")
 
 # Define the DAG using TaskFlow API
 @dag(
@@ -46,13 +126,21 @@ def backup_collections_dag():
         for collection in collections:
             backup_collection(collection)
 
-    # Delete the old backups
-    delete_task = SSHOperator(
-            task_id="delete_old_solr_backups",
-            ssh_conn_id="SOLR_NETWORKED_DRIVE",
-            command="sudo find /backups/ -type d -mindepth 1 -maxdepth 1 -mtime +30 -exec rm -rf {} +",
-            cmd_timeout=None,
-            )
+    list_backup_names = SSHOperator(
+        task_id="list_solr_backup_names",
+        ssh_conn_id="SOLR_NETWORKED_DRIVE",
+        command=(
+            "sudo find /backups/ -mindepth 1 -maxdepth 1 -type d "
+            "-printf '%f\\n' | sort -u"
+        ),
+        cmd_timeout=None,
+    )
+
+    # Delete only backup points older than the retention period.
+    @task
+    def delete_old_solr_backups(backup_names):
+        for backup_name in _decode_backup_names(backup_names):
+            delete_old_backups(backup_name)
 
     # Post Success
     success = EmptyOperator(
@@ -62,7 +150,9 @@ def backup_collections_dag():
 
     # Set up the task dependencies
     collections = get_collections()
-    backup_collections(collections) >> delete_task >> success
+    backup_task = backup_collections(collections)
+    delete_task = delete_old_solr_backups(list_backup_names.output)
+    backup_task >> list_backup_names >> delete_task >> success
 
 
 # Instantiate the DAG

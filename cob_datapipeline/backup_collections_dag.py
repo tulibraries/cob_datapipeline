@@ -136,7 +136,8 @@ def backup_collections_dag():
         cmd_timeout=None,
     )
 
-    # Delete only backup points older than the retention period.
+    # Delete only backup points older than the retention period before creating
+    # new backups so the backup volume has room for the current run.
     @task
     def delete_old_solr_backups(backup_names):
         for backup_name in _decode_backup_names(backup_names):
@@ -148,11 +149,12 @@ def backup_collections_dag():
             on_success_callback=[slackpostonsuccess],
            )
 
-    # Set up the task dependencies
+    # Set up the DAG dependencies. Cleanup must happen before the backup task
+    # so an already-full backup volume does not prevent retention from running.
     collections = get_collections()
     backup_task = backup_collections(collections)
     delete_task = delete_old_solr_backups(list_backup_names.output)
-    backup_task >> list_backup_names >> delete_task >> success
+    list_backup_names >> delete_task >> backup_task >> success
 
 
 # Instantiate the DAG

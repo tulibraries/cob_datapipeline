@@ -240,13 +240,13 @@ class TestBackupCollectionsDAG(unittest.TestCase):
         self.assertEqual(mock_delete_old_backups.call_count, 2)
         mock_delete_old_backups.assert_called_with("retired_collection")
 
-    def test_backup_inventory_runs_between_backup_and_cleanup(self):
+    def test_backup_cleanup_runs_before_backup(self):
         backup_task = self.dag.get_task("backup_collections")
         inventory_task = self.dag.get_task("list_solr_backup_names")
         cleanup_task = self.dag.get_task("delete_old_solr_backups")
 
-        self.assertIn(backup_task, inventory_task.upstream_list)
         self.assertIn(inventory_task, cleanup_task.upstream_list)
+        self.assertIn(cleanup_task, backup_task.upstream_list)
         self.assertEqual(
             inventory_task.command,
             "sudo find /backups/ -mindepth 1 -maxdepth 1 -type d "

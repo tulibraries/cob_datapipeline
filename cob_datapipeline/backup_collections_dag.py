@@ -10,6 +10,8 @@ from airflow.providers.ssh.operators.ssh import SSHOperator
 
 
 BACKUP_LOCATION = "/srv/backups"
+# Expected mount point for the shared storage on the SSH backup host.
+BACKUP_SERVER_LOCATION = "/backups"
 BACKUP_RETENTION_DAYS = 30
 
 slackpostonsuccess = send_slack_notification(channel="infra_alerts", username="airflow", text=":partygritty: {{ dag_run.logical_date }} DAG {{ dag.dag_id }} success: {{ ti.log_url }}")
@@ -59,8 +61,37 @@ def _decode_backup_names(backup_names):
     return b64decode(backup_names).decode("utf-8").splitlines()
 
 
+def _get_current_collections(solr_db):
+    """Return the current Solr collections, failing closed on a bad response."""
+    # Do not use a fallback here: an unavailable or malformed Solr response
+    # must stop cleanup rather than make every backup look retired.
+    collections = solr_db.get_collections()
+    if not isinstance(collections, list):
+        raise RuntimeError("Solr collection list was not a list")
+    return collections
+
+
 def delete_old_backups(backup_name: str, now=None):
     solr_db = get_solr_db()
+    current_collections = _get_current_collections(solr_db)
+    print(f"Solr collections returned for backup: {current_collections}")
+
+    if backup_name not in current_collections:
+        delete_path = _backup_api_path(
+            "DELETEBACKUP", backup_name, maxNumBackupPoints=0
+        )
+        delete_response = solr_db.get_from_solr_api(delete_path, timeout=(10, 900))
+        _solr_response_json(
+            delete_response, f"delete all backups for {backup_name}"
+        )
+
+        purge_path = _backup_api_path("DELETEBACKUP", backup_name, purgeUnused="true")
+        purge_response = solr_db.get_from_solr_api(purge_path, timeout=(10, 900))
+        _solr_response_json(
+            purge_response, f"purge unused files for {backup_name}"
+        )
+        return
+
     list_path = _backup_api_path("LISTBACKUP", backup_name)
     list_response = solr_db.get_from_solr_api(list_path, timeout=(10, 900))
     backup_points = _solr_response_json(
@@ -118,7 +149,9 @@ def backup_collections_dag():
     # Task to get the list of collections
     @task
     def get_collections():
-        return get_solr_db().get_collections()
+        collections = _get_current_collections(get_solr_db())
+        print(f"Solr collections returned for backup: {collections}")
+        return collections
 
     # Task to iterate over the collections and trigger backups
     @task
@@ -130,7 +163,7 @@ def backup_collections_dag():
         task_id="list_solr_backup_names",
         ssh_conn_id="SOLR_NETWORKED_DRIVE",
         command=(
-            "sudo find /backups/ -mindepth 1 -maxdepth 1 -type d "
+            f"sudo find {BACKUP_SERVER_LOCATION}/ -mindepth 1 -maxdepth 1 -type d "
             "-printf '%f\\n' | sort -u"
         ),
         cmd_timeout=None,
@@ -142,6 +175,16 @@ def backup_collections_dag():
         for backup_name in _decode_backup_names(backup_names):
             delete_old_backups(backup_name)
 
+    purge_empty_backup_directories = SSHOperator(
+        task_id="purge_empty_backup_directories",
+        ssh_conn_id="SOLR_NETWORKED_DRIVE",
+        command=(
+            f"sudo find {BACKUP_SERVER_LOCATION}/ -mindepth 1 -maxdepth 1 "
+            "-type d -empty -delete"
+        ),
+        cmd_timeout=None,
+    )
+
     # Post Success
     success = EmptyOperator(
             task_id="slack_success_post",
@@ -152,7 +195,8 @@ def backup_collections_dag():
     collections = get_collections()
     backup_task = backup_collections(collections)
     delete_task = delete_old_solr_backups(list_backup_names.output)
-    backup_task >> list_backup_names >> delete_task >> success
+    backup_task >> list_backup_names >> delete_task
+    delete_task >> purge_empty_backup_directories >> success
 
 
 # Instantiate the DAG

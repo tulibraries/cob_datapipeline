@@ -100,6 +100,7 @@ class TestBackupCollectionsDAG(unittest.TestCase):
     ):
         solr_db = MagicMock()
         mock_get_solr_db.return_value = solr_db
+        solr_db.get_collections.return_value = ["collection1"]
         solr_db.get_from_solr_api.side_effect = [
             self._solr_response(
                 {
@@ -138,6 +139,7 @@ class TestBackupCollectionsDAG(unittest.TestCase):
     ):
         solr_db = MagicMock()
         mock_get_solr_db.return_value = solr_db
+        solr_db.get_collections.return_value = ["collection1"]
         solr_db.get_from_solr_api.side_effect = [
             self._solr_response(
                 {
@@ -164,6 +166,7 @@ class TestBackupCollectionsDAG(unittest.TestCase):
     def test_delete_old_backups_does_not_delete_recent_points(self, mock_get_solr_db):
         solr_db = MagicMock()
         mock_get_solr_db.return_value = solr_db
+        solr_db.get_collections.return_value = ["collection1"]
         solr_db.get_from_solr_api.side_effect = [
             self._solr_response(
                 {
@@ -191,6 +194,7 @@ class TestBackupCollectionsDAG(unittest.TestCase):
     ):
         solr_db = MagicMock()
         mock_get_solr_db.return_value = solr_db
+        solr_db.get_collections.return_value = ["collection1"]
         solr_db.get_from_solr_api.return_value = self._solr_response({}, status_code=500)
 
         with self.assertRaises(RuntimeError):
@@ -204,6 +208,7 @@ class TestBackupCollectionsDAG(unittest.TestCase):
     ):
         solr_db = MagicMock()
         mock_get_solr_db.return_value = solr_db
+        solr_db.get_collections.return_value = ["collection1"]
         solr_db.get_from_solr_api.side_effect = [
             self._solr_response(
                 {
@@ -230,6 +235,37 @@ class TestBackupCollectionsDAG(unittest.TestCase):
             "purgeUnused=true", solr_db.get_from_solr_api.call_args_list[4].args[0]
         )
 
+    @patch("cob_datapipeline.backup_collections_dag.get_solr_db")
+    def test_delete_old_backups_deletes_all_points_for_retired_collection(
+        self, mock_get_solr_db
+    ):
+        solr_db = MagicMock()
+        mock_get_solr_db.return_value = solr_db
+        solr_db.get_collections.return_value = ["collection1"]
+        solr_db.get_from_solr_api.side_effect = [
+            self._solr_response({"responseHeader": {"status": 0}}),
+            self._solr_response({"responseHeader": {"status": 0}}),
+        ]
+
+        backup_module.delete_old_backups("retired_collection")
+
+        calls = solr_db.get_from_solr_api.call_args_list
+        self.assertIn("maxNumBackupPoints=0", calls[0].args[0])
+        self.assertIn("purgeUnused=true", calls[1].args[0])
+
+    @patch("cob_datapipeline.backup_collections_dag.get_solr_db")
+    def test_delete_old_backups_fails_closed_if_collection_list_fails(
+        self, mock_get_solr_db
+    ):
+        solr_db = MagicMock()
+        mock_get_solr_db.return_value = solr_db
+        solr_db.get_collections.side_effect = RuntimeError("Solr unavailable")
+
+        with self.assertRaises(RuntimeError):
+            backup_module.delete_old_backups("retired_collection")
+
+        solr_db.get_from_solr_api.assert_not_called()
+
     @patch("cob_datapipeline.backup_collections_dag.delete_old_backups")
     def test_cleanup_uses_backup_inventory_names(self, mock_delete_old_backups):
         cleanup_task = self.dag.get_task("delete_old_solr_backups")
@@ -244,13 +280,19 @@ class TestBackupCollectionsDAG(unittest.TestCase):
         backup_task = self.dag.get_task("backup_collections")
         inventory_task = self.dag.get_task("list_solr_backup_names")
         cleanup_task = self.dag.get_task("delete_old_solr_backups")
+        purge_task = self.dag.get_task("purge_empty_backup_directories")
 
         self.assertIn(backup_task, inventory_task.upstream_list)
         self.assertIn(inventory_task, cleanup_task.upstream_list)
+        self.assertIn(cleanup_task, purge_task.upstream_list)
         self.assertEqual(
             inventory_task.command,
             "sudo find /backups/ -mindepth 1 -maxdepth 1 -type d "
             "-printf '%f\\n' | sort -u",
+        )
+        self.assertEqual(
+            purge_task.command,
+            "sudo find /backups/ -mindepth 1 -maxdepth 1 -type d -empty -delete",
         )
 
     @staticmethod

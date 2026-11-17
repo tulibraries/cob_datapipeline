@@ -179,6 +179,10 @@ class TestCatalogFullReindexDag(unittest.TestCase):
             task.op_kwargs["UPDATE"]["CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE"],
             "2020-06-07T00:00:00Z",
         )
+        self.assertEqual(
+            task.op_kwargs["UPDATE"]["CATALOG_PRE_PRODUCTION_LAST_HARVEST_FROM_DATE"],
+            "2020-06-07T00:00:00Z",
+        )
 
 
 

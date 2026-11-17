@@ -19,6 +19,7 @@ These steps are broken down into three sections as these parts can be run sequen
    1. Ensure the variable `PRE_PRODUCTION_COB_INDEX_VERSION` is the correct version of cob_index. See the  [cob_index releases](https://github.com/tulibraries/cob_index/releases) to confirm latest version, if needed. 
    1. Update the `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION` variable to be None.
 1. Trigger `catalog_full_reindex` Dag and wait for completion. 
+   1. On success, the DAG automatically resets both pre-production harvest date variables to the new dump baseline.
 1. Once a new preproduction Solr collection is created via `catalog_full_reindex`, turn on the `catalog_pre_production_oai_harvest_v2` Dag. 
 
 ### Caveats and Incidentals
@@ -40,5 +41,5 @@ If something goes wrong with the full reindex and you need to rerun it from the 
 1. Check that the gitlab HELM_VERSION_PROD variable is up-to-date (consult with colleagues if needed). 
 1. Create release of `tul_cob` and wait for deployment to complete to Library Search production.
    1. The deployment process will automatically update the Airflow variable `CATALOG_PRODUCTION_SOLR_COLLECTION` to the same value as `CATALOG_PRE_PRODUCTION_SOLR_COLLECTION`
-1. After the deployment is complete, update the Airflow variable `CATALOG_PROD_HARVEST_FROM_DATE` to the same value as `CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE` and update the Airflow variable `PROD_COB_INDEX_VERSION` to the same value as `PRE_PRODUCTION_COB_INDEX_VERSION`.
+1. After the deployment is complete, update the Airflow variables `CATALOG_PROD_HARVEST_FROM_DATE` and `CATALOG_PROD_LAST_HARVEST_FROM_DATE` to the same value as `CATALOG_PRE_PRODUCTION_HARVEST_FROM_DATE` and update the Airflow variable `PROD_COB_INDEX_VERSION` to the same value as `PRE_PRODUCTION_COB_INDEX_VERSION`.
 1. Turn the `catalog_production_oai_harvest_v2` Dag back on.

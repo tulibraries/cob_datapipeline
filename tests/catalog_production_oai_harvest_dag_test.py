@@ -65,3 +65,10 @@ class TestCatalogProductionOaiHarvest(unittest.TestCase):
             rendered_fields.get("endpoint"),
             "/solr/foo/update?commit=true",
         )
+
+    def test_empty_harvest_updates_date_variables(self):
+        update_task = DAG.get_task("update_date_variables")
+        no_updates_task = DAG.get_task("no_updates_no_deletes_branch")
+
+        self.assertEqual(update_task.trigger_rule, "none_failed_min_one_success")
+        self.assertIn(no_updates_task, update_task.upstream_list)

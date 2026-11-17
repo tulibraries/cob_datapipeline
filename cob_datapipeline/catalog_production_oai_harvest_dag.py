@@ -239,6 +239,7 @@ UPDATE_DATE_VARIABLES = PythonOperator(
             "CATALOG_PROD_LAST_HARVEST_FROM_DATE": CATALOG_HARVEST_FROM_DATE,
         }
     },
+    trigger_rule="none_failed_min_one_success",
     dag=DAG
 )
 
@@ -313,4 +314,5 @@ CHOOSE_INDEXING_BRANCH.set_upstream(OAI_HARVEST)
 # no_updates_no_deletes
 (CHOOSE_INDEXING_BRANCH
  >> NO_UPDATES_NO_DELETES_BRANCH
+ >> UPDATE_DATE_VARIABLES
  >> SUCCESS)

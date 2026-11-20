@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "fd45ed9c9c5f7f4cbe481d2dded5eebbf650d7aace27550fa07da99802bc29b5"
+            "sha256": "3c62eafdd5fe236fe2720dc74dc242379c0d03e59cd71e25d9b965ee77885630"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -15,7 +15,24 @@
             }
         ]
     },
-    "default": {},
+    "default": {
+        "nose": {
+            "hashes": [
+                "sha256:9ff7c6cc443f8c51994b34a667bbcf45afd6d945be7477b52e97516fd17c53ac",
+                "sha256:dadcddc0aefbf99eea214e0f1232b94f2fa9bd98fa8353711dacb112bfcbbb2a",
+                "sha256:f1bffef9cbc82628f6e7d7b40d7e255aefaa1adb6a1b1d26c69a8b79e6208a98"
+            ],
+            "version": "==1.3.7"
+        },
+        "tulflow": {
+            "hashes": [
+                "sha256:6782f736f811a0d52473b614e29decde9bc443348ed0a5136c4c6fac5ba2714a",
+                "sha256:e293f50dbbc567cb929a1c29e0fa8676f8d55aa39e7ac69242d7db55514e4db8"
+            ],
+            "index": "pypi",
+            "version": "==1.2.7"
+        }
+    },
     "develop": {
         "a2wsgi": {
             "hashes": [
@@ -4090,11 +4107,11 @@
         },
         "tulflow": {
             "hashes": [
-                "sha256:0bb34a5c257194c37921d8b530854bde225cd4f90bd7b281321e373ca4d22687",
-                "sha256:329ca7b74b7090f188aa5468d10a5e3432a4999ded1e2975dc5a3ccc195ffc22"
+                "sha256:6782f736f811a0d52473b614e29decde9bc443348ed0a5136c4c6fac5ba2714a",
+                "sha256:e293f50dbbc567cb929a1c29e0fa8676f8d55aa39e7ac69242d7db55514e4db8"
             ],
             "index": "pypi",
-            "version": "==1.2.6"
+            "version": "==1.2.7"
         },
         "typer": {
             "hashes": [
